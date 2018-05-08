@@ -87,6 +87,8 @@ class NavGameMultiAgent(object):
         Q = np.random.rand((self._state_length * self._state_length))
         if self._settings['render']:
             self.initRender(U, V, Q)
+            
+        self.__action = None
         
     def getActionSpaceSize(self):
         return self._state_length
@@ -395,7 +397,8 @@ class NavGameMultiAgent(object):
         # update pieces of the animation
         # self._agent = self._agent + np.array([0.1,0.1])
         # print ("Agent loc: " + str(self._agent))
-        self.__reward = self.actContinuous(self.__action, bootstrapping=False)
+        if (self.__action is not None):
+            self.__reward = self.actContinuous(self.__action, bootstrapping=False)
         if self._settings['render']:
             self._particles.set_data(self._agent[:][0], self._agent[:][1] )
             self._particles.set_markersize(self._markerSize)
