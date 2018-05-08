@@ -104,7 +104,8 @@ class NavGame(object):
         self.__action = action
         
     def init(self):
-        self._agent = np.array([2]* self._state_length) ## Somewhat random initial spot
+        new_loc = (np.random.rand(self._state_length) - 0.5) * (8 + 8)
+        self._agent = np.array(new_loc) ## Somewhat random initial spot
         self._target = np.array([0]* self._state_length) ## goal location
         # self._map[self._target[0]][self._target[1]] = 1
         

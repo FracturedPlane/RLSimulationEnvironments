@@ -88,8 +88,25 @@ class NavGameMultiAgent(object):
         if self._settings['render']:
             self.initRender(U, V, Q)
         
+    def getActionSpaceSize(self):
+        return self._state_length
+    
+    def getObservationSpaceSize(self):
+        return self._state_length
+    
+    def setRandomSeed(self, seed):
+        np.random.seed(seed)
+        random.seed(seed)
+        
+    def getNumAgents(self):
+        return self._numberOfAgents
+    
+    def updateAction(self, action):
+        self.__action = action
+        
     def init(self):
-        self._agent = np.random.random_integers(-8, 8, (self._numberOfAgents, self._state_length))
+        new_loc = (np.random.rand(self._numberOfAgents, self._state_length) - 0.5) * (8 + 8)
+        self._agent = new_loc # np.random.random_integers(-8, 8, (self._numberOfAgents, self._state_length))
         self._target = np.array([0]* self._state_length) ## goal location
         # self._map[self._target[0]][self._target[1]] = 1
         
@@ -100,8 +117,8 @@ class NavGameMultiAgent(object):
             Reset agent location
         """
         # new_loc = np.random.random_integers(self._state_bounds[0][0], self._state_bounds[1][0], self._state_length)
-        new_loc = np.random.random_integers(-8, 8, (self._numberOfAgents, self._state_length))
-        self._agent = new_loc
+        new_loc = (np.random.rand(self._numberOfAgents, self._state_length) - 0.5) * (8 + 8)
+        self._agent = new_loc # np.random.random_integers(-8, 8, (self._numberOfAgents, self._state_length))
         
     def generateValidationEnvironmentSample(self, seed):
         self.initEpoch()
@@ -153,7 +170,7 @@ class NavGameMultiAgent(object):
         return self.reward()
     """
     def actContinuous(self, action, bootstrapping):
-        # print ("Trying action: ", action)
+        print ("Trying action: ", action)
         move = np.array(action)
         # loc = self._agent + (move * random.uniform(0.5,1.0))
         # print("loc shape: ", np.array(self._agent).shape, "act shape: ", move.shape)
@@ -161,6 +178,7 @@ class NavGameMultiAgent(object):
         
         rewards = []
         for a in range(self._numberOfAgents):
+            print ("self._agent[",a,"] + (move[",a,"]): ", self._agent[a]," + ", (move[a]))
             loc = self._agent[a] + (move[a])
             
             if(
@@ -181,7 +199,7 @@ class NavGameMultiAgent(object):
         
         if ( self._settings['render'] == True ):
             self.update()
-        
+        self.__reward = rewards
         return rewards
     
     def fall(self, loc):
@@ -216,6 +234,9 @@ class NavGameMultiAgent(object):
         if d < 0.3:
             return 2.0
         return -d/((self._state_bounds[1][0]- self._state_bounds[0][0])/2.0)
+    
+    def calcReward(self):
+        return self.__reward
     
     def getState(self):
         return self._agent
@@ -374,12 +395,18 @@ class NavGameMultiAgent(object):
         # update pieces of the animation
         # self._agent = self._agent + np.array([0.1,0.1])
         # print ("Agent loc: " + str(self._agent))
+        self.__reward = self.actContinuous(self.__action, bootstrapping=False)
         if self._settings['render']:
             self._particles.set_data(self._agent[:][0], self._agent[:][1] )
             self._particles.set_markersize(self._markerSize)
         # self._line1.set_ydata(np.sin(x + phase))
         # self._fig.canvas.draw()
         
+    def display(self):
+        if self._settings['render']:
+            self._particles.set_data(self._agent[:][0], self._agent[:][1] )
+            self._particles.set_markersize(self._markerSize)
+            
     def updatePolicy(self, U, V, Q):
         # self._policy.set_UVC(U[::2, ::2],V[::2, ::2])
         if self._settings['render']:

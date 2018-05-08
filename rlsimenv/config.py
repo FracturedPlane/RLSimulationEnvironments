@@ -39,6 +39,18 @@ SIMULATION_ENVIRONMENTS = """
     "action_bounds": [[-1.2, -1.2, -1.2, -1.2, -1.2, -1.2, -1.2, -1.2, -1.2, -1.2],
                       [ 1.2,  1.2,  1.2,  1.2,  1.2,  1.2,  1.2,  1.2,  1.2,  1.2]]
 },
+"NavGameMultiAgent_10D-v0": 
+{
+    "config_file": "./args/genBiped2D/biped2dfull_incline_with_terrain_features.txt",
+    "time_limit": 256,
+    "sim_name": "NavGameMultiAgent",
+        "comment__": "Possible state bounds to be used for scaling states for networks",
+    "state_bounds": [[ -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0],
+                       [   10.0,  10.0,  10.0,  10.0,  10.0,  10.0,  10.0,  10.0,  10.0,  10.0 ]],
+        "comment__": "Action scaling values to be used to scale values for the network",
+    "action_bounds": [[-1.2, -1.2, -1.2, -1.2, -1.2, -1.2, -1.2, -1.2, -1.2, -1.2],
+                      [ 1.2,  1.2,  1.2,  1.2,  1.2,  1.2,  1.2,  1.2,  1.2,  1.2]]
+},
 "ParticleGame_2D-v0": 
 {
     "config_file": "./args/genBiped2D/biped2dfull_flat_with_terrain_features.txt",

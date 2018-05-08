@@ -7,16 +7,10 @@ if __name__ == '__main__':
     
     
     # env = getEnv(env_name="ParticleGame_2D-v0", render=False)
-    env = getEnv(env_name="GapGame_2D-v0", render=True)
+    env = getEnv(env_name="NavGameMultiAgent_10D-v0", render=False)
 
     actionSpace = env.getActionSpace()
     env.setRandomSeed(1234)
-    
-    actions = []
-    for i in range(1):
-        action = ((actionSpace.getMaximum() - actionSpace.getMinimum()) * np.random.uniform(size=actionSpace.getMinimum().shape[0])  ) + actionSpace.getMinimum()
-        actions.append(action)            
-    print("Actions: ", actions)
     
     print("observation_space: ", env.observation_space.getMaximum())
     print("Actions space max: ", len(env.action_space.getMaximum()))
@@ -30,10 +24,13 @@ if __name__ == '__main__':
         print ("New episode")
         for state in range(10):
             actions = []
-            for i in range(1):
+            for i in range(env.getNumberofAgents()):
                 action = ((actionSpace.getMaximum() - actionSpace.getMinimum()) * np.random.uniform(size=actionSpace.getMinimum().shape[0])  ) + actionSpace.getMinimum()
                 actions.append(action)
-            observation, reward,  done, info = env.step(actions[0])
+            if (env.getNumberofAgents() > 0):
+                observation, reward,  done, info = env.step(actions)
+            else:
+                observation, reward,  done, info = env.step(actions[0])
             print ("Reward: ", reward, "Action: ", actions, " observation: ", observation)
             print ("Done: ", done)
             if ( done ):

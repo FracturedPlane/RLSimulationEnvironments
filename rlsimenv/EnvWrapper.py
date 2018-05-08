@@ -53,12 +53,8 @@ class EnvWrapper(object):
         
     def updateAction(self, action):
         # print ("step action: ", action)
-        if (self._sim.getNumAgents() > 0): ### Multi Character simulation
-            for i in range(self._sim.getNumAgents()):
-                # print("action[i]: ", action[i])
-                self._sim.updateActionForAgent(i, action[i])
-        else:
-            self._sim.updateAction(action)
+
+        self._sim.updateAction(action)
             
         # self._sim.handleUpdatedAction()
         
@@ -97,21 +93,9 @@ class EnvWrapper(object):
         
     def getObservation(self):
         ob = []
-        if (self._sim.getNumAgents() > 0): ### Multi Character simulation
-            # rewards = self._sim.calcRewards()
-            for i in range(self._sim.getNumAgents()):
-                ### get all states and check that they are different
-                state = np.array(self._sim.getStateForAgent(i))
-                # print ("Agent: ", i, " state: ", state.shape)
-                ob.append(state)
-                # reward.append([self._sim.calcRewardForAgent(i)])
-            ob_ = np.array(ob)
-            # print ("ob_: ", ob_.shape)
-            # print ("ob_: ", repr(ob_))
-            ob = np.reshape(ob_, (self._sim.getNumAgents(), self.getEnv().getObservationSpaceSize()))
-        else:
-            ob = self._sim.getState()
-            ob = np.reshape(np.array(ob), (-1, self.getEnv().getObservationSpaceSize()))
+
+        ob = self._sim.getState()
+        ob = np.reshape(np.array(ob), (-1, self.getEnv().getObservationSpaceSize()))
             # ob = np.asarray(ob)
         return ob
     
@@ -149,15 +133,8 @@ class EnvWrapper(object):
         return ob, reward, self._done, None
         
     def calcRewards(self):
-        reward = []
-        if (self._sim.getNumAgents() > 0): ### Multi Character simulation
-            # rewards = self._sim.calcRewards()
-            for i in range(self._sim.getNumAgents()):
-                ### get all states and check that they are different
-                # reward.append([self._sim.calcRewardForAgent(i)])
-                reward.append([self._sim.calcRewardForAgent(i)])
-        else:
-            reward = self._sim.calcReward()
+
+        reward = self._sim.calcReward()
             
         return reward
         
@@ -209,6 +186,9 @@ class EnvWrapper(object):
         # print ( "Setting random seed: ", seed )
         self.getEnv().setRandomSeed(seed)
     
+    def getNumberofAgents(self):
+        return self._sim.getNumAgents()
+    
     
 def getEnvsList():
     import os, sys, json
@@ -238,6 +218,9 @@ def getEnv(env_name, render=False):
     elif (env_data[env_name]['sim_name'] == 'GapGame2D'):
         from rlsimenv.GapGame2D import GapGame2D
         sim = GapGame2D(settings=env_data[env_name])
+    elif ( env_data[env_name]['sim_name'] == 'NavGameMultiAgent'):
+        from rlsimenv.NavGameMultiAgent import NavGameMultiAgent
+        sim = NavGameMultiAgent(settings=env_data[env_name])
     else:
         print ("Env does not match a simulation environment type")
         return None
