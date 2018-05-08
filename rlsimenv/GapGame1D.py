@@ -351,6 +351,11 @@ class GapGame1D(object):
         self._terrainScale=self._game_settings["terrain_scale"]
         self._terrainParameters=self._game_settings['terrain_parameters']
         
+        self._action_bounds = self._game_settings['action_bounds']
+        self._state_bounds = self._game_settings['state_bounds']
+        self._state_length = len(self._state_bounds[0])
+        self._action_length = len(self._action_bounds[0])
+        
         # create the program window
         if self._game_settings['render']:
             x = 0
@@ -451,6 +456,15 @@ class GapGame1D(object):
     def setTargetVelocity(self, target_vel):
         self._target_velocity = target_vel
         
+    def getActionSpaceSize(self):
+        return self._action_length
+    
+    def getObservationSpaceSize(self):
+        return self._state_length
+    
+    def getNumAgents(self):
+        return 0
+    
     def finish(self):
         pass
     
@@ -458,6 +472,13 @@ class GapGame1D(object):
         pass
     
     def initEpoch(self):
+        self._terrainStartX=0.0
+        self._terrainStripIndex=0
+        self._validating=False
+        # self.generateValidationTerrain()
+        self.generateTerrain()
+        self.__reward = 0
+        
         pos = (0.0, 0.0, 0.0)
         #pos = (0.27396178783269359, 0.20000000000000001, 0.17531818795388002)
         self._obstacle.setPosition(pos)
@@ -496,9 +517,13 @@ class GapGame1D(object):
     def clear(self):
         pass
     
+    def calcReward(self):
+        return self.__reward
+    
     def addAnchor(self, _anchor0, _anchor1, _anchor2):
         pass 
     
+    """
     def generateValidationEnvironmentSample(self, seed):
         # Hacky McHack
         self._terrainStartX=0.0
@@ -512,6 +537,7 @@ class GapGame1D(object):
         self._terrainStripIndex=0
         
         self.generateTerrain()
+    """
         
     def endOfEpoch(self):
         pos = self._obstacle.getPosition()
@@ -607,6 +633,7 @@ class GapGame1D(object):
         # print (state)
         vel_dif  = np.abs(self._target_velocity - new_vel[0])
         reward = math.exp((vel_dif*vel_dif)*self._target_vel_weight)
+        self.__reward = reward
         return reward
         # obstacle.addForce((0.0,100.0,0.0))
         
@@ -743,7 +770,7 @@ class GapGame1D(object):
         """
             If this is the first time this is called generate a new strip of terrain and use it.
             The second time this is called and onward generate a new strip and add to the end of the old strip.
-            Also remove the begining half of the old strip
+            Also remove the beginning half of the old strip
         """
         # print ("Generating more terrain")
         terrainData_=[]
