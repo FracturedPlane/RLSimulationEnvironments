@@ -58,7 +58,7 @@ class EnvWrapper(object):
                 # print("action[i]: ", action[i])
                 self._sim.updateActionForAgent(i, action[i])
         else:
-            self._sim.updateAction(action[0])
+            self._sim.updateAction(action)
             
         # self._sim.handleUpdatedAction()
         
