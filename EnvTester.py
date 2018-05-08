@@ -7,7 +7,7 @@ if __name__ == '__main__':
     
     
     # env = getEnv(env_name="ParticleGame_2D-v0", render=False)
-    env = getEnv(env_name="GapGame_2D-v0", render=False)
+    env = getEnv(env_name="GapGame_2D-v0", render=True)
 
     actionSpace = env.getActionSpace()
     env.setRandomSeed(1234)
@@ -27,12 +27,13 @@ if __name__ == '__main__':
     
     for epoch in range(10):
         env.reset()
-        for state in range(100):
+        print ("New episode")
+        for state in range(10):
             actions = []
             for i in range(1):
                 action = ((actionSpace.getMaximum() - actionSpace.getMinimum()) * np.random.uniform(size=actionSpace.getMinimum().shape[0])  ) + actionSpace.getMinimum()
                 actions.append(action)
-            observation, reward,  done, info = env.step(actions)
+            observation, reward,  done, info = env.step(actions[0])
             print ("Reward: ", reward, "Action: ", actions, " observation: ", observation)
             print ("Done: ", done)
             if ( done ):

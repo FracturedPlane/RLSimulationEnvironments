@@ -62,29 +62,6 @@ class EnvWrapper(object):
             
         # self._sim.handleUpdatedAction()
         
-    def getLLCState(self):
-        ob = []
-        if (self._sim.getNumAgents() > 0): ### Multi Character simulation
-            for i in range(self._sim.getNumAgents()):
-                state = self._sim.getLLCStateForAgent(i)
-                len_ = len(state)
-                # print("len_", len_)
-                # state = np.array(state)
-                ob.append(state)
-            # ob = np.array(ob)
-            ob = np.reshape(ob, (self._sim.getNumAgents(), len_))
-        else:
-            ob = self._sim.getLLCState()
-            ob = np.reshape(np.array(ob), (-1, len(ob)))
-        return ob
-    
-    def updateLLCAction(self, action):
-        if (self._sim.getNumAgents() > 0): ### Multi Character simulation
-            for i in range(self._sim.getNumAgents()):
-                self._sim.updateLLCActionForAgent(i, action[i])
-        else:
-            self._sim.updateLLCAction(action[0])
-            
     def update(self):
         self._sim.update()
         if (self._sim.getNumAgents() > 0): ### Multi Character simulation

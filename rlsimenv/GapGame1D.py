@@ -452,6 +452,7 @@ class GapGame1D(object):
             
         self._target_velocity = 1.0 # self._game_settings['target_velocity']
         self._target_vel_weight = -2.0
+        self__reward = 0
         
     def setTargetVelocity(self, target_vel):
         self._target_velocity = target_vel
@@ -923,55 +924,3 @@ class GapGame1D(object):
         """
         random.seed(seed)
         np.random.seed(seed)
-    
-
-if __name__ == '__main__':
-    import json
-    settings={}
-    # game = BallGame2D(settings)
-    if (len(sys.argv)) > 1:
-        _settings=json.load(open(sys.argv[1]))
-        print (_settings)
-        game = GapGame1D(_settings)
-    else:
-        settings['render']=True
-        game = GapGame1D(settings)
-    game.init()
-    for j in range(100):
-        # game.generateEnvironmentSample()
-        game.generateValidationEnvironmentSample(j)
-        print ("Starting new epoch")
-        game.initEpoch()
-        i=0
-        while not game.endOfEpoch():
-        # for i in range(50):
-            # state = game.getState()
-            
-            # action = model.predict(state)
-            _action =  np.random.random([1])[0] * 2 + 0.5
-            action = [_action,4.0]
-            state = game.getState()
-            pos = game._obstacle.getPosition()
-            # drawTerrain(state, pos[0], translateY=0.0, colour=(0.6, 0.6, 0.9, 1.0))
-            # print ("State: " + str(state[-8:]))
-            # print ("character State: " + str(game.getCharacterState()))
-            # print ("rot Vel: " + str(game._obstacle.getQuaternion()))
-            
-            # print (state)
-            
-            game.visualizeState(state[:len(state)-1], action, state[-1])
-            reward = game.actContinuous(action)
-            
-            if (game.agentHasFallen()):
-                print (" *****Agent fell in a hole")
-            
-            if ( reward < 0.00001 ):
-                print("******Agent has 0 reward?")
-            
-            print ("Reward: " + str(reward) + " on action: ", action, " actions: ", i)
-            # print ("Number of geoms in space: ", game._space.getNumGeoms())
-            # print ("Random rotation matrix", list(np.reshape(rand_rotation_matrix(), (1,9))[0]))
-            i=i+1
-            game._lasttime = time.time()
-            
-    game.finish()
