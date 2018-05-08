@@ -170,7 +170,7 @@ class NavGameMultiAgent(object):
         return self.reward()
     """
     def actContinuous(self, action, bootstrapping):
-        print ("Trying action: ", action)
+        # print ("Trying action: ", action)
         move = np.array(action)
         # loc = self._agent + (move * random.uniform(0.5,1.0))
         # print("loc shape: ", np.array(self._agent).shape, "act shape: ", move.shape)
@@ -178,7 +178,7 @@ class NavGameMultiAgent(object):
         
         rewards = []
         for a in range(self._numberOfAgents):
-            print ("self._agent[",a,"] + (move[",a,"]): ", self._agent[a]," + ", (move[a]))
+            # print ("self._agent[",a,"] + (move[",a,"]): ", self._agent[a]," + ", (move[a]))
             loc = self._agent[a] + (move[a])
             
             if(
