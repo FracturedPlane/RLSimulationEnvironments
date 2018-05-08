@@ -258,9 +258,9 @@ def getEnv(env_name, render=False):
         sim = NavGame(settings=env_data[env_name])
     elif (env_data[env_name]['sim_name'] == 'ParticleGame'):
         sim = ParticleGame(settings=env_data[env_name])
-    elif (env_data[env_name]['sim_name'] == 'GapGame2d'):
-        from rlsimenv.GapGame2D import GapGame2d
-        sim = GapGame2d(settings=env_data[env_name])
+    elif (env_data[env_name]['sim_name'] == 'GapGame2D'):
+        from rlsimenv.GapGame2D import GapGame2D
+        sim = GapGame2D(settings=env_data[env_name])
     else:
         print ("Env does not match a simulation environment type")
         return None

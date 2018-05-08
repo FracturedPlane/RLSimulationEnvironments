@@ -111,7 +111,25 @@ SIMULATION_ENVIRONMENTS = """
 		         2.75996566]],
     "comment__": "Action scaling values to be used to scale values for the network",
 "action_bounds": [[-1.0, 2.5],
-                  [1.0, 5.0]]
+                  [1.0, 5.0]],
+	"terrain_type": "gaps",
+	"terrain_scale": 0.1,
+	"body_shape": "sphere",
+	"body_shape_parameters": {
+							"radius": 0.05
+							},
+	"num_terrain_samples": 64,
+	"terrain_parameters": {
+							"gap_size": 5,
+							"gap_start": 5,
+							"comment__": "Need to be careful here for state scaling will be 0-0/0",
+							"random_gap_width_range": [4,6],
+							"random_gap_start_range": [3,15],
+							"distance_till_next_gap": 20,
+							"terrain_change": -1.0,
+							"terrain_length": 500
+						},
+	"velocity_bounds": [[0.5, 2.5], [3.5, 5.0]]
 }
 }
 """
