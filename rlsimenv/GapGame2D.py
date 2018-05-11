@@ -60,6 +60,9 @@ class GapGame2D(GapGame1D):
         """
         
     def update(self):
+        if ( self._end_of_Epoch_Flag ) :
+            self.__reward = 0
+            return self.__reward
         pos = self._obstacle.getPosition()
         new_vel = self._obstacle.getLinearVel()
         time_ = (new_vel[1]/9.81)*2 # time for rise and fall
