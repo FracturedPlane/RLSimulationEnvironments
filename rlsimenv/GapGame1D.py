@@ -524,7 +524,7 @@ class GapGame1D(object):
     def addAnchor(self, _anchor0, _anchor1, _anchor2):
         pass 
     
-    """
+    
     def generateValidationEnvironmentSample(self, seed):
         # Hacky McHack
         self._terrainStartX=0.0
@@ -538,7 +538,7 @@ class GapGame1D(object):
         self._terrainStripIndex=0
         
         self.generateTerrain()
-    """
+    
         
     def endOfEpoch(self):
         pos = self._obstacle.getPosition()
