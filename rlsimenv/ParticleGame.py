@@ -1,8 +1,3 @@
-import matplotlib.pyplot as plt
-import matplotlib
-import matplotlib.patches as patches
-from matplotlib import cm as CM
-from matplotlib import mlab as ML
 # from matplotlib import mpl
 import numpy as np
 # import matplotlib.animation as animation
@@ -86,6 +81,11 @@ class ParticleGame(object):
         V = np.ones((self._state_length * self._state_length))
         Q = np.random.rand((self._state_length * self._state_length))
         if self._settings['render']:
+            import matplotlib.pyplot as plt
+            import matplotlib
+            import matplotlib.patches as patches
+            from matplotlib import cm as CM
+            from matplotlib import mlab as ML
             self.initRender(U, V, Q)
         
         self.__action = None
