@@ -1,7 +1,4 @@
 
-
-from rlsimenv.NavGame import NavGame
-from rlsimenv.ParticleGame import ParticleGame
 import numpy as np
 
 class ActionSpace(object):
@@ -212,8 +209,10 @@ def getEnv(env_name, render=False):
     settings = env_data[env_name]
     settings['render'] = render
     if (env_data[env_name]['sim_name'] == 'NavGame'):
+        from rlsimenv.NavGame import NavGame
         sim = NavGame(settings=env_data[env_name])
     elif (env_data[env_name]['sim_name'] == 'ParticleGame'):
+        from rlsimenv.ParticleGame import ParticleGame
         sim = ParticleGame(settings=env_data[env_name])
     elif (env_data[env_name]['sim_name'] == 'GapGame2D'):
         from rlsimenv.GapGame2D import GapGame2D
