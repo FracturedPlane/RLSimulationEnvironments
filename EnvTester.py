@@ -7,7 +7,7 @@ if __name__ == '__main__':
     
     
     # env = getEnv(env_name="ParticleGame_2D-v0", render=False)
-    env = getEnv(env_name="GapGame_2D-v0", render=True)
+    env = getEnv(env_name="GapGame_2D-v0", render=False)
 
     actionSpace = env.getActionSpace()
     env.setRandomSeed(1234)
