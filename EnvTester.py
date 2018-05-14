@@ -27,7 +27,7 @@ if __name__ == '__main__':
             for i in range(env.getNumberofAgents()):
                 action = ((actionSpace.getMaximum() - actionSpace.getMinimum()) * np.random.uniform(size=actionSpace.getMinimum().shape[0])  ) + actionSpace.getMinimum()
                 actions.append(action)
-            if (env.getNumberofAgents() > 0):
+            if (env.getNumberofAgents() > 1):
                 observation, reward,  done, info = env.step(actions)
             else:
                 observation, reward,  done, info = env.step(actions[0])

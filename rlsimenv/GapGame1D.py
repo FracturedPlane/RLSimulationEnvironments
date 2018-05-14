@@ -464,7 +464,7 @@ class GapGame1D(object):
         return self._state_length
     
     def getNumAgents(self):
-        return 0
+        return 1
     
     def finish(self):
         pass

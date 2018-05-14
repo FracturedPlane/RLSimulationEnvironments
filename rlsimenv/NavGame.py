@@ -98,7 +98,7 @@ class NavGame(object):
         random.seed(seed)
         
     def getNumAgents(self):
-        return 0
+        return 1
     
     def updateAction(self, action):
         self.__action = action
