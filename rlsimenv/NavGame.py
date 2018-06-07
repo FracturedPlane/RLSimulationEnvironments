@@ -1,8 +1,3 @@
-import matplotlib.pyplot as plt
-import matplotlib
-import matplotlib.patches as patches
-from matplotlib import cm as CM
-from matplotlib import mlab as ML
 # from matplotlib import mpl
 import numpy as np
 # import matplotlib.animation as animation
@@ -52,7 +47,7 @@ class NavGame(object):
     
     def __init__(self, settings):
         self._settings = settings
-        print ("Game settings: ", self._settings)
+        # print ("Game settings: ", self._settings)
         self._action_bounds = self._settings['action_bounds']
         self._state_bounds = self._settings['state_bounds']
         self._state_length = len(self._state_bounds[0])
@@ -246,6 +241,11 @@ class NavGame(object):
         return (X,Y)
     
     def initRender(self, U, V, Q):
+        import matplotlib.pyplot as plt
+        import matplotlib
+        import matplotlib.patches as patches
+        from matplotlib import cm as CM
+        from matplotlib import mlab as ML
         colours = ['gray','black','blue']
         cmap = matplotlib.colors.ListedColormap(['gray','black','blue'])
         bounds=[-1,-1,1,1]

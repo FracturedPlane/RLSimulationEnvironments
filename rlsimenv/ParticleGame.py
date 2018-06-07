@@ -48,7 +48,7 @@ class ParticleGame(object):
     
     def __init__(self, settings):
         self._settings = settings
-        print ("Game settings: ", self._settings)
+        # print ("Game settings: ", self._settings)
         self._action_bounds = self._settings['action_bounds']
         self._state_bounds = self._settings['state_bounds']
         self._state_length = len(self._state_bounds[0])
@@ -81,11 +81,6 @@ class ParticleGame(object):
         V = np.ones((self._state_length * self._state_length))
         Q = np.random.rand((self._state_length * self._state_length))
         if self._settings['render']:
-            import matplotlib.pyplot as plt
-            import matplotlib
-            import matplotlib.patches as patches
-            from matplotlib import cm as CM
-            from matplotlib import mlab as ML
             self.initRender(U, V, Q)
         
         self.__action = None
@@ -246,6 +241,12 @@ class ParticleGame(object):
         return (X,Y)
     
     def initRender(self, U, V, Q):
+        import matplotlib.pyplot as plt
+        import matplotlib
+        import matplotlib.patches as patches
+        from matplotlib import cm as CM
+        from matplotlib import mlab as ML
+        
         colours = ['gray','black','blue']
         cmap = matplotlib.colors.ListedColormap(['gray','black','blue'])
         bounds=[-1,-1,1,1]
