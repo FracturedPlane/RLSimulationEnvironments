@@ -495,8 +495,8 @@ class CannonGame(object):
         self._obstacle2.setLinearVel(vel_)
         self._time_legth = math.fabs((vel_[1]/self._gravity)*2) # time for rise and fall
         self._sim_time = 0
-        print ("episode velocity: ", vel_)
-        print ("episode self._time_legth: ", self._time_legth)
+        # print ("episode velocity: ", vel_)
+        # print ("episode self._time_legth: ", self._time_legth)
         """
         rotation_ = list(np.reshape(rand_rotation_matrix(), (1,9))[0])
         self._obstacle.setRotation(rotation_)
