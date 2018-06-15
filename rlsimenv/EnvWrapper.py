@@ -220,6 +220,9 @@ def getEnv(env_name, render=False):
     elif ( env_data[env_name]['sim_name'] == 'NavGameMultiAgent'):
         from rlsimenv.NavGameMultiAgent import NavGameMultiAgent
         sim = NavGameMultiAgent(settings=env_data[env_name])
+    elif ( env_data[env_name]['sim_name'] == 'CannonGame'):
+        from rlsimenv.CannonGame import CannonGame
+        sim = CannonGame(settings=env_data[env_name])
     else:
         print ("Env does not match a simulation environment type")
         return None
