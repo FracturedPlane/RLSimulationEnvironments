@@ -432,6 +432,7 @@ class CannonGame(object):
         ## debug visualization stuff
         self._obstacle2 = Obstacle()
         self._obstacle2.setColour(0.2,0.2,0.8)
+        self._obstacle2.shape = "sphere"
         pos = (0.0, self._ballRadius+self._ballEpsilon, 0.0)
             #pos = (0.27396178783269359, 0.20000000000000001, 0.17531818795388002)
         self._obstacle2.setPosition(pos)
@@ -485,11 +486,13 @@ class CannonGame(object):
         pos = (0.0, 0.0, 0.0)
         #pos = (0.27396178783269359, 0.20000000000000001, 0.17531818795388002)
         self._obstacle.setPosition(pos)
+        self._obstacle2.setPosition(pos)
         ### Generate random initial velocity for particle
         vel_x = np.random.rand(1)[0] * 4
         vel_y = (np.random.rand(1)[0] * 4) + 2.0
         vel_ = (vel_x, vel_y, 0)
         self._obstacle.setLinearVel(vel_)
+        self._obstacle2.setLinearVel(vel_)
         self._time_legth = math.fabs((vel_[1]/self._gravity)*2) # time for rise and fall
         self._sim_time = 0
         print ("episode velocity: ", vel_)
@@ -551,6 +554,10 @@ class CannonGame(object):
 
     def updateAction(self, action):
         
+        vel = np.array(self._obstacle.getLinearVel())
+        new_vel = np.array([vel[0] + action[0], vel[1] + action[1]])
+        new_vel = clampAction(new_vel, self._game_settings["velocity_bounds"])
+        self._obstacle.setLinearVel((new_vel[0], new_vel[1], 0))
         """
         # print ("Position Before action: ", pos)
         new_vel = np.array([vel[0] + action[0], 4.0])
@@ -587,16 +594,23 @@ class CannonGame(object):
         if ( self._end_of_Epoch_Flag ) :
             self.__reward = 0
             return self.__reward
+        ### Integrate kinematic agent
+        pos = self._obstacle2.getPosition()
+        vel = np.array(self._obstacle2.getLinearVel())
+        vel[1] = (vel[1] + (self._gravity * self._dt))
+        self._obstacle2.setLinearVel(vel)
+        pos = pos + (vel * self._dt)
+        self._obstacle2.setPosition(pos)
+        
+        ### integrate agent
         pos = self._obstacle.getPosition()
         vel = np.array(self._obstacle.getLinearVel())
-        vel[1] = (vel[1] + (self._gravity * self._dt))
-        self._obstacle.setLinearVel(vel)
         pos = pos + (vel * self._dt)
+        # self._obstacle.setLinearVel(vel)
         self._obstacle.setPosition(pos)
+        # print (pos)
         self._sim_time = self._sim_time + self._dt
         print ("Sime time: ", self._sim_time)
-
-        # print (pos)
 
         # self._terrainData = self.generateTerrain()
         self._state_num=self._state_num+1

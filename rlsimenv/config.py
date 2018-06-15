@@ -178,8 +178,8 @@ SIMULATION_ENVIRONMENTS = """
                  0.76992309,  0.84010029,  0.89321214,  0.93221897,  0.12903275,
                  2.75996566]],
     "comment__": "Action scaling values to be used to scale values for the network",
-"action_bounds": [[-5.0, -5.0],
-                  [5.0, 5.0]],
+"action_bounds": [[-1.0, -1.0],
+                  [1.0, 1.0]],
     "terrain_type": "gaps",
     "terrain_scale": 0.1,
     "body_shape": "sphere",
@@ -197,7 +197,7 @@ SIMULATION_ENVIRONMENTS = """
                             "terrain_change": -1.0,
                             "terrain_length": 500
                         },
-    "velocity_bounds": [[-1.0, -1.0], [1.0, 1.0]]
+    "velocity_bounds": [[0.0, 0.0], [4.0, 6.0]]
 }
 }
 """
