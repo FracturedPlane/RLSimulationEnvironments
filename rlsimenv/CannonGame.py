@@ -603,22 +603,25 @@ class CannonGame(object):
         self._obstacle2.setPosition(pos)
         
         ### integrate agent
-        pos = self._obstacle.getPosition()
-        vel = np.array(self._obstacle.getLinearVel())
-        pos = pos + (vel * self._dt)
+        pos_ = self._obstacle.getPosition()
+        vel_ = np.array(self._obstacle.getLinearVel())
+        pos_ = pos_ + (vel_ * self._dt)
         # self._obstacle.setLinearVel(vel)
-        self._obstacle.setPosition(pos)
+        self._obstacle.setPosition(pos_)
         # print (pos)
         self._sim_time = self._sim_time + self._dt
-        print ("Sime time: ", self._sim_time)
+        # print ("Sime time: ", self._sim_time)
 
         # self._terrainData = self.generateTerrain()
         self._state_num=self._state_num+1
         # state = self.getState()
         # print ("state length: " + str(len(state)))
         # print (state)
-        vel_dif = np.abs(self._target_velocity - vel[0])
-        reward = math.exp((vel_dif*vel_dif)*self._target_vel_weight)
+        pos_ = np.array(self._obstacle.getPosition())
+        pos = np.array(self._obstacle2.getPosition())
+        d = dist3(pos, pos_)
+        vel_dif = np.abs(pos - pos_)
+        reward = math.exp((d*d)*self._target_vel_weight)
         # print("reward: ", reward)
         self.__reward = reward
                 
@@ -899,10 +902,25 @@ class CannonGame(object):
         
     def getCharacterState(self):
         # add velocity
-        angularVel = []
+        state_ = []
+        pos = self._obstacle2.getPosition()
+        state_.append(pos[0])
+        state_.append(pos[1])
+        vel = self._obstacle2.getLinearVel()
+        state_.append(vel[0])
+        state_.append(vel[1])
+        return state_
+    
+    def getKinCharacterState(self):
+        # add velocity
+        state_ = []
+        pos = self._obstacle.getPosition()
+        state_.append(pos[0])
+        state_.append(pos[1])
         vel = self._obstacle.getLinearVel()
-        angularVel.append(vel[0])
-        return angularVel
+        state_.append(vel[0])
+        state_.append(vel[1])
+        return state_
     
     def getTerrainIndex(self):
         pos = self._obstacle.getPosition()
@@ -912,35 +930,10 @@ class CannonGame(object):
         """ get the next self._num_points points"""
         pos = self._obstacle.getPosition()
         charState = self.getCharacterState()
-        num_extra_feature=1
-        ## Get the index of the next terrain sample
-        start = self.getTerrainIndex()
-        ## Is that sample + terrain_state_size beyond the current terrain extent
-        if (start+self._num_points+num_extra_feature >= (len(self._terrainData))):
-            # print ("State not big enough ", len(self._terrainData))
-            if (self._validating):
-                self.generateValidationTerrain(0)
-            else:
-                self.generateTerrain()
-        start = self.getTerrainIndex()
-        assert start+self._num_points+num_extra_feature < (len(self._terrainData)), "Ball is exceeding terrain length %r after %r actions" % (start+self._num_points+num_extra_feature-1, self._state_num)
-        # print ("Terrain Data: ", self._terrainData)
-        state=np.zeros((self._num_points+num_extra_feature+len(charState)))
-        if pos[0] < 0: #something bad happened...
-            return state
-        else: # good things are going on...
-            # state[0:self._num_points] = copy.deepcopy(pos[1]-self._terrainData[start:start+self._num_points])
-            state[0:self._num_points] = pos[1] - copy.deepcopy(self._terrainData[start:start+self._num_points])
-            # state = copy.deepcopy(self._terrainData[start:start+self._num_points+1])
-            # print ("Start: ", start, " State Data: ", state)
-            ### Distance to first point in terrain features
-            state[self._num_points] = fabs(float(math.floor(start)*self._terrainScale)-(pos[0]-self._terrainStartX)) # X distance to first sample
-            # state[self._num_points+1] = (pos[1]) # current height of character, This was returning huge nagative values... -1.5x+14
-            # print ("Dist to next point: ", state[len(state)-1])
-            
-            # add character State
-            state[self._num_points+num_extra_feature:self._num_points+num_extra_feature+len(charState)] = charState
-        
+        kincharState = self.getKinCharacterState()
+        state = []
+        state.extend(charState)
+        state.extend(kincharState)
         return state
     
     def setRandomSeed(self, seed):

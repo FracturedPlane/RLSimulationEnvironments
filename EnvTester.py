@@ -30,7 +30,7 @@ if __name__ == '__main__':
                 observation, reward,  done, info = env.step(actions)
             else:
                 observation, reward,  done, info = env.step(actions[0])
-            # print ("Reward: ", reward, "Action: ", actions, " observation: ", observation)
+            print ("Reward: ", reward, "Action: ", actions, " observation: ", observation)
             print ("Done: ", done)
             if ( done ):
                 break
