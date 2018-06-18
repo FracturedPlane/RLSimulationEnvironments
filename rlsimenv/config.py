@@ -173,7 +173,7 @@ SIMULATION_ENVIRONMENTS = """
                             "terrain_change": -1.0,
                             "terrain_length": 500
                         },
-    "velocity_bounds": [[0.0, 0.0], [4.0, 6.0]]
+    "velocity_bounds": [[0.0, -6.0], [4.0, 6.0]]
 }
 }
 """

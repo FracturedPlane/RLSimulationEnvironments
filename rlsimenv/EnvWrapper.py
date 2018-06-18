@@ -183,6 +183,23 @@ class EnvWrapper(object):
         # print ( "Setting random seed: ", seed )
         self.getEnv().setRandomSeed(seed)
     
+    
+    def computeReward(self, state, next_state):
+        return self.getEnv().computeReward(state, next_state)
+    
+    def getSimState(self):
+        return self.getEnv().getSimState()
+    
+    def setSimState(self, state_):
+        self.getEnv().setSimState(state_)
+    
+    def getStateFromSimState(self, simState):
+        state_ = self.getSimState()
+        self.setSimState(simState)
+        ob = self.getObservation()
+        self.setSimState(state_) 
+        return ob
+    
     def getNumberofAgents(self):
         return self._sim.getNumAgents()
     

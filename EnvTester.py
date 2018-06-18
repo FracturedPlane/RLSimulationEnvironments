@@ -21,7 +21,8 @@ if __name__ == '__main__':
     for epoch in range(10):
         env.reset()
         print ("New episode")
-        while (True):
+        # while (True):
+        for i in range(100):
             actions = []
             for i in range(env.getNumberofAgents()):
                 action = ((actionSpace.getMaximum() - actionSpace.getMinimum()) * np.random.uniform(size=actionSpace.getMinimum().shape[0])  ) + actionSpace.getMinimum()
@@ -29,7 +30,8 @@ if __name__ == '__main__':
             if (env.getNumberofAgents() > 1):
                 observation, reward,  done, info = env.step(actions)
             else:
-                observation, reward,  done, info = env.step(actions[0])
+                # observation, reward,  done, info = env.step(actions[0])
+                observation, reward,  done, info = env.step([0,0])
             print ("Reward: ", reward, "Action: ", actions, " observation: ", observation)
             print ("Done: ", done)
             if ( done ):

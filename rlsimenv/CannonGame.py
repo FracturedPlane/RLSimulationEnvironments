@@ -203,7 +203,8 @@ def rand_rotation_matrix(deflection=1.0, randnums=None):
 
 def draw_body(body):
     """Draw an ODE body."""
-    glColor3f(0.8, 0.3, 0.3)
+    _colour = body._colour
+    glColor3f(_colour[0], _colour[1], _colour[2])
     # rot = makeOpenGLMatrix(body.getRotation(), body.getPosition())
     glPushMatrix()
     # glMultMatrixd(rot)
@@ -351,11 +352,6 @@ class CannonGame(object):
         self._terrainScale=self._game_settings["terrain_scale"]
         self._terrainParameters=self._game_settings['terrain_parameters']
         
-        self._action_bounds = self._game_settings['action_bounds']
-        self._state_bounds = self._game_settings['state_bounds']
-        self._state_length = len(self._state_bounds[0])
-        self._action_length = len(self._action_bounds[0])
-        
         # create the program window
         if self._game_settings['render']:
             x = 0
@@ -411,7 +407,7 @@ class CannonGame(object):
         # Without this there can be no control over the key inputs
         # glutMainLoop()
         
-        self._ballRadius=0.05
+        self._ballRadius=0.1
         self._ballEpsilon=0.02 # Must be less than _ballRadius * 0.5
         self._state_num=0
         self._state_num_max=10
@@ -433,10 +429,11 @@ class CannonGame(object):
         self._obstacle2 = Obstacle()
         self._obstacle2.setColour(0.2,0.2,0.8)
         self._obstacle2.shape = "sphere"
-        pos = (0.0, self._ballRadius+self._ballEpsilon, 0.0)
+        self._obstacle2.radius = self._ballRadius
+        pos = (0.0, 0.0, 0.0)
             #pos = (0.27396178783269359, 0.20000000000000001, 0.17531818795388002)
         self._obstacle2.setPosition(pos)
-        self._obstacle2.setRotation(rightRot)
+        # self._obstacle2.setRotation(rightRot)
         self._bodies.append(self._obstacle2)
         
         self._obstacles = []
@@ -452,10 +449,15 @@ class CannonGame(object):
             self._obstacles.append(obs_)
             
         self._target_velocity = 1.0 # self._game_settings['target_velocity']
-        self._target_vel_weight = -2.0
+        self._target_vel_weight = -10.0
         self__reward = 0
         self._time_legth = 0
         self._sim_time = 0
+        
+        self._action_bounds = self._game_settings['action_bounds']
+        self._state_bounds = self._game_settings['state_bounds']
+        self._state_length = len(self.getState())
+        self._action_length = len(self._action_bounds[0])
         
     def setTargetVelocity(self, target_vel):
         self._target_velocity = target_vel
@@ -617,14 +619,45 @@ class CannonGame(object):
         # state = self.getState()
         # print ("state length: " + str(len(state)))
         # print (state)
-        pos_ = np.array(self._obstacle.getPosition())
-        pos = np.array(self._obstacle2.getPosition())
-        d = dist3(pos, pos_)
-        vel_dif = np.abs(pos - pos_)
-        reward = math.exp((d*d)*self._target_vel_weight)
+        reward = self.computeReward(self.getState())
         # print("reward: ", reward)
         self.__reward = reward
                 
+    def computeReward(self, state, next_state=None):
+        pos_ = np.array([state[0], state[1], 0])
+        pos = np.array([state[4], state[5], 0])
+        d = dist3(pos, pos_)
+        vel_dif = np.abs(pos - pos_)
+        reward = math.exp((d*d)*self._target_vel_weight)
+        return reward
+    
+    def getSimState(self):
+        state = [self._sim_time, self._time_legth]
+        # state.append(self._sim_time)
+        pos1 = self._obstacle.getPosition()
+        state.extend(pos1)
+        vel1 = self._obstacle.getLinearVel()
+        state.extend(vel1)
+        pos2 = self._obstacle2.getPosition()
+        state.extend(pos2)
+        vel2 = self._obstacle2.getLinearVel()
+        state.extend(vel2)
+        # print ("get sim State: " , state)
+        return state
+        
+    def setSimState(self, state_):
+        # print ("set sim State: " , state_)
+        self._sim_time = state_[0]
+        self._time_legth = state_[1]
+        start_index = 2
+        self._obstacle.setPosition(state_[start_index:start_index+3])
+        start_index = 5
+        self._obstacle.setLinearVel(state_[start_index:start_index+3])
+        start_index = 8
+        self._obstacle2.setPosition(state_[start_index:start_index+3])
+        start_index = 11
+        self._obstacle2.setLinearVel(state_[start_index:start_index+3])
+        
     def display(self):
         if self._game_settings['render']:
             # self._obstacle.setPosition([self._x[self._step], self._y[self._step], 0.0] )
@@ -688,8 +721,8 @@ class CannonGame(object):
         glColor3f(0.8, 0.8, 0.8)
     
         pos = self._obstacle.getPosition()
-        x_adjust=4.5
-        gluLookAt(pos[0]+x_adjust, 0.0, 8.0, pos[0]+x_adjust, 0.0, -10.0, 0.0, 1.0, 0.0)
+        x_adjust=4.0
+        gluLookAt(x_adjust, 1.0, 8.0, x_adjust, 1.0, -10.0, 0.0, 1.0, 0.0)
         
         y_adjust=15
         y_start = 5
@@ -922,6 +955,18 @@ class CannonGame(object):
         state_.append(vel[1])
         return state_
     
+    def getDiffState(self):
+        state_ = []
+        pos = self._obstacle.getPosition()
+        pos2 = self._obstacle2.getPosition()
+        state_.append(pos[0]-pos2[0])
+        state_.append(pos[1]-pos2[1])
+        vel = self._obstacle.getLinearVel()
+        vel2 = self._obstacle2.getLinearVel()
+        state_.append(vel[0]-vel2[0])
+        state_.append(vel[1]-vel2[0])
+        return state_
+    
     def getTerrainIndex(self):
         pos = self._obstacle.getPosition()
         return int(math.floor( (pos[0]-(self._terrainStartX) )/self._terrainScale)+1)
@@ -931,9 +976,11 @@ class CannonGame(object):
         pos = self._obstacle.getPosition()
         charState = self.getCharacterState()
         kincharState = self.getKinCharacterState()
+        diffState = self.getDiffState()
         state = []
         state.extend(charState)
         state.extend(kincharState)
+        state.extend(diffState)
         return state
     
     def setRandomSeed(self, seed):
