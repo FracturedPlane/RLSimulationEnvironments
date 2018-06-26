@@ -203,6 +203,33 @@ class EnvWrapper(object):
     def getNumberofAgents(self):
         return self._sim.getNumAgents()
     
+    def getVisualState(self):
+        return self._sim.getVisualState()
+        
+
+    def getVisualImitationState(self):
+        return self._sim.getVisualImitationState()
+    
+    def getImitationState(self):
+        return self._sim.getImitationState()
+    
+    def getImitationVisualState(self):
+        return self._sim.getImitationVisualState()
+    
+    def computeImitationReward(self, reward_func):
+        """
+            Uses a learned imitation based reward function to
+            compute the reward in the simulation 
+        """
+        # print("self.getImitationState(): ", self.getVisualState())
+        # print("self.getImitationVisualState(): ", self.getImitationVisualState())
+        state_ = np.array(self.getVisualState())
+        
+        dist = reward_func(np.reshape(self.getVisualState() ,newshape=(1, state_.size)),
+                            np.reshape(self.getImitationVisualState(), newshape=(1, state_.size)))
+        # print("reward dist: ", len(dist), dist)
+        return -dist[0]
+    
     
 def getEnvsList():
     import os, sys, json

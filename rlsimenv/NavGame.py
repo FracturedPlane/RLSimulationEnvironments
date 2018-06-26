@@ -226,6 +226,25 @@ class NavGame(object):
     def calcReward(self):
         return self.__reward
     
+    def computeReward(self, state, next_state=None):
+        a=(state - self._target)
+        d = np.sqrt((a*a).sum(axis=0))
+        # print ("Dist Vector: " + str(a) + " Distance: " + str(d))
+        if d < 0.3:
+            return 2.0
+        return -d/((self._state_bounds[1][0]- self._state_bounds[0][0])/2.0)
+        return reward
+    
+    def getSimState(self):
+        state = self._agent
+        # state.append(self._sim_time)
+        # print ("get sim State: " , state)
+        return state
+        
+    def setSimState(self, state_):
+        # print ("set sim State: " , state_)
+        self._agent = state_
+    
     def getState(self):
         return self._agent
     

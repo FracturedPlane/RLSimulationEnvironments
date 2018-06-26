@@ -344,6 +344,7 @@ class CannonGame(object):
     def __init__(self, settings):
         """Creates a ragdoll of standard size at the given offset."""
         self._game_settings=settings
+        # print("self._game_settings: ", self._game_settings)
         # initialize GLUT
         if self._game_settings['render']:
             glutInit([])
@@ -385,9 +386,8 @@ class CannonGame(object):
         #   between two bodies collide
         
         # set the initial simulation loop parameters
-        self._fps = 100
+        self._fps = self._game_settings['action_fps'] * self._game_settings["timestep_subsampling"]
         self._dt = 1.0 / self._fps
-        self._stepsPerFrame = 16
         self._SloMo = 1.0
         self._Paused = False
         self._lasttime = time.time()
@@ -458,6 +458,25 @@ class CannonGame(object):
         self._state_bounds = self._game_settings['state_bounds']
         self._state_length = len(self.getState())
         self._action_length = len(self._action_bounds[0])
+        
+        
+        if ("process_visual_data" in self._game_settings
+        and (self._game_settings["process_visual_data"] == True)):
+            self._visual_state = [0] * self._game_settings["timestep_subsampling"]
+            self._imitation_visual_state = [0] * self._game_settings["timestep_subsampling"]
+        """
+        if ("process_visual_data" in self._game_settings
+            and (self._game_settings["process_visual_data"] == True)):
+            ob_low = (np.prod(self._visual_state[0].shape) * len(self._visual_state)) * [0]
+            ob_high = (np.prod(self._visual_state[0].shape) * len(self._visual_state)) * [1]
+            observation_space = [ob_low, ob_high]
+            self._observation_space = ActionSpace(observation_space)
+        else:
+            ob_low = [-1] * self.getEnv().getObservationSpaceSize()
+            ob_high = [1] * self.getEnv().getObservationSpaceSize() 
+            observation_space = [ob_low, ob_high]
+            self._observation_space = ActionSpace(observation_space)
+        """
         
     def setTargetVelocity(self, target_vel):
         self._target_velocity = target_vel
@@ -992,3 +1011,33 @@ class CannonGame(object):
         """
         random.seed(seed)
         np.random.seed(seed)
+
+    def getVisualState(self):
+        return self.getViewData()
+
+    def getImitationVisualState(self):
+        return self.getViewData()
+    
+    def getImitationState(self):
+        return self.getKinCharacterState()
+        
+    def getViewData(self):
+        from skimage.measure import block_reduce
+        ### Get pixel data from view
+        img = glReadPixels(self._game_settings["image_clipping_area"][0],
+                           self._game_settings["image_clipping_area"][1], 
+                           self._game_settings["image_clipping_area"][2], 
+                           self._game_settings["image_clipping_area"][3], GL_RGB,GL_FLOAT)
+        assert(np.sum(img) > 0.0)
+        ### reshape into image, colour last
+        img = np.reshape(img, (self._game_settings["image_clipping_area"][3], 
+                           self._game_settings["image_clipping_area"][2], 3))
+        ### downsample image
+        img = block_reduce(img, block_size=(self._game_settings["downsample_image"][0], 
+                                            self._game_settings["downsample_image"][1], 
+                                            self._game_settings["downsample_image"][2]), func=np.mean)
+        ### convert to greyscale
+        if (self._game_settings["convert_to_greyscale"]):
+            img = np.mean(img, axis=2)
+        assert(np.sum(img) > 0.0)
+        return img
