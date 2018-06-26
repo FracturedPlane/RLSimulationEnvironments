@@ -456,22 +456,10 @@ class CannonGame(object):
         self._time_legth = 0
         self._sim_time = 0
         
-        self._action_bounds = self._game_settings['action_bounds']
-        self._state_bounds = self._game_settings['state_bounds']
-        self._state_length = len(self.getState())
-        self._action_length = len(self._action_bounds[0])
-        
-        ### Stuff related to drawing the env
-        self._lookAt = (4.0, 1.0, 0) 
-        self._draw_terrain = True
-        self._draw_obstacle = True
-        self._draw_obstacle2 = True
-        
-        
         if ("process_visual_data" in self._game_settings
             and (self._game_settings["process_visual_data"] == True)):
-            self._visual_state = [0] * self._game_settings["timestep_subsampling"]
-            self._imitation_visual_state = [0] * self._game_settings["timestep_subsampling"]
+            self._visual_state = [1] * self._game_settings["timestep_subsampling"]
+            self._imitation_visual_state = [0.5] * self._game_settings["timestep_subsampling"]
         """
         if ("process_visual_data" in self._game_settings
             and (self._game_settings["process_visual_data"] == True)):
@@ -485,6 +473,19 @@ class CannonGame(object):
             observation_space = [ob_low, ob_high]
             self._observation_space = ActionSpace(observation_space)
         """
+        
+        self._action_bounds = self._game_settings['action_bounds']
+        self._state_bounds = self._game_settings['state_bounds']
+        self._state_length = len(self.getState())
+        self._action_length = len(self._action_bounds[0])
+        
+        ### Stuff related to drawing the env
+        self._lookAt = (4.0, 1.0, 0) 
+        self._draw_terrain = True
+        self._draw_obstacle = True
+        self._draw_obstacle2 = True
+        
+        
         
     def setTargetVelocity(self, target_vel):
         self._target_velocity = target_vel
@@ -669,13 +670,17 @@ class CannonGame(object):
             # state = self.getState()
             # print ("state length: " + str(len(state)))
             # print (state)
-        reward = self.computeReward(self.getState())
+        reward = self.computeReward(state=None)
         # print("reward: ", reward)
         self.__reward = reward
                 
-    def computeReward(self, state, next_state=None):
-        pos_ = np.array([state[0], state[1], 0])
-        pos = np.array([state[4], state[5], 0])
+    def computeReward(self, state=None, next_state=None):
+        if ( state is None ):
+            pos_ = np.array(self._obstacle2.getPosition())
+            pos = np.array(self._obstacle.getPosition())
+        else:
+            pos_ = np.array([state[0], state[1], 0])
+            pos = np.array([state[4], state[5], 0])
         d = dist3(pos, pos_)
         vel_dif = np.abs(pos - pos_)
         reward = math.exp((d*d)*self._target_vel_weight)
@@ -770,7 +775,7 @@ class CannonGame(object):
         glColor3f(0.8, 0.8, 0.8)
     
         # pos = self._obstacle.getPosition()
-        print("Looking at: ", self._lookAt)
+        # print("Looking at: ", self._lookAt)
         gluLookAt(self._lookAt[0], self._lookAt[1], 8.0, self._lookAt[0], self._lookAt[1], -10.0, 0.0, 1.0, 0.0)
         
         y_adjust=15
@@ -1023,6 +1028,13 @@ class CannonGame(object):
     
     def getState(self):
         """ get the next self._num_points points"""
+        if ("process_visual_data" in self._game_settings
+            and (self._game_settings["process_visual_data"] == True)):
+            # print("Getting visual state")
+            ob = np.array(self.getVisualState())
+            ob = np.reshape(np.array(ob), (-1, 
+                   (np.prod(ob.shape))))
+            return ob
         pos = self._obstacle.getPosition()
         charState = self.getCharacterState()
         kincharState = self.getKinCharacterState()
@@ -1085,14 +1097,14 @@ class CannonGame(object):
         # pos = self._obstacle2.getPosition()
         # save_look = self._lookAt
         # self._lookAt = (pos[0], pos[1], save_look[2])
-        shape__ = self._obstacle.shape
-        self._obstacle.shape="invisible"
+        shape__ = self._obstacle2.shape
+        self._obstacle2.shape="invisible"
         self._draw_terrain = False
         self.display()
         img = self.getViewData()
         # self._lookAt = save_look
         self._draw_terrain = True
-        self._obstacle.shape=shape__
+        self._obstacle2.shape=shape__
         # self.render()
         return img
     
@@ -1100,8 +1112,8 @@ class CannonGame(object):
         # self._sim.update()
         # self.render()
         # pos = self._obstacle.getPosition()
-        shape__ = self._obstacle2.shape
-        self._obstacle2.shape="invisible"
+        shape__ = self._obstacle.shape
+        self._obstacle.shape="invisible"
         # save_look = self._lookAt
         # self._lookAt = (pos[0], pos[1], save_look[2])
         self._draw_terrain = False
@@ -1109,7 +1121,7 @@ class CannonGame(object):
         img = self.getViewData()
         # self._lookAt = save_look
         self._draw_terrain = True
-        self._obstacle2.shape=shape__
+        self._obstacle.shape=shape__
         # self.render()
         return img
     

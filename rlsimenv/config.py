@@ -173,7 +173,11 @@ SIMULATION_ENVIRONMENTS = """
                             "terrain_change": -1.0,
                             "terrain_length": 500
                         },
-    "velocity_bounds": [[0.0, -6.0], [4.0, 6.0]]
+    "velocity_bounds": [[0.0, -6.0], [4.0, 6.0]],
+        "comment__": "Number of times the action is updated per second, fps",
+    "action_fps": 50,
+        "comment__": "Number of subsampled pose images taken between action updates",
+    "timestep_subsampling": 1
 },
 "CannonGameViz-v0": 
 {
@@ -212,7 +216,7 @@ SIMULATION_ENVIRONMENTS = """
         "comment__": "Number of subsampled pose images taken between action updates",
     "timestep_subsampling": 3,
         "comment__": "Area that will be clipped from the rendering using glReadPixels [x, y, width, height]",
-    "image_clipping_area": [570, 170, 64, 64],
+    "image_clipping_area": [578, 178, 48, 48],
         "comment__": "Amount of downsampling that will be done to the image",
     "downsample_image": [4, 4, 1],
         "comment__": "Whether or not to convert the image to grayscale",

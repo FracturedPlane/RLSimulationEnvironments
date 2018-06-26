@@ -51,7 +51,7 @@ if __name__ == '__main__':
                     plt.imshow(img_, origin='lower')
                     plt.title("visual Data: " +  str(vd))
 
-                    if (True):                    
+                    if (False):                    
                         img_ = viewImitateData
                         plt.figure(2)
                         plt.imshow(img_, origin='lower')
