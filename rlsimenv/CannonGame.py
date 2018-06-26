@@ -456,10 +456,18 @@ class CannonGame(object):
         self._time_legth = 0
         self._sim_time = 0
         
+        ### Stuff related to drawing the env
+        self._lookAt = (4.0, 1.0, 0) 
+        self._draw_terrain = True
+        self._draw_obstacle = True
+        self._draw_obstacle2 = True
+        
         if ("process_visual_data" in self._game_settings
             and (self._game_settings["process_visual_data"] == True)):
             self._visual_state = [1] * self._game_settings["timestep_subsampling"]
             self._imitation_visual_state = [0.5] * self._game_settings["timestep_subsampling"]
+        ### To properly compute the visual state
+        self.initEpoch()
         """
         if ("process_visual_data" in self._game_settings
             and (self._game_settings["process_visual_data"] == True)):
@@ -476,14 +484,8 @@ class CannonGame(object):
         
         self._action_bounds = self._game_settings['action_bounds']
         self._state_bounds = self._game_settings['state_bounds']
-        self._state_length = len(self.getState())
+        self._state_length = np.array(self.getState()).size
         self._action_length = len(self._action_bounds[0])
-        
-        ### Stuff related to drawing the env
-        self._lookAt = (4.0, 1.0, 0) 
-        self._draw_terrain = True
-        self._draw_obstacle = True
-        self._draw_obstacle2 = True
         
         
         
@@ -1032,8 +1034,8 @@ class CannonGame(object):
             and (self._game_settings["process_visual_data"] == True)):
             # print("Getting visual state")
             ob = np.array(self.getVisualState())
-            ob = np.reshape(np.array(ob), (-1, 
-                   (np.prod(ob.shape))))
+            ob = np.reshape(np.array(ob), (-1, ob.size))
+            # print("ob shape: ", ob.shape)
             return ob
         pos = self._obstacle.getPosition()
         charState = self.getCharacterState()

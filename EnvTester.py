@@ -35,7 +35,7 @@ if __name__ == '__main__':
             print ("Reward: ", reward, "Action: ", actions, " observation: ", observation)
             print ("Done: ", done)
             vizData = env.getVisualState()
-            print("visual Data: " +  str(vizData))
+            # print("visual Data: " +  str(vizData))
             vizImitateData = env.getImitationVisualState()
             for vd in range(len(vizData)):
                 # print("viewData: ", viewData)
