@@ -238,6 +238,8 @@ def draw_body(body):
         glTranslated(pos[0], pos[1], pos[2])
         glRotatef(90 * body.getDir(), 0, 1, 0)
         glutSolidCone(body.radius, body.radius, CAPSULE_SLICES, CAPSULE_STACKS )
+    elif ( body.shape == "invisible" ):
+        pass ## Don't draw
     else:
         print( "Don't know how to draw ", body.shape, " bodies.")
     glPopMatrix()
@@ -437,7 +439,7 @@ class CannonGame(object):
         self._bodies.append(self._obstacle2)
         
         self._obstacles = []
-        num_obstacles = 10
+        num_obstacles = 0
         for n in range(num_obstacles):
             obs_ = Obstacle()
 
@@ -458,6 +460,12 @@ class CannonGame(object):
         self._state_bounds = self._game_settings['state_bounds']
         self._state_length = len(self.getState())
         self._action_length = len(self._action_bounds[0])
+        
+        ### Stuff related to drawing the env
+        self._lookAt = (4.0, 1.0, 0) 
+        self._draw_terrain = True
+        self._draw_obstacle = True
+        self._draw_obstacle2 = True
         
         
         if ("process_visual_data" in self._game_settings
@@ -628,7 +636,10 @@ class CannonGame(object):
         if ("process_visual_data" in self._game_settings
             and (self._game_settings["process_visual_data"] == True)):
             updates__= self._game_settings["timestep_subsampling"]
-        for i in range(update__):
+            imitate_pos = self._obstacle2.getPosition()
+            agent_pos = self._obstacle.getPosition()
+            save_lookat = self._lookAt
+        for i in range(updates__):
             pos = self._obstacle2.getPosition()
             vel = np.array(self._obstacle2.getLinearVel())
             vel[1] = (vel[1] + (self._gravity * self._dt))
@@ -650,8 +661,11 @@ class CannonGame(object):
             self._state_num=self._state_num+1
             if ("process_visual_data" in self._game_settings
             and (self._game_settings["process_visual_data"] == True)):
-                self._visual_state[i] = self.getViewData()
-                self._imitation_visual_state[i] = self.getViewData()
+                self._lookAt = agent_pos
+                self._visual_state[i] = self._getVisualState()
+                self._lookAt = imitate_pos
+                self._imitation_visual_state[i] = self._getImitationVisualState()
+                self._lookAt = save_lookat
             # state = self.getState()
             # print ("state length: " + str(len(state)))
             # print (state)
@@ -699,7 +713,6 @@ class CannonGame(object):
             # self._obstacle.setPosition([self._x[self._step], self._y[self._step], 0.0] )
             pos_ = self._obstacle.getPosition()
             # print ("New obstacle position: ", pos_)
-            
             glutPostRedisplay()
             self.onDraw()
             
@@ -756,9 +769,9 @@ class CannonGame(object):
         glEnable(GL_COLOR_MATERIAL)
         glColor3f(0.8, 0.8, 0.8)
     
-        pos = self._obstacle.getPosition()
-        x_adjust=4.0
-        gluLookAt(x_adjust, 1.0, 8.0, x_adjust, 1.0, -10.0, 0.0, 1.0, 0.0)
+        # pos = self._obstacle.getPosition()
+        print("Looking at: ", self._lookAt)
+        gluLookAt(self._lookAt[0], self._lookAt[1], 8.0, self._lookAt[0], self._lookAt[1], -10.0, 0.0, 1.0, 0.0)
         
         y_adjust=15
         y_start = 5
@@ -801,9 +814,10 @@ class CannonGame(object):
             draw_body(b)
         # for b in ragdoll.bodies:
         #     draw_body(b)
-        drawTerrain(self._terrainData, self._terrainStartX)
-        if ( len(self._nextTerrainData) > 0):
-            drawTerrain(self._nextTerrainData, self._nextTerrainStartX, translateY=0.02, translateZ=0.02, colour=(0.9, 0.2, 0.9, 0.0), wirefame=True)
+        if (self._draw_terrain):
+            drawTerrain(self._terrainData, self._terrainStartX)
+            if ( len(self._nextTerrainData) > 0):
+                drawTerrain(self._nextTerrainData, self._nextTerrainStartX, translateY=0.02, translateZ=0.02, colour=(0.9, 0.2, 0.9, 0.0), wirefame=True)
         
         # state = self.getState()
         # pos = self._obstacle.getPosition()
@@ -1030,10 +1044,10 @@ class CannonGame(object):
         np.random.seed(seed)
 
     def getVisualState(self):
-        return self.getViewData()
+        return self._visual_state
 
     def getImitationVisualState(self):
-        return self.getViewData()
+        return self._imitation_visual_state
     
     def getImitationState(self):
         return self.getKinCharacterState()
@@ -1045,7 +1059,7 @@ class CannonGame(object):
                            self._game_settings["image_clipping_area"][1], 
                            self._game_settings["image_clipping_area"][2], 
                            self._game_settings["image_clipping_area"][3], GL_RGB,GL_FLOAT)
-        assert(np.sum(img) > 0.0)
+        # assert(np.sum(img) > 0.0)
         ### reshape into image, colour last
         img = np.reshape(img, (self._game_settings["image_clipping_area"][3], 
                            self._game_settings["image_clipping_area"][2], 3))
@@ -1056,7 +1070,6 @@ class CannonGame(object):
         ### convert to greyscale
         if (self._game_settings["convert_to_greyscale"]):
             img = np.mean(img, axis=2)
-        assert(np.sum(img) > 0.0)
         return img
     
     def _getVisualState(self):
@@ -1068,15 +1081,35 @@ class CannonGame(object):
         # '8' for camera track kin char instead
         # '7' to disable drawing background grid
         # 'v' to render the simchar like the kin char (colour and shape)
-        self.render()
+        # self.render()
+        # pos = self._obstacle2.getPosition()
+        # save_look = self._lookAt
+        # self._lookAt = (pos[0], pos[1], save_look[2])
+        shape__ = self._obstacle.shape
+        self._obstacle.shape="invisible"
+        self._draw_terrain = False
+        self.display()
         img = self.getViewData()
+        # self._lookAt = save_look
+        self._draw_terrain = True
+        self._obstacle.shape=shape__
         # self.render()
         return img
     
     def _getImitationVisualState(self):
         # self._sim.update()
-        self.render()
+        # self.render()
+        # pos = self._obstacle.getPosition()
+        shape__ = self._obstacle2.shape
+        self._obstacle2.shape="invisible"
+        # save_look = self._lookAt
+        # self._lookAt = (pos[0], pos[1], save_look[2])
+        self._draw_terrain = False
+        self.display()
         img = self.getViewData()
+        # self._lookAt = save_look
+        self._draw_terrain = True
+        self._obstacle2.shape=shape__
         # self.render()
         return img
     
