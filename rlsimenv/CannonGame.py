@@ -461,7 +461,7 @@ class CannonGame(object):
         
         
         if ("process_visual_data" in self._game_settings
-        and (self._game_settings["process_visual_data"] == True)):
+            and (self._game_settings["process_visual_data"] == True)):
             self._visual_state = [0] * self._game_settings["timestep_subsampling"]
             self._imitation_visual_state = [0] * self._game_settings["timestep_subsampling"]
         """
@@ -538,6 +538,14 @@ class CannonGame(object):
         self._end_of_Epoch_Flag=False
         
         self._validating=False
+        
+        if ( "timestep_subsampling" in self._game_settings ):
+            for i in range(self._game_settings["timestep_subsampling"]):
+                if ("process_visual_data" in self._game_settings
+                    and (self._game_settings["process_visual_data"] == True)):
+                    self._visual_state[i] = self._getVisualState()
+                    if (self._game_settings["also_imitation_visual_data"]):
+                        self._imitation_visual_state[i] = self._getImitationVisualState()
         
         # self.generateTerrain()
     
@@ -616,28 +624,37 @@ class CannonGame(object):
             self.__reward = 0
             return self.__reward
         ### Integrate kinematic agent
-        pos = self._obstacle2.getPosition()
-        vel = np.array(self._obstacle2.getLinearVel())
-        vel[1] = (vel[1] + (self._gravity * self._dt))
-        self._obstacle2.setLinearVel(vel)
-        pos = pos + (vel * self._dt)
-        self._obstacle2.setPosition(pos)
-        
-        ### integrate agent
-        pos_ = self._obstacle.getPosition()
-        vel_ = np.array(self._obstacle.getLinearVel())
-        pos_ = pos_ + (vel_ * self._dt)
-        # self._obstacle.setLinearVel(vel)
-        self._obstacle.setPosition(pos_)
-        # print (pos)
-        self._sim_time = self._sim_time + self._dt
-        # print ("Sime time: ", self._sim_time)
-
-        # self._terrainData = self.generateTerrain()
-        self._state_num=self._state_num+1
-        # state = self.getState()
-        # print ("state length: " + str(len(state)))
-        # print (state)
+        updates__ = 1
+        if ("process_visual_data" in self._game_settings
+            and (self._game_settings["process_visual_data"] == True)):
+            updates__= self._game_settings["timestep_subsampling"]
+        for i in range(update__):
+            pos = self._obstacle2.getPosition()
+            vel = np.array(self._obstacle2.getLinearVel())
+            vel[1] = (vel[1] + (self._gravity * self._dt))
+            self._obstacle2.setLinearVel(vel)
+            pos = pos + (vel * self._dt)
+            self._obstacle2.setPosition(pos)
+            
+            ### integrate agent
+            pos_ = self._obstacle.getPosition()
+            vel_ = np.array(self._obstacle.getLinearVel())
+            pos_ = pos_ + (vel_ * self._dt)
+            # self._obstacle.setLinearVel(vel)
+            self._obstacle.setPosition(pos_)
+            # print (pos)
+            self._sim_time = self._sim_time + self._dt
+            # print ("Sime time: ", self._sim_time)
+    
+            # self._terrainData = self.generateTerrain()
+            self._state_num=self._state_num+1
+            if ("process_visual_data" in self._game_settings
+            and (self._game_settings["process_visual_data"] == True)):
+                self._visual_state[i] = self.getViewData()
+                self._imitation_visual_state[i] = self.getViewData()
+            # state = self.getState()
+            # print ("state length: " + str(len(state)))
+            # print (state)
         reward = self.computeReward(self.getState())
         # print("reward: ", reward)
         self.__reward = reward
@@ -1041,3 +1058,25 @@ class CannonGame(object):
             img = np.mean(img, axis=2)
         assert(np.sum(img) > 0.0)
         return img
+    
+    def _getVisualState(self):
+        ### toggle things that we don't want in the rendered image
+        # k for kin char
+        # j for char info in top left
+        # '0' for disable ground rendering
+        # '9' for don't draw character
+        # '8' for camera track kin char instead
+        # '7' to disable drawing background grid
+        # 'v' to render the simchar like the kin char (colour and shape)
+        self.render()
+        img = self.getViewData()
+        # self.render()
+        return img
+    
+    def _getImitationVisualState(self):
+        # self._sim.update()
+        self.render()
+        img = self.getViewData()
+        # self.render()
+        return img
+    
