@@ -484,7 +484,8 @@ class CannonGame(object):
         
         self._action_bounds = self._game_settings['action_bounds']
         self._state_bounds = self._game_settings['state_bounds']
-        self._state_length = np.array(self.getState()).size
+        # self._state_length = np.array(self.getState()).size
+        self._state_length = len(self._state_bounds[0])
         self._action_length = len(self._action_bounds[0])
         
         
@@ -1030,6 +1031,27 @@ class CannonGame(object):
     
     def getState(self):
         """ get the next self._num_points points"""
+        state = []
+        if ("process_visual_data" in self._game_settings
+            and (self._game_settings["process_visual_data"] == True)
+            and ("use_dual_state_representations" in self._game_settings
+                 and (self._game_settings["use_dual_state_representations"] == True))):
+            
+            charState = self.getCharacterState()
+            kincharState = self.getKinCharacterState()
+            diffState = self.getDiffState()
+            state_ = []
+            state_.extend(charState)
+            state_.extend(kincharState)
+            state_.extend(diffState)
+            state.append(np.array(state_))
+            
+            ob = np.array(self.getVisualState())
+            ob = np.reshape(np.array(ob), (-1, ob.size))
+            state.append(ob)
+            
+            return [state]
+
         if ("process_visual_data" in self._game_settings
             and (self._game_settings["process_visual_data"] == True)):
             # print("Getting visual state")

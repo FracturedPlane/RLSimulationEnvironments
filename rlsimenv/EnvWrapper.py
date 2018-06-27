@@ -92,7 +92,7 @@ class EnvWrapper(object):
         ob = []
 
         ob = self._sim.getState()
-        ob = np.reshape(np.array(ob), (-1, self.getEnv().getObservationSpaceSize()))
+        # ob = np.reshape(np.array(ob), (-1, self.getEnv().getObservationSpaceSize()))
             # ob = np.asarray(ob)
         return ob
     
