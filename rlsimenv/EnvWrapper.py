@@ -92,7 +92,10 @@ class EnvWrapper(object):
         ob = []
 
         ob = self._sim.getState()
-        # ob = np.reshape(np.array(ob), (-1, self.getEnv().getObservationSpaceSize()))
+        if ("use_dual_state_representations" in self._config 
+            and (self._config["use_dual_state_representations"] == True)):
+            return ob
+        ob = np.reshape(np.array(ob), (-1, self.getEnv().getObservationSpaceSize()))
             # ob = np.asarray(ob)
         return ob
     
