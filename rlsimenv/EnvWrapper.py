@@ -209,10 +209,6 @@ class EnvWrapper(object):
     def getVisualState(self):
         return self._sim.getVisualState()
         
-
-    def getVisualImitationState(self):
-        return self._sim.getVisualImitationState()
-    
     def getImitationState(self):
         return self._sim.getImitationState()
     
