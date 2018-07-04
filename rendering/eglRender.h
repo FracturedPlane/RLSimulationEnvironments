@@ -1,12 +1,12 @@
 /**************************************************************************
  *
- * Copyright 2008 VMware, Inc.
+ * Copyright 2018 Glen Berth.
  * All Rights Reserved.
  *
  **************************************************************************/
 
 /*
- * Draw a triangle with X/EGL and OpenGL ES 2.x
+ * Draw some triangles with EGL and OpenGL ES 2.x
  */
 
 #define USE_FULL_GL 0
@@ -228,10 +228,10 @@ draw(void)
       {  1, -1 },
       {  0,  1 }
    };
-   static const GLfloat colors[3][3] = {
+   GLfloat colors[3][3] = {
       { 1, 0, 0 },
-      { 0, 1, 0 },
-      { 0, 0, 1 }
+      { 1, 0, 0 },
+      { 1, 0, 0 }
    };
    GLfloat mat[16], rot[16], scale[16], trans[16];
    GLfloat mat2[16], rot2[16], scale2[16], trans2[16];
@@ -266,10 +266,14 @@ draw(void)
    }
 
    glUniformMatrix4fv(u_matrix, 1, GL_FALSE, mat2);
-
+   GLfloat colors2[3][3] = {
+         { 0, 0, 1 },
+         { 0, 0, 1 },
+         { 0, 0, 1 }
+      };
    {
       glVertexAttribPointer(attr_pos, 2, GL_FLOAT, GL_FALSE, 0, verts);
-      glVertexAttribPointer(attr_color, 3, GL_FLOAT, GL_FALSE, 0, colors);
+      glVertexAttribPointer(attr_color, 3, GL_FLOAT, GL_FALSE, 0, colors2);
       glEnableVertexAttribArray(attr_pos);
       glEnableVertexAttribArray(attr_color);
 
