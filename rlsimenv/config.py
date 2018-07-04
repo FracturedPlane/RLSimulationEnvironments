@@ -173,7 +173,7 @@ SIMULATION_ENVIRONMENTS = """
                             "terrain_change": -1.0,
                             "terrain_length": 500
                         },
-    "velocity_bounds": [[0.0, -6.0], [4.0, 6.0]],
+    "velocity_bounds": [[-4.0, -6.0], [4.0, 6.0]],
         "comment__": "Number of times the action is updated per second, fps",
     "action_fps": 50,
         "comment__": "Number of subsampled pose images taken between action updates",
@@ -209,7 +209,7 @@ SIMULATION_ENVIRONMENTS = """
                             "terrain_change": -1.0,
                             "terrain_length": 500
                         },
-    "velocity_bounds": [[0.0, -6.0], [4.0, 6.0]],
+    "velocity_bounds": [[-4.0, -6.0], [4.0, 6.0]],
     "process_visual_data": true,
         "comment__": "Number of times the action is updated per second, fps",
     "action_fps": 50,
@@ -258,7 +258,7 @@ SIMULATION_ENVIRONMENTS = """
                             "terrain_change": -1.0,
                             "terrain_length": 500
                         },
-    "velocity_bounds": [[0.0, -6.0], [4.0, 6.0]],
+    "velocity_bounds": [[-4.0, -6.0], [4.0, 6.0]],
     "process_visual_data": true,
         "comment__": "Number of times the action is updated per second, fps",
     "action_fps": 50,
