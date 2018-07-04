@@ -93,14 +93,14 @@ static GLfloat view_transx2 = 0.0, view_transy2 = 0.0, view_transz2 = 0.0;
 static GLint u_matrix = -1;
 static GLint attr_pos = 0, attr_color = 1;
 
-static void setPosition(GLfloat xs, GLfloat ys, GLfloat zs)
+static void setPosition(float xs, float ys, float zs)
 {
 	view_transx = xs;
 	view_transy = ys;
 	view_transz = zs;
 }
 
-static void setPosition2(GLfloat xs, GLfloat ys, GLfloat zs)
+static void setPosition2(float xs, float ys, float zs)
 {
 	view_transx2 = xs;
 	view_transy2 = ys;
