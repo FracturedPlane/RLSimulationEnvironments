@@ -86,9 +86,12 @@ int i;
 const char *s;
 int cudaIndexDesired = 0;
 
+static bool drawAgent = true, drawObject = true;
+
 static GLfloat view_rotx = 0.0, view_roty = 0.0;
 static GLfloat view_transx = 0.0, view_transy = 0.0, view_transz = 0.0;
 static GLfloat view_transx2 = 0.0, view_transy2 = 0.0, view_transz2 = 0.0;
+static GLfloat camPos[3] = {0.0, 0.0, 0.0};
 
 static GLint u_matrix = -1;
 static GLint attr_pos = 0, attr_color = 1;
@@ -105,6 +108,22 @@ static void setPosition2(float xs, float ys, float zs)
 	view_transx2 = xs;
 	view_transy2 = ys;
 	view_transz2 = zs;
+}
+
+static void setCameraPosition(float xs, float ys, float zs)
+{
+	camPos[0] = xs;
+	camPos[1] = ys;
+	camPos[2] = zs;
+}
+
+static void setDrawAgent(bool draw_)
+{
+	drawAgent = draw_;
+}
+static void setDrawObject(bool draw_)
+{
+	drawObject = draw_;
 }
 
 
@@ -229,30 +248,35 @@ draw(void)
       {  0,  1 }
    };
    GLfloat colors[3][3] = {
-      { 1, 0, 0 },
-      { 1, 0, 0 },
-      { 1, 0, 0 }
+      { 0, 0, 1 },
+      { 0, 0, 1 },
+      { 0, 0, 1 }
    };
-   GLfloat mat[16], rot[16], scale[16], trans[16];
+   GLfloat mat[16], rot[16], scale[16], trans[16], camMat[16];
    GLfloat mat2[16], rot2[16], scale2[16], trans2[16];
 
    /* Set modelview/projection matrix */
    make_z_rot_matrix(view_rotx, rot);
    make_scale_matrix(tri_scale, tri_scale, tri_scale, scale);
    make_translation_matrix(view_transx, view_transy, view_transz, trans);
+   make_translation_matrix(-camPos[0],-camPos[1], -camPos[2], camMat);
    mul_matrix(mat, trans, rot);
+   mul_matrix(mat, mat, camMat);
    mul_matrix(mat, mat, scale);
+
 
     make_z_rot_matrix(view_rotx, rot2);
 	make_scale_matrix(tri_scale, tri_scale, tri_scale, scale2);
 	make_translation_matrix(view_transx2, view_transy2, view_transz2, trans2);
 	mul_matrix(mat2, trans2, rot2);
+	mul_matrix(mat2, mat2, camMat);
 	mul_matrix(mat2, mat2, scale2);
 
    glUniformMatrix4fv(u_matrix, 1, GL_FALSE, mat);
 
    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+   if (drawAgent)
    {
       glVertexAttribPointer(attr_pos, 2, GL_FLOAT, GL_FALSE, 0, verts);
       glVertexAttribPointer(attr_color, 3, GL_FLOAT, GL_FALSE, 0, colors);
@@ -267,10 +291,11 @@ draw(void)
 
    glUniformMatrix4fv(u_matrix, 1, GL_FALSE, mat2);
    GLfloat colors2[3][3] = {
-         { 0, 0, 1 },
-         { 0, 0, 1 },
-         { 0, 0, 1 }
+         { 1, 0, 0 },
+         { 1, 0, 0 },
+         { 1, 0, 0 }
       };
+   if (drawObject)
    {
       glVertexAttribPointer(attr_pos, 2, GL_FLOAT, GL_FALSE, 0, verts);
       glVertexAttribPointer(attr_color, 3, GL_FLOAT, GL_FALSE, 0, colors2);
@@ -292,6 +317,55 @@ static void
 reshape(int width, int height)
 {
    glViewport(0, 0, (GLint) width, (GLint) height);
+}
+
+std::vector<unsigned char> getPixels(size_t x_start, size_t y_start, size_t width, size_t height)
+{
+	// drawAgent = true;
+	// drawObject = false;
+	// draw();
+	std::vector<unsigned char > out;
+	size_t num_pixels = 3*width*height;
+	unsigned char m_pixels[num_pixels];
+	glReadPixels(x_start, y_start, width, height,
+			GL_RGB,GL_UNSIGNED_BYTE, (GLvoid *) m_pixels);
+	for (size_t i = 0; i < num_pixels; i ++)
+	{
+		out.push_back(m_pixels[i]);
+	}
+	return out;
+}
+
+std::vector<float> _getVisualState()
+{
+	// drawAgent = true;
+	// drawObject = false;
+	// draw();
+	std::vector<float> out;
+	unsigned char m_pixels[3*winWidth*winHeight];
+	glReadPixels(0,0,winWidth,winHeight,GL_RGB,GL_UNSIGNED_BYTE,
+				(GLvoid *) m_pixels);
+	for (size_t i = 0; i < 3*winWidth*winHeight; i ++)
+	{
+		out.push_back(m_pixels[i]/255.0);
+	}
+	return out;
+}
+
+std::vector<float> _getImitationVisualState()
+{
+	// drawAgent = false;
+	// drawObject = true;
+	// draw();
+	std::vector<float> out;
+	unsigned char m_pixels[3*winWidth*winHeight];
+	glReadPixels(0,0,winWidth,winHeight,GL_RGB,GL_UNSIGNED_BYTE,
+				(GLvoid *) m_pixels);
+	for (size_t i = 0; i < 3*winWidth*winHeight; i ++)
+	{
+		out.push_back(m_pixels[i]/255.0);
+	}
+	return out;
 }
 
 

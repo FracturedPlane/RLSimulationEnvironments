@@ -7,7 +7,8 @@ if __name__ == '__main__':
     
     
     # env = getEnv(env_name="ParticleGame_2D-v0", render=False)
-    env = getEnv(env_name="CannonGameViz2-v0", render=True)
+    # env = getEnv(env_name="CannonGameViz2-v0", render=True)
+    env = getEnv(env_name="ProjectileGameViz-DualState-v0", render=False)
 
     actionSpace = env.getActionSpace()
     env.setRandomSeed(1234)
@@ -51,7 +52,7 @@ if __name__ == '__main__':
                     plt.imshow(img_, origin='lower')
                     plt.title("visual Data: " +  str(vd))
 
-                    if (False):                    
+                    if (True):                    
                         img_ = viewImitateData
                         plt.figure(2)
                         plt.imshow(img_, origin='lower')
