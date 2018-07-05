@@ -243,6 +243,9 @@ def getEnv(env_name, render=False):
     
     env_data = getEnvsList()
     # print("Envs: ", json.dumps(env_data, indent=2))
+    terrainRL_PATH = "/Cluster/playground/RLSimulationEnvironments" # os.environ['TERRAINRL_PATH']
+    print ("terrainRL_PATH: ", terrainRL_PATH)
+    sys.path.append(terrainRL_PATH+'/lib')
 
     if (env_name in env_data):
         config_file = env_data[env_name]['config_file']
