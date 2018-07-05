@@ -9,9 +9,6 @@ import numpy as np
 # from twisted.protocols import stateful
 import copy
 import math
-sys.path.append("lib")
-sys.path.append("rendering")
-from rendering import eglRenderer
 
 def clampAction(actionV, bounds):
     """
@@ -226,7 +223,9 @@ class ProjectileGame(object):
         self._game_settings=settings
         # print("self._game_settings: ", self._game_settings)
         # initialize view
-        eglRenderer._init()
+        from rendering import eglRenderer
+        self.eglRenderer = eglRenderer
+        self.eglRenderer._init()
         
         if self._game_settings['render']:
             pass
@@ -527,10 +526,10 @@ class ProjectileGame(object):
         pos = self._agent.getPosition()
         pos2 = self._object.getPosition()
         
-        eglRenderer.setPosition(pos[0], pos[1], 0)
-        eglRenderer.setPosition2(pos2[0], pos2[1], 0)
-        eglRenderer.setCameraPosition(self._lookAt[0], self._lookAt[1], self._lookAt[2])
-        eglRenderer.draw()
+        self.eglRenderer.setPosition(pos[0], pos[1], 0)
+        self.eglRenderer.setPosition2(pos2[0], pos2[1], 0)
+        self.eglRenderer.setCameraPosition(self._lookAt[0], self._lookAt[1], self._lookAt[2])
+        self.eglRenderer.draw()
         if self._game_settings['render']:
             # self._object.setPosition([self._x[self._step], self._y[self._step], 0.0] )
             self.onDraw()
@@ -572,14 +571,14 @@ class ProjectileGame(object):
         ### drawing using matplotlib...
         pos = self._agent.getPosition()
         pos2 = self._object.getPosition()
-        eglRenderer.setPosition(pos[0], pos[1], 0)
-        eglRenderer.setPosition2(pos2[0], pos2[1], 0)
+        self.eglRenderer.setPosition(pos[0], pos[1], 0)
+        self.eglRenderer.setPosition2(pos2[0], pos2[1], 0)
         
-        eglRenderer.setCameraPosition(0, 0, 0)
-        eglRenderer.setDrawAgent(True)
-        eglRenderer.setDrawObject(True)
-        eglRenderer.draw()
-        img_ = eglRenderer.getPixels(0, 0, 1000, 1000)
+        self.eglRenderer.setCameraPosition(0, 0, 0)
+        self.eglRenderer.setDrawAgent(True)
+        self.eglRenderer.setDrawObject(True)
+        self.eglRenderer.draw()
+        img_ = self.eglRenderer.getPixels(0, 0, 1000, 1000)
         img_ = np.reshape(img_, (1000, 1000, 3))
         plt.figure(1)
         plt.imshow(img_, origin='lower')
@@ -741,7 +740,7 @@ class ProjectileGame(object):
     def getViewData(self):
         from skimage.measure import block_reduce
         ### Get pixel data from view
-        img = eglRenderer.getPixels(self._game_settings["image_clipping_area"][0],
+        img = self.eglRenderer.getPixels(self._game_settings["image_clipping_area"][0],
                            self._game_settings["image_clipping_area"][1], 
                            self._game_settings["image_clipping_area"][2], 
                            self._game_settings["image_clipping_area"][3])
@@ -760,16 +759,16 @@ class ProjectileGame(object):
     
     def _getVisualState(self):
         ### toggle things that we don't want in the rendered image
-        eglRenderer.setDrawAgent(True)
-        eglRenderer.setDrawObject(False)
+        self.eglRenderer.setDrawAgent(True)
+        self.eglRenderer.setDrawObject(False)
         self.display()
         img = self.getViewData()
         # self.render()
         return img
     
     def _getImitationVisualState(self):
-        eglRenderer.setDrawAgent(False)
-        eglRenderer.setDrawObject(True)
+        self.eglRenderer.setDrawAgent(False)
+        self.eglRenderer.setDrawObject(True)
         self.display()
         img = self.getViewData()
         return img
