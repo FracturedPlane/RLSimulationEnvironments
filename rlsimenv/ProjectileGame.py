@@ -224,7 +224,7 @@ class ProjectileGame(object):
         # print("self._game_settings: ", self._game_settings)
         # initialize view
         from rendering import eglRenderer
-        self.eglRenderer = eglRenderer
+        self.eglRenderer = eglRenderer.EGLRender()
         self.eglRenderer._init()
         
         if self._game_settings['render']:

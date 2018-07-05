@@ -6,7 +6,7 @@
  #define SWIG_FILE_WITH_INIT
  #include <vector>
 
-#include "eglRender.h"
+#include "EGLRender.h"
  
 %}
 %include "std_string.i"
@@ -22,9 +22,6 @@ namespace std {
    %template(UnsighnedCharVector) vector<unsigned char>;
 }
 
-%include "eglRender.h"
-// %include "../sim/TerrainRLCharController.h"
-// %include "../sim/SimCharacter.h"
-// %include "../util/MathUtil.h"
+%include "EGLRender.h"
 
  
