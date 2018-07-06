@@ -8,7 +8,7 @@ if __name__ == '__main__':
     
     # env = getEnv(env_name="ParticleGame_2D-v0", render=False)
     # env = getEnv(env_name="CannonGameViz2-v0", render=True)
-    env = getEnv(env_name="ProjectileGameViz-DualState-v0", render=True)
+    env = getEnv(env_name="ProjectileGameViz-DualState-v0", render=False)
 
     actionSpace = env.getActionSpace()
     env.setRandomSeed(1234)
@@ -43,7 +43,7 @@ if __name__ == '__main__':
                 viewData = vizData[vd]
                 viewImitateData = vizImitateData[vd]
                 ## Get and vis terrain data
-                if (False):
+                if (True):
                     import matplotlib.pyplot as plt
                     # img_ = np.reshape(viewData, (150,158,3))
                     img_ = viewData

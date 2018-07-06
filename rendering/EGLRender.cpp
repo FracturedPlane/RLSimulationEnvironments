@@ -110,7 +110,8 @@ int EGLRender::save_PPM()
 
 void EGLRender::draw(void)
 {
-	float tri_scale = 0.05;
+	/// As a method to zoom out.
+	float tri_scale = 0.25;
    const GLfloat verts[3][2] = {
       { -1, -1 },
       {  1, -1 },
@@ -123,13 +124,16 @@ void EGLRender::draw(void)
    };
    GLfloat mat[16], rot[16], scale[16], trans[16], camMat[16];
    GLfloat mat2[16], rot2[16], scale2[16], trans2[16];
-
+   make_identity_matrix(mat);
+   make_identity_matrix(mat2);
    /* Set modelview/projection matrix */
    make_z_rot_matrix(view_rotx, rot);
    make_scale_matrix(tri_scale, tri_scale, tri_scale, scale);
    make_translation_matrix(view_transx, view_transy, view_transz, trans);
    make_translation_matrix(-camPos[0],-camPos[1], -camPos[2], camMat);
-   mul_matrix(mat, trans, rot);
+   // mul_matrix(mat, trans, rot);
+   mul_matrix(mat, mat, scale);
+   mul_matrix(mat, mat, trans);
    mul_matrix(mat, mat, camMat);
    mul_matrix(mat, mat, scale);
 
@@ -137,7 +141,9 @@ void EGLRender::draw(void)
     make_z_rot_matrix(view_rotx, rot2);
 	make_scale_matrix(tri_scale, tri_scale, tri_scale, scale2);
 	make_translation_matrix(view_transx2, view_transy2, view_transz2, trans2);
-	mul_matrix(mat2, trans2, rot2);
+	// mul_matrix(mat2, trans2, rot2);
+	mul_matrix(mat2, mat2, scale2);
+	mul_matrix(mat2, mat2, trans2);
 	mul_matrix(mat2, mat2, camMat);
 	mul_matrix(mat2, mat2, scale2);
 

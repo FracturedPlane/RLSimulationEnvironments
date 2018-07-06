@@ -534,7 +534,7 @@ class ProjectileGame(object):
         start_index = 11
         self._agent.setLinearVel(state_[start_index:start_index+3])
         
-    def display(self):
+    def display(self, redraw=True):
         pos = self._agent.getPosition()
         pos2 = self._object.getPosition()
         
@@ -542,7 +542,7 @@ class ProjectileGame(object):
         self.eglRenderer.setPosition2(pos2[0], pos2[1], 0)
         self.eglRenderer.setCameraPosition(self._lookAt[0], self._lookAt[1], self._lookAt[2])
         self.eglRenderer.draw()
-        if self._game_settings['render']:
+        if (self._game_settings['render'] and redraw):
             # self._object.setPosition([self._x[self._step], self._y[self._step], 0.0] )
             self.onDraw()
             
@@ -585,7 +585,7 @@ class ProjectileGame(object):
         self.eglRenderer.setPosition(pos[0], pos[1], 0)
         self.eglRenderer.setPosition2(pos2[0], pos2[1], 0)
         
-        self.eglRenderer.setCameraPosition(0, 0, 0)
+        self.eglRenderer.setCameraPosition(self._lookAt[0], self._lookAt[1], self._lookAt[2])
         self.eglRenderer.setDrawAgent(True)
         self.eglRenderer.setDrawObject(True)
         self.eglRenderer.draw()
@@ -773,7 +773,7 @@ class ProjectileGame(object):
         ### toggle things that we don't want in the rendered image
         self.eglRenderer.setDrawAgent(True)
         self.eglRenderer.setDrawObject(False)
-        self.display()
+        self.display(redraw=False)
         img = self.getViewData()
         # self.render()
         return img
@@ -781,7 +781,7 @@ class ProjectileGame(object):
     def _getImitationVisualState(self):
         self.eglRenderer.setDrawAgent(False)
         self.eglRenderer.setDrawObject(True)
-        self.display()
+        self.display(redraw=False)
         img = self.getViewData()
         return img
     

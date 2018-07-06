@@ -73,6 +73,19 @@ make_translation_matrix(GLfloat x, GLfloat y, GLfloat z, GLfloat *m)
 	m[14] = z;
 }
 
+/*
+ * row major matrix? I guess not....
+ */
+static void
+make_identity_matrix(GLfloat *m)
+{
+   int i;
+   for (i = 0; i < 16; i++)
+      m[i] = 0.0;
+
+   m[0] = m[5] = m[10] = m[15] = 1.0;
+}
+
 
 static void
 mul_matrix(GLfloat *prod, const GLfloat *a, const GLfloat *b)
