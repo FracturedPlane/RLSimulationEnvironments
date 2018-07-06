@@ -1,5 +1,3 @@
-import matplotlib.pyplot as plt
-
 from rlsimenv.EnvWrapper import getEnv
 import numpy as np
 
