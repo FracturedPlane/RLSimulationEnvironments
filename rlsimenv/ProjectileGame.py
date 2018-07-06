@@ -9,7 +9,6 @@ import numpy as np
 # from twisted.protocols import stateful
 import copy
 import math
-import matplotlib.pyplot as plt
 
 def clampAction(actionV, bounds):
     """
@@ -229,6 +228,8 @@ class ProjectileGame(object):
         self.eglRenderer._init()
         
         if self._game_settings['render']:
+            import matplotlib.pyplot as plt
+
             plt.ion()
             self._fig, (self._bellman_error_ax) = plt.subplots(1, 1, sharey=False, sharex=True)
             img_ = self.eglRenderer.getPixels(0, 0, 1000, 1000)

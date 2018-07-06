@@ -6,7 +6,7 @@ if __name__ == '__main__':
     
     # env = getEnv(env_name="ParticleGame_2D-v0", render=False)
     # env = getEnv(env_name="CannonGameViz2-v0", render=True)
-    env = getEnv(env_name="ProjectileGameViz-DualState-v0", render=False)
+    env = getEnv(env_name="ProjectileGameViz-DualState-v0", render=True)
 
     actionSpace = env.getActionSpace()
     env.setRandomSeed(1234)
