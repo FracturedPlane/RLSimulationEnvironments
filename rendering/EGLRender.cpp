@@ -237,7 +237,7 @@ void EGLRender::create_shaders(void)
    glGetShaderiv(fragShader, GL_COMPILE_STATUS, &stat);
    if (!stat) {
       printf("Error: fragment shader did not compile!\n");
-      checkEglError("Get Shader IV");
+      checkEglError("Get Shader compile status");
       printGLError();
       exit(1);
    }

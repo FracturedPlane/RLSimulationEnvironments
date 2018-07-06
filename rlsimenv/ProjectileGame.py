@@ -9,6 +9,7 @@ import numpy as np
 # from twisted.protocols import stateful
 import copy
 import math
+import matplotlib.pyplot as plt
 
 def clampAction(actionV, bounds):
     """
@@ -228,7 +229,18 @@ class ProjectileGame(object):
         self.eglRenderer._init()
         
         if self._game_settings['render']:
-            pass
+            plt.ion()
+            self._fig, (self._bellman_error_ax) = plt.subplots(1, 1, sharey=False, sharex=True)
+            img_ = self.eglRenderer.getPixels(0, 0, 1000, 1000)
+            img_ = np.reshape(img_, (1000, 1000, 3))
+            self._bellman_error_ax.imshow(img_, origin='lower')
+            self._bellman_error_ax.set_title("visual Data: ")
+            # self._bellman_error_ax = plt.imshow(img_, origin='lower')
+            # plt.title("visual Data: ")
+            plt.grid(b=True, which='major', color='black', linestyle='--')
+            plt.grid(b=True, which='minor', color='g', linestyle='--')
+            self._fig.set_size_inches(8.0, 8.0, forward=True)
+            plt.show()
         
         self._gravity = -9.81
         # create an infinite plane geom to simulate a floor
@@ -566,7 +578,6 @@ class ProjectileGame(object):
     
     
     def onDraw(self):
-        import matplotlib.pyplot as plt
         """GLUT render callback."""
         ### drawing using matplotlib...
         pos = self._agent.getPosition()
@@ -580,11 +591,12 @@ class ProjectileGame(object):
         self.eglRenderer.draw()
         img_ = self.eglRenderer.getPixels(0, 0, 1000, 1000)
         img_ = np.reshape(img_, (1000, 1000, 3))
-        plt.figure(1)
-        plt.imshow(img_, origin='lower')
-        plt.title("visual Data: ")
-        plt.show()
-    
+        ax_img = self._bellman_error_ax.images[-1]
+        ax_img.set_data(img_)
+        # ax_img = self._bellman_error_ax.set_data(img_)
+        # self._bellman_error_ax.canvas.draw()
+        self._fig.canvas.draw()
+        
     def _computeHeight(self, action_):
         init_v_squared = (action_*action_)
         # seconds_ = 2 * (-self._box.G)

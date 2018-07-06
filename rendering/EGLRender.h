@@ -179,7 +179,16 @@ static inline const char * GetGLErrorString(GLenum error)
 	return str;
 }
 
-void printGLError()
+#define printGLError(){ \
+	GLenum  err = glGetError();; \
+    if (err != GL_NO_ERROR) \
+    { \
+    	const char *str = GetGLErrorString(err); \
+		std::cout << "error: " << str << std::endl; \
+    } \
+}
+/*
+#define printGLError()
 {
 // #if DEBUG
 	GLenum  err = glGetError();
@@ -191,6 +200,7 @@ void printGLError()
 	}
 // #endif
 }
+*/
 
 #define FLOAT_TO_FIXED(X)   ((X) * 65535.0)
 
