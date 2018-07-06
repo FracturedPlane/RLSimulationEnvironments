@@ -114,6 +114,7 @@ project "eglRenderer"
 		}
 			-- debug configs
 		configuration { "linux", "Debug*", "gmake"}
+			if file_exists("/usr/include/python3.6m/Python.h") then
 			links {
 				"m",
 				"glut",
@@ -122,10 +123,21 @@ project "eglRenderer"
 				"EGL",
 				"OpenGL",
 			}
+			else
+			links {
+				"m",
+				"glut",
+				"X11",
+				"python3.5m",
+				"EGL",
+				"OpenGL",
+			}
+			end
 	 
 	 	-- release configs
 		configuration { "linux", "Release*", "gmake"}
 			defines { "NDEBUG" }
+			if file_exists("/usr/include/python3.6m/Python.h") then
 			links {
 				"m",
 				"glut",
@@ -134,4 +146,14 @@ project "eglRenderer"
 				"EGL",
 				"OpenGL",
 			}
+			else
+			links {
+				"m",
+				"glut",
+				"X11",
+				"python3.5m",
+				"EGL",
+				"OpenGL",
+			}
+			end
 	
