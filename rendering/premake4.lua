@@ -107,6 +107,7 @@ project "eglRenderer"
 		}
 		
 		includedirs { 
+            "/usr/include/python3.5m",
             "/usr/include/python3.6m",
 		}
 		defines {
