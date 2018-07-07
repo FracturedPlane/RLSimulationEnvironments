@@ -84,6 +84,37 @@ for root, dirs, files in os.walk(hh):
             fn = root + "/" + fn
             need_files_data.append("./data/" + fn[1+len(hh):])
 
+print("found resource files: %i" % len(need_files_args))
+# print( "need_files_args: ", need_files_args)
+#for n in need_files: print("-- %s" % n)
+print("found data resource files: %i" % len(need_files_data))
+# print( "need_files_data: ", need_files_data)
+#for n in need_files: print("-- %s" % n)
+
+
+extension_mod = Extension("_terrainRLAdapter", 
+                          # ['terrainRLAdapter.swig', "SimAdapter.cpp"],
+                          # swig_opts=['-modern'],
+                          ["terrainRLAdapter.cpp", "SimAdapter.cpp"],
+                          extra_compile_args = ['-std=c++0x', '-ggdb', '-fPIC'],
+                          include_dirs = ['./', './external/Bullet/src', './external', 
+                                          './external/caffe/include', './external/caffe/build/src',
+                                          './external/3rdparty/include/hdf5',
+                                          './external/3rdparty/include/',
+                                          './external/3rdparty/include/openblas',
+                                          './external/3rdparty/include/lmdb',
+                                          './external/OpenCV/include',
+                                          './external/caffe/src/',
+                                          "/usr/local/cuda/include/",
+                                          "./",
+                                            "anim",
+                                            "learning",
+                                            "sim",
+                                            "render",
+                                            "scenarios",
+                                            "util",
+                                            "../"
+                                          ])
 
 setup(
       #ext_modules=[Extension('terrainRLAdapter',
@@ -94,7 +125,7 @@ setup(
       #        )],
     name = 'rlsimEnv',
     version = '0.2',
-    description = 'Simple RL environments written in Python',
+    description = 'Simple RL environment written in Python',
     maintainer = 'Glen Berseth',
     maintainer_email = 'glen@fracturedplane.com',
     url = 'https://github.com/FracturedPlane/RLSimulationEnvironments',
