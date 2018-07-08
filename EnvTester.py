@@ -17,11 +17,11 @@ if __name__ == '__main__':
     print("Actions space max: ", env.action_space.getMaximum())
     
     env.reset()
-    for epoch in range(10):
+    for epoch in range(1):
         env.reset()
         print ("New episode")
         # while (True):
-        for i in range(100):
+        for i in range(10):
             actions = []
             for a in range(env.getNumberofAgents()):
                 action = ((actionSpace.getMaximum() - actionSpace.getMinimum()) * np.random.uniform(size=actionSpace.getMinimum().shape[0])  ) + actionSpace.getMinimum()
