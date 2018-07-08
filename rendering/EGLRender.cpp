@@ -473,25 +473,29 @@ int EGLRender::_init()
 		 );
 		 checkEglError("Error getting number of devices: eglQueryDevicesEXT");
 
-		 /*
+
 		 for(i=0; i<numberDevices; i++)
 		 {
-		   checkEglReturn(
-			 eglQueryDeviceAttribEXT(eglDevs[i], EGL_CUDA_DEVICE_NV, &cudaIndex),
-			 "Failed to get EGL_CUDA_DEVICE_NV attribute for device"
-		   );
-		   checkEglError("Error retreiving EGL_CUDA_DEVICE_NV attribute for device");
-		   std::cout << "Device index: " << cudaIndex << std::endl;
-		   if (cudaIndex == desiredGPUDeviceIndex)
-			 break;
-		 }*/
-		 if (desiredGPUDeviceIndex < numberDevices)
-		 {
-		   egl_dpy = eglGetPlatformDisplayEXT(EGL_PLATFORM_DEVICE_EXT, eglDevs[desiredGPUDeviceIndex], 0);
-		   checkEglError("Error getting Platform Display: eglGetPlatformDisplayEXT");
-		   std::cerr << "Got Cuda device " << desiredGPUDeviceIndex << std::endl;
+			 egl_dpy = eglGetPlatformDisplayEXT(EGL_PLATFORM_DEVICE_EXT, eglDevs[i], 0);
+			 		   checkEglError("Error getting Platform Display: eglGetPlatformDisplayEXT");
+			 		   std::cerr << "Got GPU device " << desiredGPUDeviceIndex << std::endl;
+
+			  if (!egl_dpy) {
+				  std::cerr <<  "Error: eglGetDisplay() failed" << std::endl;
+			  return -1;
+			 }
+
+			 if (!eglInitialize(egl_dpy, &egl_major, &egl_minor)) {
+				 std::cerr << "Error: eglInitialize() failed on device: " << i << std::endl;
+			  continue;
+			 }
+			 else
+			 { /// Found a device that works.
+				 break;
+			 }
+
 		 }
-		 else
+		 if (!egl_dpy)
 		 {
 		   egl_dpy = eglGetDisplay_();
 		 }

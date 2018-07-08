@@ -21,7 +21,7 @@ if __name__ == '__main__':
         env.reset()
         print ("New episode")
         # while (True):
-        for i in range(10):
+        for i in range(5):
             actions = []
             for a in range(env.getNumberofAgents()):
                 action = ((actionSpace.getMaximum() - actionSpace.getMinimum()) * np.random.uniform(size=actionSpace.getMinimum().shape[0])  ) + actionSpace.getMinimum()
