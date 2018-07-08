@@ -19,7 +19,7 @@
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/keysym.h>
-#include <GLES3/gl3.h>  /* use OpenGL ES 3.x */
+#include <GLES2/gl2.h>  /* use OpenGL ES 3.x */
 #define EGL_EGLEXT_PROTOTYPES
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
