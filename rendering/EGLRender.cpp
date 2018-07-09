@@ -479,7 +479,7 @@ int EGLRender::_init()
 		 {
 			 egl_dpy = eglGetPlatformDisplayEXT(EGL_PLATFORM_DEVICE_EXT, eglDevs[i], 0);
 			 		   checkEglError("Error getting Platform Display: eglGetPlatformDisplayEXT");
-			 		   std::cerr << "Got GPU device " << desiredGPUDeviceIndex << std::endl;
+			 		   std::cerr << "Got GPU device " << i << std::endl;
 
 			  if (!egl_dpy) {
 				  std::cerr <<  "Error: eglGetDisplay() failed" << std::endl;
