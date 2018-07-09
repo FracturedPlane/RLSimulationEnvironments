@@ -95,6 +95,8 @@ class EnvWrapper(object):
         if ("use_dual_state_representations" in self._config 
             and (self._config["use_dual_state_representations"] == True)):
             return ob
+        # print ("np.array(ob): ", np.array(ob))
+        # print ("self.getEnv().getObservationSpaceSize(): ", self.getEnv().getObservationSpaceSize())
         ob = np.reshape(np.array(ob), (-1, self.getEnv().getObservationSpaceSize()))
             # ob = np.asarray(ob)
         return ob

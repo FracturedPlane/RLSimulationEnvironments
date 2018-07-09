@@ -473,7 +473,8 @@ int EGLRender::_init()
 		 );
 		 checkEglError("Error getting number of devices: eglQueryDevicesEXT");
 
-
+		 /// Need to perform this search because on the compute server all devices appear available
+		 /// Need to find the true one that was allocated, using /dev/nvidia* is the only way.
 		 for(i=0; i<numberDevices; i++)
 		 {
 			 egl_dpy = eglGetPlatformDisplayEXT(EGL_PLATFORM_DEVICE_EXT, eglDevs[i], 0);
@@ -484,7 +485,13 @@ int EGLRender::_init()
 				  std::cerr <<  "Error: eglGetDisplay() failed" << std::endl;
 			  return -1;
 			 }
-
+			  std::string fileName = "/dev/nvidia";
+			  if (file_exists_test(fileName + std::to_string(i)))
+			  {
+				  std::cout << "Found GPU device " << "/dev/nvidia" << i << " for rendering" << std::endl;
+				  break;
+			  }
+			  /*
 			 if (!eglInitialize(egl_dpy, &egl_major, &egl_minor)) {
 				 std::cerr << "Error: eglInitialize() failed on device: " << i << std::endl;
 			  continue;
@@ -493,7 +500,7 @@ int EGLRender::_init()
 			 { /// Found a device that works.
 				 break;
 			 }
-
+			   */
 		 }
 		 if (!egl_dpy)
 		 {

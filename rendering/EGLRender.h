@@ -25,6 +25,16 @@
 #include <EGL/eglext.h>
 #include <vector>
 #include <iostream>
+#include <sys/stat.h>
+
+/*
+ * Return true if the file exists
+ */
+inline bool file_exists_test (const std::string& name) {
+	std::cout << "Checking if file exsits: " << name << std::endl;
+  struct stat buffer;
+  return (stat (name.c_str(), &buffer) == 0);
+}
 
 static void
 make_z_rot_matrix(GLfloat angle, GLfloat *m)
