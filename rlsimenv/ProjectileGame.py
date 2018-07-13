@@ -9,6 +9,7 @@ import numpy as np
 # from twisted.protocols import stateful
 import copy
 import math
+from rlsimenv.EnvWrapper import ActionSpace
 
 def clampAction(actionV, bounds):
     """
@@ -305,25 +306,33 @@ class ProjectileGame(object):
             self._imitation_visual_state = [0.5] * self._game_settings["timestep_subsampling"]
         ### To properly compute the visual state
         self.initEpoch()
-        """
-        if ("process_visual_data" in self._game_settings
+        
+        self._action_bounds = self._game_settings['action_bounds']
+        if ("use_dual_state_representations" in self._game_settings
+                 and (self._game_settings["use_dual_state_representations"] == True)):
+            self._state_bounds = self._game_settings['state_bounds']
+            # self._state_length = np.array(self.getState()).size
+        elif ("process_visual_data" in self._game_settings
             and (self._game_settings["process_visual_data"] == True)):
             ob_low = (np.prod(self._visual_state[0].shape) * len(self._visual_state)) * [0]
             ob_high = (np.prod(self._visual_state[0].shape) * len(self._visual_state)) * [1]
             observation_space = [ob_low, ob_high]
+            # print ("observation_space shape: ", np.array(observation_space).shape)
+            self._state_bounds = observation_space 
             self._observation_space = ActionSpace(observation_space)
         else:
             ob_low = [-1] * self.getEnv().getObservationSpaceSize()
             ob_high = [1] * self.getEnv().getObservationSpaceSize() 
             observation_space = [ob_low, ob_high]
             self._observation_space = ActionSpace(observation_space)
-        """
+            self._action_bounds = self._game_settings['action_bounds']
+            self._state_bounds = self._game_settings['state_bounds']
+            # self._state_length = np.array(self.getState()).size
         
-        self._action_bounds = self._game_settings['action_bounds']
-        self._state_bounds = self._game_settings['state_bounds']
-        # self._state_length = np.array(self.getState()).size
+        
         self._state_length = len(self._state_bounds[0])
         self._action_length = len(self._action_bounds[0])
+        
         
         
         
