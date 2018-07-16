@@ -111,7 +111,7 @@ int EGLRender::save_PPM()
 void EGLRender::draw(void)
 {
 	/// As a method to zoom out.
-	float tri_scale = 0.25;
+	float tri_scale = 0.125;
    const GLfloat verts[3][2] = {
       { -1, -1 },
       {  1, -1 },
@@ -193,18 +193,23 @@ void EGLRender::reshape(int width, int height)
    glViewport(0, 0, (GLint) width, (GLint) height);
 }
 
-std::vector<std::vector<std::vector<unsigned char> > > EGLRender::getPixels(size_t x_start, size_t y_start, size_t width, size_t height)
+// std::vector<std::vector<std::vector<unsigned char> > > EGLRender::getPixels(size_t x_start, size_t y_start, size_t width, size_t height)
+std::vector<unsigned char> EGLRender::getPixels(size_t x_start, size_t y_start, size_t width, size_t height)
 {
 	// drawAgent = true;
 	// drawObject = false;
 	// draw();
-	std::vector<std::vector<std::vector<unsigned char> > > out(height,
-			std::vector<std::vector<unsigned char> >(width,
-					std::vector<unsigned char>(3, 0)));
+	// std::vector<std::vector<std::vector<unsigned char> > > out(height,
+	// 		std::vector<std::vector<unsigned char> >(width,
+	// 				std::vector<unsigned char>(3, 0)));
+	// std::vector<unsigned char> out;
 	size_t num_pixels = 3*width*height;
+	std::vector<unsigned char> out(num_pixels, 0);
 	unsigned char m_pixels[num_pixels];
 	glReadPixels(x_start, y_start, width, height,
-			GL_RGB,GL_UNSIGNED_BYTE, (GLvoid *) m_pixels);
+			GL_RGB,GL_UNSIGNED_BYTE, (GLvoid *) out.data());
+			// GL_RGB,GL_UNSIGNED_BYTE, (GLvoid *) m_pixels);
+/*
 	for (size_t h = 0; h < height; h ++)
 	{
 		for (size_t w = 0; w < width; w ++)
@@ -218,7 +223,7 @@ std::vector<std::vector<std::vector<unsigned char> > > EGLRender::getPixels(size
 			}
 		}
 	}
-
+*/
 	return out;
 }
 

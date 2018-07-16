@@ -767,12 +767,12 @@ class ProjectileGame(object):
                            self._game_settings["image_clipping_area"][2], 
                            self._game_settings["image_clipping_area"][3])
         # print (img)
-        img = np.asarray(img)/255
+        # img = np.asarray(img)/255
         # print ("img shape:", np.array(img).shape)
         # assert(np.sum(img) > 0.0)
         ### reshape into image, colour last
-        # img = np.reshape(img, (self._game_settings["image_clipping_area"][3], 
-        #                    self._game_settings["image_clipping_area"][2], 3)) / 255
+        img = np.reshape(img, (self._game_settings["image_clipping_area"][3], 
+                           self._game_settings["image_clipping_area"][2], 3)) / 255
         ### downsample image
         img = block_reduce(img, block_size=(self._game_settings["downsample_image"][0], 
                                             self._game_settings["downsample_image"][1], 
