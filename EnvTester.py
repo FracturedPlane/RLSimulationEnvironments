@@ -17,11 +17,11 @@ if __name__ == '__main__':
     print("Actions space max: ", env.action_space.getMaximum())
     
     env.reset()
-    for epoch in range(1):
+    for epoch in range(10):
         env.reset()
         print ("New episode")
         # while (True):
-        for i in range(5):
+        for i in range(100):
             actions = []
             for a in range(env.getNumberofAgents()):
                 action = ((actionSpace.getMaximum() - actionSpace.getMinimum()) * np.random.uniform(size=actionSpace.getMinimum().shape[0])  ) + actionSpace.getMinimum()
@@ -31,7 +31,7 @@ if __name__ == '__main__':
             else:
                 # observation, reward,  done, info = env.step(actions[0])
                 observation, reward,  done, info = env.step([0,0])
-            print ("Reward: ", reward, "Action: ", actions, " observation: ", observation)
+            # print ("Reward: ", reward, "Action: ", actions, " observation: ", observation)
             print ("Done: ", done)
             vizData = env.getVisualState()
             # print("visual Data: " +  str(vizData))
@@ -41,10 +41,10 @@ if __name__ == '__main__':
                 viewData = vizData[vd]
                 viewImitateData = vizImitateData[vd]
                 ## Get and vis terrain data
-                if (True):
+                if (False):
                     ## Don't use Xwindows backend for this
                     import matplotlib
-                    matplotlib.use('Agg')
+                    # matplotlib.use('Agg')
                     import matplotlib.pyplot as plt
                     # img_ = np.reshape(viewData, (150,158,3))
                     img_ = viewData
@@ -61,7 +61,7 @@ if __name__ == '__main__':
                         plt.title("visual Data: " +  str(vd))
                         fig2.savefig("viz_imitation_state_"+str(i)+".svg")
                         
-                    # plt.show()
+                    plt.show()
                     
             img = env.getEnv().getVisualState()
             if ( done ):

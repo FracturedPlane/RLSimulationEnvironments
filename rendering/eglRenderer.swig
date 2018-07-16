@@ -20,6 +20,8 @@ namespace std {
    %template(StringVector) vector<string>;
    %template(ConstCharVector) vector<const char*>;
    %template(UnsighnedCharVector) vector<unsigned char>;
+   %template(UnsighnedCharVectorVector) vector<vector<unsigned char> >;
+   %template(UnsighnedCharVectorVectorVector) vector<vector<vector<unsigned char> > >;
 }
 
 %include "EGLRender.h"

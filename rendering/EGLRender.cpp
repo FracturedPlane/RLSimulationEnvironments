@@ -193,20 +193,32 @@ void EGLRender::reshape(int width, int height)
    glViewport(0, 0, (GLint) width, (GLint) height);
 }
 
-std::vector<unsigned char> EGLRender::getPixels(size_t x_start, size_t y_start, size_t width, size_t height)
+std::vector<std::vector<std::vector<unsigned char> > > EGLRender::getPixels(size_t x_start, size_t y_start, size_t width, size_t height)
 {
 	// drawAgent = true;
 	// drawObject = false;
 	// draw();
-	std::vector<unsigned char > out;
+	std::vector<std::vector<std::vector<unsigned char> > > out(height,
+			std::vector<std::vector<unsigned char> >(width,
+					std::vector<unsigned char>(3, 0)));
 	size_t num_pixels = 3*width*height;
 	unsigned char m_pixels[num_pixels];
 	glReadPixels(x_start, y_start, width, height,
 			GL_RGB,GL_UNSIGNED_BYTE, (GLvoid *) m_pixels);
-	for (size_t i = 0; i < num_pixels; i ++)
+	for (size_t h = 0; h < height; h ++)
 	{
-		out.push_back(m_pixels[i]);
+		for (size_t w = 0; w < width; w ++)
+		{
+			for (size_t c = 0; c < 3; c ++)
+			{
+				// col.push_back(m_pixels[(c * width * height) + (h*height) + w]);
+				// 						gets row  gets column   get colour
+
+				out[h][w][c] = m_pixels[(h*(width*3)) + (w*3) + c];
+			}
+		}
 	}
+
 	return out;
 }
 

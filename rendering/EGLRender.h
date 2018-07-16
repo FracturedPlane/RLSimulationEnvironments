@@ -251,7 +251,7 @@ public:
 /* new window size or exposure */
 	virtual void reshape(int width, int height);
 
-	virtual std::vector<unsigned char> getPixels(size_t x_start, size_t y_start, size_t width, size_t height);
+	virtual std::vector<std::vector<std::vector<unsigned char> > > getPixels(size_t x_start, size_t y_start, size_t width, size_t height);
 	virtual void create_shaders(void);
 	virtual void init(void);
 
