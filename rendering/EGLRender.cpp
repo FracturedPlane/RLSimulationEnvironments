@@ -249,6 +249,7 @@ void EGLRender::create_shaders(void)
    GLint stat;
 
    fragShader = glCreateShader(GL_FRAGMENT_SHADER);
+   std::cout << "Created frag shader: " << fragShader << std::endl;
    checkEglError("Create frag shader");
    printGLError();
    glShaderSource(fragShader, 1, (const char **) &fragShaderText, NULL);
@@ -266,6 +267,7 @@ void EGLRender::create_shaders(void)
    }
 
    vertShader = glCreateShader(GL_VERTEX_SHADER);
+   std::cout << "Created vert shader: " << vertShader << std::endl;
    glShaderSource(vertShader, 1, (const char **) &vertShaderText, NULL);
    glCompileShader(vertShader);
    glGetShaderiv(vertShader, GL_COMPILE_STATUS, &stat);
@@ -278,6 +280,7 @@ void EGLRender::create_shaders(void)
    glAttachShader(program, fragShader);
    glAttachShader(program, vertShader);
    glLinkProgram(program);
+   std::cout << "Linked shader program : " << program << std::endl;
 
    glGetProgramiv(program, GL_LINK_STATUS, &stat);
    if (!stat) {

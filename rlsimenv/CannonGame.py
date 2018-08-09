@@ -686,7 +686,9 @@ class CannonGame(object):
             pos = np.array([state[4], state[5], 0])
         d = dist3(pos, pos_)
         vel_dif = np.abs(pos - pos_)
-        reward = math.exp((d*d)*self._target_vel_weight)
+        # reward = math.exp((d*d)*self._target_vel_weight)
+        reward = -d
+        
         return reward
     
     def getSimState(self):
@@ -822,11 +824,12 @@ class CannonGame(object):
             draw_body(b)
         # for b in ragdoll.bodies:
         #     draw_body(b)
+        """
         if (self._draw_terrain):
             drawTerrain(self._terrainData, self._terrainStartX)
             if ( len(self._nextTerrainData) > 0):
                 drawTerrain(self._nextTerrainData, self._nextTerrainStartX, translateY=0.02, translateZ=0.02, colour=(0.9, 0.2, 0.9, 0.0), wirefame=True)
-        
+        """
         # state = self.getState()
         # pos = self._obstacle.getPosition()
         # drawTerrain(state, pos[0]+state[len(state)-1], translateY=0.1, colour=(0.1, 0.8, 0.1, 0.1))
