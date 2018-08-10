@@ -686,9 +686,8 @@ class CannonGame(object):
             pos = np.array([state[4], state[5], 0])
         d = dist3(pos, pos_)
         vel_dif = np.abs(pos - pos_)
-        # reward = math.exp((d*d)*self._target_vel_weight)
-        reward = -d
-        
+        reward = math.exp((d*d)*self._target_vel_weight)
+        # reward = -d
         return reward
     
     def getSimState(self):
