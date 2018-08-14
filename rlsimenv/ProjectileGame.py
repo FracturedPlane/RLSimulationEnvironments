@@ -722,6 +722,23 @@ class ProjectileGame(object):
             state.append(ob)
             
             return [state]
+        
+        if ("process_visual_data" in self._game_settings
+            and (self._game_settings["process_visual_data"] == True)
+            and ("use_dual_viz_state_representations" in self._game_settings
+                 and (self._game_settings["use_dual_viz_state_representations"] == True))):
+
+            state = []
+                        
+            ob = np.array(self.getVisualState())
+            ob = np.reshape(np.array(ob), (-1, ob.size))
+            state.append(ob)
+            
+            ob = np.array(self.getImitationVisualState())
+            ob = np.reshape(np.array(ob), (-1, ob.size))
+            state.append(ob)
+            
+            return [state]
 
         if ("process_visual_data" in self._game_settings
             and (self._game_settings["process_visual_data"] == True)):
