@@ -424,7 +424,7 @@ SIMULATION_ENVIRONMENTS = """
         "comment__": "Amount of downsampling that will be done to the image",
     "downsample_image": [4, 4, 1],
         "comment__": "Whether or not to convert the image to grayscale",
-    "convert_to_greyscale": true,
+    "convert_to_greyscale": false,
         "comment__" : "Whether or not to collect imitation visual data as well (skip for efficiency)",
     "also_imitation_visual_data": true,
         "comment__": "Enable headless rendering",

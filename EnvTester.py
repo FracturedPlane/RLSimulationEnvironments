@@ -54,7 +54,7 @@ if __name__ == '__main__':
                     plt.title("visual Data: " +  str(vd))
                     fig1.savefig("viz_state_"+str(i)+".svg")
 
-                    if (False):                    
+                    if (True):                    
                         img_ = viewImitateData
                         fig2 = plt.figure(2)
                         plt.imshow(img_, origin='lower')

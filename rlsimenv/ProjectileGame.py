@@ -503,9 +503,9 @@ class ProjectileGame(object):
             self._state_num=self._state_num+1
             if ("process_visual_data" in self._game_settings
             and (self._game_settings["process_visual_data"] == True)):
-                self._lookAt = agent_pos
-                self._visual_state[i] = self._getVisualState()
                 self._lookAt = imitate_pos
+                self._visual_state[i] = self._getVisualState()
+                self._lookAt = agent_pos
                 self._imitation_visual_state[i] = self._getImitationVisualState()
                 self._lookAt = save_lookat
             # state = self.getState()
