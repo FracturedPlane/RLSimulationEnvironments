@@ -381,7 +381,7 @@ SIMULATION_ENVIRONMENTS = """
         "comment__": "Mix different state discription types, used for debugging visual imitation learning",
     "use_dual_state_representations": false
     },
-"ProjectileGameViz-DualVizState-v0": 
+"ProjectileGameViz_DualVizState_v0": 
 {
     "config_file": "./args/genBiped2D/biped2dfull_flat_with_terrain_features.txt",
     "time_limit": 256,
@@ -430,7 +430,7 @@ SIMULATION_ENVIRONMENTS = """
         "comment__": "Enable headless rendering",
     "headless_render": false,
         "comment__": "Mix different state discription types, used for debugging visual imitation learning",
-    "use_dual_state_representations": false,
+    "use_dual_state_representations": true,
         "comment__": "Keep the viz state for the agent and the imitation character",
     "use_dual_viz_state_representations": true
     }

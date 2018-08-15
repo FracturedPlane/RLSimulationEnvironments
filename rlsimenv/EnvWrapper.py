@@ -92,8 +92,10 @@ class EnvWrapper(object):
         ob = []
 
         ob = self._sim.getState()
+        # print ("np.array(ob): ", np.array(ob).shape)
         if ("use_dual_state_representations" in self._config 
             and (self._config["use_dual_state_representations"] == True)):
+            # print ("np.array(ob): ", np.array(ob).shape)
             return ob
         # print ("np.array(ob): ", np.array(ob))
         # print ("self.getEnv().getObservationSpaceSize(): ", self.getEnv().getObservationSpaceSize())

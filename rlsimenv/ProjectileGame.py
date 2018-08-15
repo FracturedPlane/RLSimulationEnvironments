@@ -308,7 +308,17 @@ class ProjectileGame(object):
         self.initEpoch()
         
         self._action_bounds = self._game_settings['action_bounds']
-        if ("use_dual_state_representations" in self._game_settings
+        
+        if ("use_dual_viz_state_representations" in self._game_settings
+                 and (self._game_settings["use_dual_viz_state_representations"] == True)):
+            ob_low = (np.prod(self._visual_state[0].shape) * len(self._visual_state)) * [0]
+            ob_high = (np.prod(self._visual_state[0].shape) * len(self._visual_state)) * [1]
+            observation_space = [ob_low, ob_high]
+            # print ("observation_space shape: ", np.array(observation_space).shape)
+            self._state_bounds = observation_space 
+            self._observation_space = ActionSpace(observation_space)
+            # self._state_length = np.array(self.getState()).size
+        elif ("use_dual_state_representations" in self._game_settings
                  and (self._game_settings["use_dual_state_representations"] == True)):
             self._state_bounds = self._game_settings['state_bounds']
             # self._state_length = np.array(self.getState()).size
@@ -704,41 +714,40 @@ class ProjectileGame(object):
         """ get the next self._num_points points"""
         state = []
         if ("process_visual_data" in self._game_settings
-            and (self._game_settings["process_visual_data"] == True)
-            and ("use_dual_state_representations" in self._game_settings
-                 and (self._game_settings["use_dual_state_representations"] == True))):
+            and (self._game_settings["process_visual_data"] == True)):
             
-            charState = self.getCharacterState()
-            kincharState = self.getKinCharacterState()
-            diffState = self.getDiffState()
-            state_ = []
-            state_.extend(charState)
-            state_.extend(kincharState)
-            state_.extend(diffState)
-            state.append(np.array(state_))
-            
-            ob = np.array(self.getVisualState())
-            ob = np.reshape(np.array(ob), (-1, ob.size))
-            state.append(ob)
-            
-            return [state]
-        
-        if ("process_visual_data" in self._game_settings
-            and (self._game_settings["process_visual_data"] == True)
-            and ("use_dual_viz_state_representations" in self._game_settings
+            if (("use_dual_viz_state_representations" in self._game_settings
                  and (self._game_settings["use_dual_viz_state_representations"] == True))):
 
-            state = []
-                        
-            ob = np.array(self.getVisualState())
-            ob = np.reshape(np.array(ob), (-1, ob.size))
-            state.append(ob)
+                state = []
+                            
+                ob = np.array(self.getVisualState())
+                ob = ob.flatten()
+                state.append(ob)
+                
+                ob = np.array(self.getImitationVisualState())
+                ob = ob.flatten()
+                state.append(ob)
+                
+                return [state]
+            elif ( "use_dual_state_representations" in self._game_settings
+                 and (self._game_settings["use_dual_state_representations"] == True)):
             
-            ob = np.array(self.getImitationVisualState())
-            ob = np.reshape(np.array(ob), (-1, ob.size))
-            state.append(ob)
-            
-            return [state]
+                charState = self.getCharacterState()
+                kincharState = self.getKinCharacterState()
+                diffState = self.getDiffState()
+                state_ = []
+                state_.extend(charState)
+                state_.extend(kincharState)
+                state_.extend(diffState)
+                state.append(np.array(state_))
+                
+                ob = np.array(self.getVisualState())
+                ob = np.reshape(np.array(ob), (-1, ob.size))
+                state.append(ob)
+                
+                return [state]
+        
 
         if ("process_visual_data" in self._game_settings
             and (self._game_settings["process_visual_data"] == True)):
@@ -801,16 +810,17 @@ class ProjectileGame(object):
     
     def _getVisualState(self):
         ### toggle things that we don't want in the rendered image
-        self.eglRenderer.setDrawAgent(True)
-        self.eglRenderer.setDrawObject(False)
+        ### Yes the Agent is the red triangle (the object)
+        self.eglRenderer.setDrawAgent(False)
+        self.eglRenderer.setDrawObject(True)
         self.display(redraw=False)
         img = self.getViewData()
         # self.render()
         return img
     
     def _getImitationVisualState(self):
-        self.eglRenderer.setDrawAgent(False)
-        self.eglRenderer.setDrawObject(True)
+        self.eglRenderer.setDrawAgent(True)
+        self.eglRenderer.setDrawObject(False)
         self.display(redraw=False)
         img = self.getViewData()
         return img
