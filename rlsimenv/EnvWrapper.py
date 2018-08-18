@@ -34,11 +34,11 @@ class EnvWrapper(object):
         self._render = render
         self._done = None
         
-        act_low = [-1] * self.getEnv().getActionSpaceSize()
+        act_low = [0] * self.getEnv().getActionSpaceSize()
         act_high = [1] * self.getEnv().getActionSpaceSize() 
         action_space = [act_low, act_high]
         self._action_space = ActionSpace(action_space)
-        ob_low = [-1] * self.getEnv().getObservationSpaceSize()
+        ob_low = [0] * self.getEnv().getObservationSpaceSize()
         ob_high = [1] * self.getEnv().getObservationSpaceSize() 
         observation_space = [ob_low, ob_high]
         self._observation_space = ActionSpace(observation_space)

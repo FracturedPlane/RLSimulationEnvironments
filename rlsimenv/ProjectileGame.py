@@ -331,7 +331,7 @@ class ProjectileGame(object):
             self._state_bounds = observation_space 
             self._observation_space = ActionSpace(observation_space)
         else:
-            ob_low = [-1] * self.getEnv().getObservationSpaceSize()
+            ob_low = [0] * self.getEnv().getObservationSpaceSize()
             ob_high = [1] * self.getEnv().getObservationSpaceSize() 
             observation_space = [ob_low, ob_high]
             self._observation_space = ActionSpace(observation_space)
@@ -743,7 +743,7 @@ class ProjectileGame(object):
                 state.append(np.array(state_))
                 
                 ob = np.array(self.getVisualState())
-                ob = np.reshape(np.array(ob), (-1, ob.size))
+                ob = ob.flatten()
                 state.append(ob)
                 
                 return [state]
