@@ -803,10 +803,10 @@ class GapGame1D(object):
         gap_start=self._terrainParameters['gap_start']
         next_gap=self._terrainParameters['distance_till_next_gap']
         for i in range(int(terrainLength/next_gap)):
-            gap_start= gap_start+np.random.random_integers(self._terrainParameters['random_gap_start_range'][0],
-                                                self._terrainParameters['random_gap_start_range'][1])
-            gap_size=np.random.random_integers(self._terrainParameters['random_gap_width_range'][0],
-                                    self._terrainParameters['random_gap_width_range'][1])
+            gap_start= gap_start+np.random.randint(self._terrainParameters['random_gap_start_range'][0],
+                                                self._terrainParameters['random_gap_start_range'][1] + 1)
+            gap_size=np.random.randint(self._terrainParameters['random_gap_width_range'][0],
+                                    self._terrainParameters['random_gap_width_range'][1] + 1)
             terrainData[gap_start:gap_start+gap_size] = self._terrainParameters['terrain_change']
             gap_start=gap_start+next_gap
             
