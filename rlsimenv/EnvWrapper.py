@@ -273,6 +273,9 @@ def getEnv(env_name, render=False):
     elif ( env_data[env_name]['sim_name'] == 'CannonGame'):
         from rlsimenv.CannonGame import CannonGame
         sim = CannonGame(settings=env_data[env_name])
+    elif ( env_data[env_name]['sim_name'] == 'CannonImitationGame_v0'):
+        from rlsimenv.CannonImitationGame import CannonImitationGame
+        sim = CannonImitationGame(settings=env_data[env_name])
     elif ( env_data[env_name]['sim_name'] == 'ProjectileGame'):
         from rlsimenv.ProjectileGame import ProjectileGame
         sim = ProjectileGame(settings=env_data[env_name])

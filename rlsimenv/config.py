@@ -181,6 +181,40 @@ SIMULATION_ENVIRONMENTS = """
         "comment__": "Number of subsampled pose images taken between action updates",
     "timestep_subsampling": 1
 },
+"CannonImitationGame_v0": 
+{
+    "config_file": "./args/genBiped2D/biped2dfull_flat_with_terrain_features.txt",
+    "time_limit": 256,
+    "sim_name": "CannonImitationGame",
+        "comment__": "Possible state bounds to be used for scaling states for networks",
+"state_bounds": [[ -0.1        , -0.37297016, -0.46672943, -0.54017961],
+               [ 0.1        ,  0.46497017,  0.63072944,  0.79617959]],
+    "comment__": "Action scaling values to be used to scale values for the network",
+"action_bounds": [[-1.0, -1.0],
+                  [1.0, 1.0]],
+    "terrain_type": "gaps",
+    "terrain_scale": 0.1,
+    "body_shape": "sphere",
+    "body_shape_parameters": {
+                            "radius": 0.05
+                            },
+    "num_terrain_samples": 64,
+    "terrain_parameters": {
+                            "gap_size": 5,
+                            "gap_start": 5,
+                            "comment__": "Need to be careful here for state scaling will be 0-0/0",
+                            "random_gap_width_range": [4,6],
+                            "random_gap_start_range": [3,15],
+                            "distance_till_next_gap": 20,
+                            "terrain_change": -1.0,
+                            "terrain_length": 500
+                        },
+    "velocity_bounds": [[-4.0, -6.0], [4.0, 6.0]],
+        "comment__": "Number of times the action is updated per second, fps",
+    "action_fps": 50,
+        "comment__": "Number of subsampled pose images taken between action updates",
+    "timestep_subsampling": 1
+},
 "CannonGameViz-v0": 
 {
     "config_file": "./args/genBiped2D/biped2dfull_flat_with_terrain_features.txt",
