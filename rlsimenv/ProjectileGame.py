@@ -233,8 +233,7 @@ class ProjectileGame(object):
 
             plt.ion()
             self._fig, (self._bellman_error_ax) = plt.subplots(1, 1, sharey=False, sharex=True)
-            img_ = self.eglRenderer.getPixels(0, 0, 1000, 1000)
-            img_ = np.reshape(img_, (1000, 1000, 3))
+            img_ = self.getFullViewData()
             self._bellman_error_ax.imshow(img_, origin='lower')
             self._bellman_error_ax.set_title("visual Data: ")
             # self._bellman_error_ax = plt.imshow(img_, origin='lower')
@@ -609,8 +608,7 @@ class ProjectileGame(object):
         self.eglRenderer.setDrawAgent(True)
         self.eglRenderer.setDrawObject(True)
         self.eglRenderer.draw()
-        img_ = self.eglRenderer.getPixels(0, 0, 1000, 1000)
-        img_ = np.reshape(img_, (1000, 1000, 3))
+        img_ = self.getFullViewData()
         ax_img = self._bellman_error_ax.images[-1]
         ax_img.set_data(img_)
         # ax_img = self._bellman_error_ax.set_data(img_)
@@ -806,6 +804,22 @@ class ProjectileGame(object):
         ### convert to greyscale
         if (self._game_settings["convert_to_greyscale"]):
             img = np.mean(img, axis=2)
+        return img
+    
+    def getFullViewData(self):
+        from skimage.measure import block_reduce
+        ### Get pixel data from view
+        img = self.eglRenderer.getPixels(0,
+                           0, 
+                           1000, 
+                           1000)
+        # assert(np.sum(img) > 0.0)
+        ### reshape into image, colour last
+        img = np.reshape(img, (1000, 
+                           1000, 3))
+        ### downsample image
+        ### convert to greyscale
+        # assert(np.sum(img) > 0.0)
         return img
     
     def _getVisualState(self):

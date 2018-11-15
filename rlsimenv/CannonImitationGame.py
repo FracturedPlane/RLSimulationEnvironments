@@ -21,7 +21,7 @@ class CannonImitationGame(CannonGame):
         """
         
         """
-        super(CannonGame,self).__init__(settings)
+        super(CannonImitationGame,self).__init__(settings)
         
     def getState(self):
         """ get the next self._num_points points"""
