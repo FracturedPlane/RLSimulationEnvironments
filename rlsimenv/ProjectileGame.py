@@ -235,7 +235,7 @@ class ProjectileGame(object):
             self._fig, (self._bellman_error_ax) = plt.subplots(1, 1, sharey=False, sharex=True)
             img_ = self.getFullViewData()
             self._bellman_error_ax.imshow(img_, origin='lower')
-            self._bellman_error_ax.set_title("visual Data: ")
+            self._bellman_error_ax.set_title("agent is red, imitation is blue: visual Data: ")
             # self._bellman_error_ax = plt.imshow(img_, origin='lower')
             # plt.title("visual Data: ")
             plt.grid(b=True, which='major', color='black', linestyle='--')
@@ -673,6 +673,38 @@ class ProjectileGame(object):
         # self._object.setLinearVel((action[0],4.0,0.0))
         time_ = 0
         
+    def getAgentPosition(self):
+        # add velocity
+        state_ = []
+        pos = self._agent.getPosition()
+        state_.append(pos[0])
+        state_.append(pos[1])
+        return state_
+    
+    def getAgentVelocity(self):
+        # add velocity
+        state_ = []
+        vel = self._agent.getLinearVel()
+        state_.append(vel[0])
+        state_.append(vel[1])
+        return state_
+    
+    def getImitationAgentPosition(self):
+        # add velocity
+        state_ = []
+        pos = self._object.getPosition()
+        state_.append(pos[0])
+        state_.append(pos[1])
+        return state_
+    
+    def getImitationAgentVelocity(self):
+        # add velocity
+        state_ = []
+        vel = self._object.getLinearVel()
+        state_.append(vel[0])
+        state_.append(vel[1])
+        return state_
+    
     def getCharacterState(self):
         # add velocity
         state_ = []
@@ -829,6 +861,12 @@ class ProjectileGame(object):
         self.eglRenderer.setDrawObject(True)
         self.display(redraw=False)
         img = self.getViewData()
+        if ("append_camera_velocity_state" in self._game_settings
+            and (self._game_settings["append_camera_velocity_state"] == True)):
+            ### Add velocity to state
+            vel_ = self.getAgentVelocity()
+            # print ("img shape: ", img.shape)
+            img = np.concatenate((img.flatten(), vel_), axis=0)
         # self.render()
         return img
     
@@ -837,5 +875,10 @@ class ProjectileGame(object):
         self.eglRenderer.setDrawObject(False)
         self.display(redraw=False)
         img = self.getViewData()
+        if ("append_camera_velocity_state" in self._game_settings
+            and (self._game_settings["append_camera_velocity_state"] == True)):
+            ### Add velocity to state
+            vel_ = self.getImitationAgentVelocity()
+            img = np.concatenate((img.flatten(), vel_), axis=0)
         return img
     

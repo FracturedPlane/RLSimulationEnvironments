@@ -6,7 +6,7 @@ if __name__ == '__main__':
     
     # env = getEnv(env_name="ParticleGame_2D-v0", render=False)
     # env = getEnv(env_name="CannonGameViz2-v0", render=True)
-    env = getEnv(env_name="ProjectileGameViz_DualVizState_v0", render=False)
+    env = getEnv(env_name="ProjectileGameViz_DualState_WithCamVel_32x32_v0", render=True)
 
     actionSpace = env.getActionSpace()
     env.setRandomSeed(1234)
@@ -32,6 +32,7 @@ if __name__ == '__main__':
                 # observation, reward,  done, info = env.step(actions[0])
                 observation, reward,  done, info = env.step([0,0])
             # print ("Reward: ", reward, "Action: ", actions, " observation: ", observation)
+            print ("observation size: ", np.array(observation[0][1]).shape)
             print ("Done: ", done)
             vizData = env.getVisualState()
             # print("visual Data: " +  str(vizData))
@@ -41,7 +42,7 @@ if __name__ == '__main__':
                 viewData = vizData[vd]
                 viewImitateData = vizImitateData[vd]
                 ## Get and vis terrain data
-                if (True):
+                if (False):
                     ## Don't use Xwindows backend for this
                     import matplotlib
                     # matplotlib.use('Agg')
@@ -51,14 +52,14 @@ if __name__ == '__main__':
                     print("img_ shape", img_.shape, " sum: ", np.sum(viewData))
                     fig1 = plt.figure(1)
                     plt.imshow(img_, origin='lower')
-                    plt.title("visual Data: " +  str(vd))
+                    plt.title("agent visual Data: " +  str(vd))
                     fig1.savefig("viz_state_"+str(i)+".svg")
 
                     if (True):                    
                         img_ = viewImitateData
                         fig2 = plt.figure(2)
                         plt.imshow(img_, origin='lower')
-                        plt.title("visual Data: " +  str(vd))
+                        plt.title("imitation visual Data: " +  str(vd))
                         fig2.savefig("viz_imitation_state_"+str(i)+".svg")
                         
                     plt.show()
