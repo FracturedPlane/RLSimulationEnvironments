@@ -195,7 +195,7 @@ class NavGameMultiAgent(object):
                 rewards.append([self.reward(a)])
         
         if ( self._settings['render'] == True ):
-            self.update()
+            self.display()
         self.__reward = rewards
         return rewards
     
