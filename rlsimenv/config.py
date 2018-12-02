@@ -628,8 +628,44 @@ SIMULATION_ENVIRONMENTS = """
     "use_dual_viz_state_representations": false,
         "comment__": "Include the camera velocity on the end of the state",
     "append_camera_velocity_state": true
+    },
+"ProjectileGame_DualPoseState_v0": 
+{
+    "config_file": "./args/genBiped2D/biped2dfull_flat_with_terrain_features.txt",
+    "time_limit": 256,
+    "sim_name": "ProjectileGame",
+        "comment__": "Possible state bounds to be used for scaling states for networks",
+"state_bounds": [[ -0.46672943, -0.54017961],
+               [ 0.63072944,  0.79617959]],
+    "comment__": "Action scaling values to be used to scale values for the network",
+"action_bounds": [[-1.0, -1.0],
+                  [1.0, 1.0]],
+    "velocity_bounds": [[-4.0, -6.0], [4.0, 6.0]],
+    "process_visual_data": false,
+        "comment__": "Number of times the action is updated per second, fps",
+    "action_fps": 50,
+        "comment__": "Number of subsampled pose images taken between action updates",
+    "timestep_subsampling": 1,
+        "comment__": "Area that will be clipped from the rendering using glReadPixels [x, y, width, height]",
+    "image_clipping_area": [484, 486, 32, 32],
+        "comment__": "Amount of downsampling that will be done to the image",
+    "downsample_image": [1, 1, 1],
+        "comment__": "Whether or not to convert the image to grayscale",
+    "convert_to_greyscale": false,
+        "comment__" : "Whether or not to collect imitation visual data as well (skip for efficiency)",
+    "also_imitation_visual_data": false,
+        "comment__": "Enable headless rendering",
+    "headless_render": false,
+        "comment__": "Mix different state description types, used for debugging visual imitation learning",
+    "use_dual_state_representations": false,
+        "comment__": "Include the state for both the agent and the imitation agent",
+    "use_dual_pose_state_representations": true,
+        "comment__": "Keep the viz state for the agent and the imitation character",
+    "use_dual_viz_state_representations": false,
+        "comment__": "Include the camera velocity on the end of the state",
+    "append_camera_velocity_state": false,
+        "comment__": "Use reduced pose state (just velocities)",
+    "use_reduced_pose_state": true
     }
-    
-
 }
 """

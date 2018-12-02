@@ -320,6 +320,10 @@ class ProjectileGame(object):
         elif ("use_dual_state_representations" in self._game_settings
                  and (self._game_settings["use_dual_state_representations"] == True)):
             self._state_bounds = self._game_settings['state_bounds']
+        elif ("use_dual_pose_state_representations" in self._game_settings
+                 and (self._game_settings["use_dual_pose_state_representations"] == True)):
+            self._state_bounds = self._game_settings['state_bounds']
+            self._observation_space = ActionSpace(self._state_bounds)
             # self._state_length = np.array(self.getState()).size
         elif ("process_visual_data" in self._game_settings
             and (self._game_settings["process_visual_data"] == True)):
@@ -341,9 +345,6 @@ class ProjectileGame(object):
         
         self._state_length = len(self._state_bounds[0])
         self._action_length = len(self._action_bounds[0])
-        
-        
-        
         
     def getActionSpaceSize(self):
         return self._action_length
@@ -708,36 +709,52 @@ class ProjectileGame(object):
     def getCharacterState(self):
         # add velocity
         state_ = []
-        pos = self._agent.getPosition()
-        state_.append(pos[0])
-        state_.append(pos[1])
-        vel = self._agent.getLinearVel()
-        state_.append(vel[0])
-        state_.append(vel[1])
-        return state_
+        if ("use_reduced_pose_state" in self._game_settings
+            and (self._game_settings["use_reduced_pose_state"] == True)):
+            return self.getAgentVelocity()
+        else:
+            pos = self._agent.getPosition()
+            state_.append(pos[0])
+            state_.append(pos[1])
+            vel = self._agent.getLinearVel()
+            state_.append(vel[0])
+            state_.append(vel[1])
+            return state_
     
     def getKinCharacterState(self):
         # add velocity
-        state_ = []
-        pos = self._object.getPosition()
-        state_.append(pos[0])
-        state_.append(pos[1])
-        vel = self._object.getLinearVel()
-        state_.append(vel[0])
-        state_.append(vel[1])
-        return state_
+        if ("use_reduced_pose_state" in self._game_settings
+            and (self._game_settings["use_reduced_pose_state"] == True)):
+            return self.getImitationAgentVelocity()
+        else:
+            state_ = []
+            pos = self._object.getPosition()
+            state_.append(pos[0])
+            state_.append(pos[1])
+            vel = self._object.getLinearVel()
+            state_.append(vel[0])
+            state_.append(vel[1])
+            return state_
     
     def getDiffState(self):
-        state_ = []
-        pos = self._object.getPosition()
-        pos2 = self._agent.getPosition()
-        state_.append(pos[0]-pos2[0])
-        state_.append(pos[1]-pos2[1])
-        vel = self._object.getLinearVel()
-        vel2 = self._agent.getLinearVel()
-        state_.append(vel[0]-vel2[0])
-        state_.append(vel[1]-vel2[0])
-        return state_
+        """
+            The difference between the agent and the imitation agent
+        """
+        if ("use_reduced_pose_state" in self._game_settings
+            and (self._game_settings["use_reduced_pose_state"] == True)):
+            return []
+        else:
+            
+            state_ = []
+            pos = self._object.getPosition()
+            pos2 = self._agent.getPosition()
+            state_.append(pos[0]-pos2[0])
+            state_.append(pos[1]-pos2[1])
+            vel = self._object.getLinearVel()
+            vel2 = self._agent.getLinearVel()
+            state_.append(vel[0]-vel2[0])
+            state_.append(vel[1]-vel2[0])
+            return state_
     
     
     def getState(self):
@@ -778,7 +795,6 @@ class ProjectileGame(object):
                 
                 return [state]
         
-
         if ("process_visual_data" in self._game_settings
             and (self._game_settings["process_visual_data"] == True)):
             # print("Getting visual state")
@@ -786,6 +802,25 @@ class ProjectileGame(object):
             ob = np.reshape(np.array(ob), (-1, ob.size))
             # print("ob shape: ", ob.shape)
             return ob
+        
+        elif ( "use_dual_pose_state_representations" in self._game_settings
+                 and (self._game_settings["use_dual_pose_state_representations"] == True)):
+            
+                state_ = []
+                charState = self.getCharacterState()
+                kincharState = self.getKinCharacterState()
+                      
+                state_.extend(charState)
+                state.append(np.array(state_))
+                
+                state_ = []
+                state_.extend(kincharState)
+                state.append(state_)
+                
+                state = [state]
+                # print ("env state: ", repr(state))
+                return state
+            
         pos = self._object.getPosition()
         charState = self.getCharacterState()
         kincharState = self.getKinCharacterState()
