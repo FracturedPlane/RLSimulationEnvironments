@@ -218,6 +218,9 @@ class EnvWrapper(object):
     def getImitationState(self):
         return self._sim.getImitationState()
     
+    def getCharacterState(self):
+        return self._sim.getCharacterState()
+    
     def getImitationVisualState(self):
         return self._sim.getImitationVisualState()
     
@@ -228,10 +231,15 @@ class EnvWrapper(object):
         """
         # print("self.getImitationState(): ", self.getVisualState())
         # print("self.getImitationVisualState(): ", self.getImitationVisualState())
-        state_ = np.array(self.getVisualState())
-        
-        dist = reward_func(np.reshape(self.getVisualState() ,newshape=(1, state_.size)),
-                            np.reshape(self.getImitationVisualState(), newshape=(1, state_.size)))
+        if ("process_visual_data" in self._config 
+            and (self._config["process_visual_data"] == True)):
+            state_ = np.array(self.getVisualState())
+            dist = reward_func(np.reshape(self.getVisualState() ,newshape=(1, state_.size)),
+                                np.reshape(self.getImitationVisualState(), newshape=(1, state_.size)))
+        else:
+            state_ = np.array(self.getImitationState())
+            dist = reward_func(np.reshape(self.getCharacterState() ,newshape=(1, state_.size)),
+                                np.reshape(self.getImitationState(), newshape=(1, state_.size)))
         # print("reward dist: ", len(dist), dist)
         return -dist[0]
     
