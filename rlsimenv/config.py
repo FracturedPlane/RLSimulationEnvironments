@@ -777,7 +777,7 @@ SIMULATION_ENVIRONMENTS = """
         "comment__": "Include the camera velocity on the end of the state",
     "append_camera_velocity_state": true,
         "comment__": "Use different state representations for the agent and the imitation char",
-    "use_multimodal_state_representations" true
+    "use_multimodal_state_representations": true
 }
 }
 """
