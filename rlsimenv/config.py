@@ -721,6 +721,63 @@ SIMULATION_ENVIRONMENTS = """
     "use_dual_viz_state_representations": false,
         "comment__": "Include the camera velocity on the end of the state",
     "append_camera_velocity_state": false
-    }
+},
+"ProjectileGameViz_DualState_MultiModal_WithCamVel_32x32_v0": 
+{
+    "config_file": "./args/genBiped2D/biped2dfull_flat_with_terrain_features.txt",
+    "time_limit": 256,
+    "sim_name": "ProjectileGame",
+        "comment__": "Possible state bounds to be used for scaling states for networks",
+"state_bounds": [[ -0.1        , -0.37297016, -0.46672943, -0.54017961,
+                -0.1        , -0.37297016, -0.46672943, -0.54017961, -0.58633739,
+                -0.60702854, -0.61047834, -0.61517441],
+               [ 0.1        ,  0.46497017,  0.63072944,  0.79617959,
+               0.1        ,  0.46497017,  0.63072944,  0.79617959,  0.94033742,
+                 1.03902853,  1.0624783 ,  1.10517442]],
+    "comment__": "Action scaling values to be used to scale values for the network",
+"action_bounds": [[-1.0, -1.0],
+                  [1.0, 1.0]],
+    "terrain_type": "gaps",
+    "terrain_scale": 0.1,
+    "body_shape": "sphere",
+    "body_shape_parameters": {
+                            "radius": 0.05
+                            },
+    "num_terrain_samples": 64,
+    "terrain_parameters": {
+                            "gap_size": 5,
+                            "gap_start": 5,
+                            "comment__": "Need to be careful here for state scaling will be 0-0/0",
+                            "random_gap_width_range": [4,6],
+                            "random_gap_start_range": [3,15],
+                            "distance_till_next_gap": 20,
+                            "terrain_change": -1.0,
+                            "terrain_length": 500
+                        },
+    "velocity_bounds": [[-4.0, -6.0], [4.0, 6.0]],
+    "process_visual_data": true,
+        "comment__": "Number of times the action is updated per second, fps",
+    "action_fps": 50,
+        "comment__": "Number of subsampled pose images taken between action updates",
+    "timestep_subsampling": 1,
+        "comment__": "Area that will be clipped from the rendering using glReadPixels [x, y, width, height]",
+    "image_clipping_area": [484, 486, 32, 32],
+        "comment__": "Amount of downsampling that will be done to the image",
+    "downsample_image": [1, 1, 1],
+        "comment__": "Whether or not to convert the image to grayscale",
+    "convert_to_greyscale": true,
+        "comment__" : "Whether or not to collect imitation visual data as well (skip for efficiency)",
+    "also_imitation_visual_data": true,
+        "comment__": "Enable headless rendering",
+    "headless_render": false,
+        "comment__": "Mix different state discription types, used for debugging visual imitation learning",
+    "use_dual_state_representations": true,
+        "comment__": "Keep the viz state for the agent and the imitation character",
+    "use_dual_viz_state_representations": false,
+        "comment__": "Include the camera velocity on the end of the state",
+    "append_camera_velocity_state": true,
+        "comment__": "Use different state representations for the agent and the imitation char",
+    "use_multimodal_state_representations" true
+}
 }
 """

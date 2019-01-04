@@ -93,7 +93,25 @@ class EnvWrapper(object):
 
         ob = self._sim.getState()
         # print ("np.array(ob): ", np.array(ob).shape)
-        if (("use_dual_state_representations" in self._config 
+        if ("process_visual_data" in self._config
+        and (self._config["process_visual_data"] == True)
+        and ("use_dual_state_representations" in self._config
+             and (self._config["use_dual_state_representations"] == True))
+        and
+            ("use_multimodal_state_representations" in self._config
+             and (self._config["use_multimodal_state_representations"] == True))):
+            ob_ = []
+            ob = self._sim.getState()
+            # ob = np.reshape(np.array(ob), (-1, len(ob)))
+            ob_.append(ob)
+            ob = np.array(self.getVisualState())
+            ob = ob.flatten()
+            ### Add pose state after pixel state, also me being lazy and duplicating pose data
+            ob = np.concatenate((ob, self._sim.getState()), axis=0)
+            # print ("vis ob shape: ", ob.shape)
+            ob_.append(ob)
+            return [ob_]
+        elif (("use_dual_state_representations" in self._config 
             and (self._config["use_dual_state_representations"] == True))
             or ("use_dual_pose_state_representations" in self._config 
             and (self._config["use_dual_pose_state_representations"] == True))):
@@ -231,7 +249,18 @@ class EnvWrapper(object):
         """
         # print("self.getImitationState(): ", self.getVisualState())
         # print("self.getImitationVisualState(): ", self.getImitationVisualState())
-        if ("process_visual_data" in self._config 
+        if ("use_multimodal_state_representations" in self._config
+            and (self._config["use_multimodal_state_representations"] == True)):
+            multi_state_ = self.getMultiModalRewardState()
+            # dist = reward_func(np.reshape(self._sim.getState() ,newshape=(1, state_.size)),
+            #                 np.reshape(viz_state_, newshape=(1, viz_state_.size)))
+            # print ("multi_state_ shape: ", multi_state_.shape)
+            # tmp_dist = reward_func(self.getMultiModalImitationState())
+            # print ("tmp_dist for pure imitation data: ", tmp_dist)
+            # pose_diff = self.getImitationState() - self._sim.getState()
+            # print ("pose_diff: ", pose_diff)
+            dist = reward_func(multi_state_)
+        elif ("process_visual_data" in self._config 
             and (self._config["process_visual_data"] == True)):
             state_ = np.array(self.getVisualState())
             dist = reward_func(np.reshape(self.getVisualState() ,newshape=(1, state_.size)),
