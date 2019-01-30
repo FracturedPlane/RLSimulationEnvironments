@@ -35,9 +35,17 @@ class NavGame2D(object):
     def getNumAgents(self):
         return 1
     
+    def display(self):
+        pass
+    
     def init(self):
         
-        self._physicsClient = p.connect(p.GUI)
+        if (self._game_settings['render']):
+            # self._object.setPosition([self._x[self._step], self._y[self._step], 0.0] )
+            self._physicsClient = p.connect(p.GUI)
+        else:
+            self._physicsClient = p.connect(p.DIRECT)
+            
         p.setAdditionalSearchPath(pybullet_data.getDataPath())
         p.resetSimulation()
         #p.setRealTimeSimulation(True)
@@ -87,10 +95,12 @@ class NavGame2D(object):
         x = (np.random.rand()-0.5) * map_area * 2.0
         y = (np.random.rand()-0.5) * map_area * 2.0
         p.resetBasePositionAndOrientation(self._agent, [x,y,0.5], p.getQuaternionFromEuler([0.,0,0]))
+        p.resetBaseVelocity(self._agent, [0,0,0], [0,0,0])
         
         x = (np.random.rand()-0.5) * map_area * 2.0
         y = (np.random.rand()-0.5) * map_area * 2.0
         p.resetBasePositionAndOrientation(self._target, [x,y,0.5], p.getQuaternionFromEuler([0.,0,0]))
+        p.resetBaseVelocity(self._target, [0,0,0], [0,0,0])
         
     def getObservation(self):
         import numpy as np
@@ -107,7 +117,7 @@ class NavGame2D(object):
         out.extend(goalDir)
         # out = [np.array([np.array(out)])]
         out = np.array([np.array(out)])
-        # print ("obs: ", np.array(out).shape)
+        # print ("obs: ", np.array(out))
         return out
     
     def getState(self):
@@ -172,14 +182,17 @@ class NavGame2D(object):
         import numpy as np
         ### apply delta position change.
         action = np.array([action[0], action[1], 0])
-        
-        p.resetBaseVelocity(self._agent, action)
+        # print ("New action: ", action)
+        p.resetBaseVelocity(self._agent, linearVelocity=action, angularVelocity=[0,0,0])
+        vel = p.getBaseVelocity(self._agent)[0]
+        # print ("New vel: ", vel)
         
     def update(self):
         import numpy as np
         pos = np.array(p.getBasePositionAndOrientation(self._agent)[0])
         vel = np.array(p.getBaseVelocity(self._agent)[0])
         p.resetBasePositionAndOrientation(self._agent, pos + (vel*self._dt), p.getQuaternionFromEuler([0.,0,0]))
+        p.resetBaseVelocity(self._agent, linearVelocity=vel, angularVelocity=[0,0,0])
         
         reward = self.computeReward(state=None)
         # print("reward: ", reward)
