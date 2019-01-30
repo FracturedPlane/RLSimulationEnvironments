@@ -778,6 +778,18 @@ SIMULATION_ENVIRONMENTS = """
     "append_camera_velocity_state": true,
         "comment__": "Use different state representations for the agent and the imitation char",
     "use_multimodal_state_representations": true
+},
+"NavGame2D-v0": 
+{
+    "config_file": "./args/genBiped2D/biped2dfull_incline_with_terrain_features.txt",
+    "time_limit": 256,
+    "sim_name": "NavGame2D",
+        "comment__": "Possible state bounds to be used for scaling states for networks",
+    "state_bounds": [[ -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0],
+                       [   10.0,  10.0,  10.0,  10.0,  10.0,  10.0,  10.0,  10.0,  10.0,  10.0 ]],
+        "comment__": "Action scaling values to be used to scale values for the network",
+    "action_bounds": [[-0.1, -0.1],
+                      [ 0.1,  0.1]]
 }
 }
 """

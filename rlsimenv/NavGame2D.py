@@ -80,11 +80,11 @@ class NavGame2D(object):
     def computeReward(self):
         import numpy as np
         goalDir = self.getTargetDirection()
-        goalDir = goalDir / np.sqrt((goalDir*goalDir).sum(axis=0))
-        print ("goalDir: ", goalDir)
+        # goalDir = goalDir / np.sqrt((goalDir*goalDir).sum(axis=0))
+        # print ("goalDir: ", goalDir)
         agentVel = np.array(p.getBaseVelocity(self._agent)[0])
         agentVel = agentVel / np.sqrt((agentVel*agentVel).sum(axis=0))
-        print ("agentVel: ", agentVel)
+        # print ("agentVel: ", agentVel)
         reward = np.dot(goalDir, agentVel)
         
         return reward
@@ -98,6 +98,7 @@ class NavGame2D(object):
         pos = np.array(p.getBasePositionAndOrientation(self._agent)[0])
         posT = np.array(p.getBasePositionAndOrientation(self._target)[0])
         goalDirection = posT-pos
+        goalDirection = goalDirection / np.sqrt((goalDirection*goalDirection).sum(axis=0))
         return goalDirection
     
     def getlocalMapObservation(self):
@@ -139,6 +140,19 @@ class NavGame2D(object):
         pos = p.getBasePositionAndOrientation(self._agent)[0]
         p.resetBasePositionAndOrientation(self._agent, pos + action, p.getQuaternionFromEuler([0.,0,0]))
         p.resetBaseVelocity(self._agent, action, p.getQuaternionFromEuler([0.,0,0]))
+        
+        
+    def endOfEpoch(self):
+        import numpy as np
+        
+        pos = np.array(p.getBasePositionAndOrientation(self._agent)[0])
+        posT = np.array(p.getBasePositionAndOrientation(self._target)[0])
+        goalDirection = posT-pos
+        goalDistance = np.sqrt((goalDirection*goalDirection).sum(axis=0))
+        if (goalDistance < 1.0):
+            return True
+        else:
+            return False
         
         
         
