@@ -117,10 +117,11 @@ class EnvWrapper(object):
             and (self._config["use_dual_pose_state_representations"] == True))):
             # print ("np.array(ob): ", np.array(ob).shape)
             return ob
-        # print ("np.array(ob): ", np.array(ob))
+        # print ("np.array(ob): ", ob)
         # print ("self.getEnv().getObservationSpaceSize(): ", self.getEnv().getObservationSpaceSize())
-        ob = np.reshape(np.array(ob), (-1, self.getEnv().getObservationSpaceSize()))
-            # ob = np.asarray(ob)
+        # ob = np.reshape(np.array(ob, (-1, self.getEnv().getObservationSpaceSize())))
+        ob = [ob.flatten()]
+        # ob = np.asarray(ob)
         return ob
     
     def step(self, action):
@@ -312,6 +313,9 @@ def getEnv(env_name, render=False):
     elif ( env_data[env_name]['sim_name'] == 'NavGameMultiAgent'):
         from rlsimenv.NavGameMultiAgent import NavGameMultiAgent
         sim = NavGameMultiAgent(settings=env_data[env_name])
+    elif ( env_data[env_name]['sim_name'] == 'NavGame2D'):
+        from rlsimenv.NavGame2D import NavGame2D
+        sim = NavGame2D(settings=env_data[env_name])
     elif ( env_data[env_name]['sim_name'] == 'CannonGame'):
         from rlsimenv.CannonGame import CannonGame
         sim = CannonGame(settings=env_data[env_name])

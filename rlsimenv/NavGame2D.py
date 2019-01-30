@@ -3,15 +3,38 @@ import pybullet as p
 import pybullet_data
 import os
 import time
+from rlsimenv.EnvWrapper import ActionSpace
 
 
 class NavGame2D(object):
     
-    def __init__(self):
+    def __init__(self, settings):
+        self._game_settings = settings
         self._GRAVITY = -9.8
         self._dt = 1/50.0
         self._iters=2000 
+        
+        self._state_bounds = self._game_settings['state_bounds']
+        self._action_bounds = self._game_settings['action_bounds']
+        self._action_length = len(self._action_bounds[0])
+        
+        # ob_low = [0] * len(self.getEnv().getObservationSpaceSize()
+        # ob_high = [1] * self.getEnv().getObservationSpaceSize() 
+        # observation_space = [ob_low, ob_high]
+        # self._observation_space = ActionSpace(observation_space)
+        self._action_space = ActionSpace(self._game_settings['action_bounds'])
+        
+        
+        
+    def getActionSpaceSize(self):
+        return self._action_length
+    
+    def getObservationSpaceSize(self):
+        return self._state_length
 
+    def getNumAgents(self):
+        return 1
+    
     def init(self):
         
         self._physicsClient = p.connect(p.GUI)
@@ -51,18 +74,26 @@ class NavGame2D(object):
         #ipdb.set_trace()
         p.setRealTimeSimulation(1)
         
-    def reset(self):
+        lo = self.getObservation()[0] * 0.0
+        hi = lo + 1.0
+        self._game_settings['state_bounds'] = [lo, hi]
+        self._state_length = len(self._game_settings['state_bounds'][0])
+        print ("self._state_length: ", self._state_length)
+        self._observation_space = ActionSpace(self._game_settings['state_bounds'])
+        
+    def initEpoch(self):
         import numpy as np
         map_area = 10
-        x = (np.random.rand()-0.5) * map_area
-        y = (np.random.rand()-0.5) * map_area
+        x = (np.random.rand()-0.5) * map_area * 2.0
+        y = (np.random.rand()-0.5) * map_area * 2.0
         p.resetBasePositionAndOrientation(self._agent, [x,y,0.5], p.getQuaternionFromEuler([0.,0,0]))
         
-        x = (np.random.rand()-0.5) * map_area
-        y = (np.random.rand()-0.5) * map_area
+        x = (np.random.rand()-0.5) * map_area * 2.0
+        y = (np.random.rand()-0.5) * map_area * 2.0
         p.resetBasePositionAndOrientation(self._target, [x,y,0.5], p.getQuaternionFromEuler([0.,0,0]))
         
     def getObservation(self):
+        import numpy as np
         out = []
         localMap = self.getlocalMapObservation()
         out.extend(localMap)
@@ -74,10 +105,15 @@ class NavGame2D(object):
         # print (out)
         goalDir = self.getTargetDirection()
         out.extend(goalDir)
-        
+        # out = [np.array([np.array(out)])]
+        out = np.array([np.array(out)])
+        # print ("obs: ", np.array(out).shape)
         return out
     
-    def computeReward(self):
+    def getState(self):
+        return self.getObservation()
+    
+    def computeReward(self, state=None):
         import numpy as np
         goalDir = self.getTargetDirection()
         # goalDir = goalDir / np.sqrt((goalDir*goalDir).sum(axis=0))
@@ -132,16 +168,29 @@ class NavGame2D(object):
         # print ("intersections", intersections)
         return intersections
     
-    def act(self, action):
+    def updateAction(self, action):
         import numpy as np
         ### apply delta position change.
         action = np.array([action[0], action[1], 0])
         
-        pos = p.getBasePositionAndOrientation(self._agent)[0]
-        p.resetBasePositionAndOrientation(self._agent, pos + action, p.getQuaternionFromEuler([0.,0,0]))
-        p.resetBaseVelocity(self._agent, action, p.getQuaternionFromEuler([0.,0,0]))
+        p.resetBaseVelocity(self._agent, action)
         
+    def update(self):
+        import numpy as np
+        pos = np.array(p.getBasePositionAndOrientation(self._agent)[0])
+        vel = np.array(p.getBaseVelocity(self._agent)[0])
+        p.resetBasePositionAndOrientation(self._agent, pos + (vel*self._dt), p.getQuaternionFromEuler([0.,0,0]))
         
+        reward = self.computeReward(state=None)
+        # print("reward: ", reward)
+        self.__reward = reward
+        
+    def calcReward(self):
+        return self.__reward
+        
+    def agentHasFallen(self):
+        return self.endOfEpoch()
+    
     def endOfEpoch(self):
         import numpy as np
         
@@ -154,7 +203,16 @@ class NavGame2D(object):
         else:
             return False
         
-        
+    def setRandomSeed(self, seed):
+        import numpy as np
+        """
+            Set the random seed for the simulator
+            This is helpful if you are running many simulations in parallel you don't
+            want them to be producing the same results if they all init their random number 
+            generator the same.
+        """
+        # random.seed(seed)
+        np.random.seed(seed)
         
 
 if __name__ == "__main__":
@@ -170,7 +228,7 @@ if __name__ == "__main__":
         # p.setJointMotorControl2(botId, 1, p.TORQUE_CONTROL, force=1098.0)
         # p.setGravity(0,0,sim._GRAVITY)
         time.sleep(1/240.)
-        sim.act([0.1,0.1])
+        sim.updateAction([0.1,0.1])
         ob = sim.getObservation()
         reward = sim.computeReward()
         print ("Reward: ", reward)

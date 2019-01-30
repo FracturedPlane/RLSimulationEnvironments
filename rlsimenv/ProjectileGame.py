@@ -568,7 +568,7 @@ class ProjectileGame(object):
             
     def endOfEpoch(self):
         pos = self._object.getPosition()
-        self.agentHasFallen()
+        # self.agentHasFallen()
         if (self.agentHasFallen()):
             return True 
         else:
@@ -792,8 +792,9 @@ class ProjectileGame(object):
                 ob = np.array(self.getVisualState())
                 ob = ob.flatten()
                 state.append(ob)
-                
-                return [state]
+                state = [state]
+                # print ("state: ", np.array(state).shape)
+                return state
         
         if ("process_visual_data" in self._game_settings
             and (self._game_settings["process_visual_data"] == True)):
