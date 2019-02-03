@@ -12,7 +12,7 @@ class NavGame2DDirect(Environment):
     def __init__(self, settings):
         super(NavGame2DDirect,self).__init__(settings)
         self._game_settings = settings
-        self._GRAVITY = -9.8
+        self._GRAVITY = 0.0
         self._dt = 1/50.0
         self._iters=2000 
         
@@ -60,12 +60,12 @@ class NavGame2DDirect(Environment):
         self._agent = p.loadURDF("sphere2.urdf",
                 cubeStartPos,
                 cubeStartOrientation) 
-        
+        """
         blockId = p.loadURDF("cube2.urdf",
                 [2.0,2.0,0.5],
                 cubeStartOrientation,
                 useFixedBase=1) 
-        
+        """
         self._target = p.loadURDF("sphere2red.urdf",
                 cubeStartPos,
                 cubeStartOrientation)
@@ -156,6 +156,7 @@ class NavGame2DDirect(Environment):
         import numpy as np
         ### apply delta position change.
         action = np.array([action[0], action[1], 0])
+        # action = np.array([1, 0, 0])
         # print ("New action: ", action)
         p.resetBaseVelocity(self._agent, linearVelocity=action, angularVelocity=[0,0,0])
         vel = p.getBaseVelocity(self._agent)[0]
@@ -165,7 +166,9 @@ class NavGame2DDirect(Environment):
         import numpy as np
         pos = np.array(p.getBasePositionAndOrientation(self._agent)[0])
         vel = np.array(p.getBaseVelocity(self._agent)[0])
-        p.resetBasePositionAndOrientation(self._agent, pos + (vel*self._dt), p.getQuaternionFromEuler([0.,0,0]))
+        pos_a = pos + (vel*self._dt)
+        pos_a[2] = 0.5
+        p.resetBasePositionAndOrientation(self._agent, pos_a, p.getQuaternionFromEuler([0.,0,0]))
         p.resetBaseVelocity(self._agent, linearVelocity=vel, angularVelocity=[0,0,0])
         
         reward = self.computeReward(state=None)
