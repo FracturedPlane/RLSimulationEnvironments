@@ -313,9 +313,6 @@ def getEnv(env_name, render=False):
     elif ( env_data[env_name]['sim_name'] == 'NavGameMultiAgent'):
         from rlsimenv.NavGameMultiAgent import NavGameMultiAgent
         sim = NavGameMultiAgent(settings=env_data[env_name])
-    elif ( env_data[env_name]['sim_name'] == 'NavGame2D'):
-        from rlsimenv.NavGame2D import NavGame2D
-        sim = NavGame2D(settings=env_data[env_name])
     elif ( env_data[env_name]['sim_name'] == 'CannonGame'):
         from rlsimenv.CannonGame import CannonGame
         sim = CannonGame(settings=env_data[env_name])
@@ -326,8 +323,17 @@ def getEnv(env_name, render=False):
         from rlsimenv.ProjectileGame import ProjectileGame
         sim = ProjectileGame(settings=env_data[env_name])
     else:
-        print ("Env ", env_data[env_name]['sim_name'], " does not match a simulation environment type")
-        return None
+        from pydoc import locate
+        from rlsimenv.Environment import Environment
+        modelClass = locate(env_data[env_name]['sim_name'])
+        print ("modelClass: ", modelClass)
+        if ( issubclass(modelClass, Environment)): ## Double check this load will work
+            sim = modelClass(settings=env_data[env_name])
+            print("Created sim: ", sim)
+        else:
+            # sys.exit(2)
+            print ("Env ", env_data[env_name]['sim_name'], " does not match a simulation environment type")
+            return None
     
     ## place holder  
     # sim.setRender(render)

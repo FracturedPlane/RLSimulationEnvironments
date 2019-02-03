@@ -783,7 +783,19 @@ SIMULATION_ENVIRONMENTS = """
 {
     "config_file": "./args/genBiped2D/biped2dfull_incline_with_terrain_features.txt",
     "time_limit": 256,
-    "sim_name": "NavGame2D",
+    "sim_name": "rlsimenv.NavGame2D.NavGame2D",
+        "comment__": "Possible state bounds to be used for scaling states for networks",
+    "state_bounds": [[ -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0],
+                       [   10.0,  10.0,  10.0,  10.0,  10.0,  10.0,  10.0,  10.0,  10.0,  10.0 ]],
+        "comment__": "Action scaling values to be used to scale values for the network",
+    "action_bounds": [[-1.0, -1.0],
+                      [ 1.0,  1.0]]
+},
+"NavGame2D_Direct_v0": 
+{
+    "config_file": "./args/genBiped2D/biped2dfull_incline_with_terrain_features.txt",
+    "time_limit": 256,
+    "sim_name": "rlsimenv.NavGame2DDirect.NavGame2DDirect",
         "comment__": "Possible state bounds to be used for scaling states for networks",
     "state_bounds": [[ -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0],
                        [   10.0,  10.0,  10.0,  10.0,  10.0,  10.0,  10.0,  10.0,  10.0,  10.0 ]],
