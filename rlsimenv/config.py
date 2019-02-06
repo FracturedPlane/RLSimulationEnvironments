@@ -800,8 +800,8 @@ SIMULATION_ENVIRONMENTS = """
     "state_bounds": [[ -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0],
                        [   10.0,  10.0,  10.0,  10.0,  10.0,  10.0,  10.0,  10.0,  10.0,  10.0 ]],
         "comment__": "Action scaling values to be used to scale values for the network",
-    "action_bounds": [[-1.0, -1.0],
-                      [ 1.0,  1.0]]
+    "action_bounds": [[-2.0, -2.0],
+                      [ 2.0,  2.0]]
 }
 }
 """

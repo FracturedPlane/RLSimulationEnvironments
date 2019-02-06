@@ -26,7 +26,7 @@ class NavGame2DDirect(Environment):
         # self._observation_space = ActionSpace(observation_space)
         self._action_space = ActionSpace(self._game_settings['action_bounds'])
         
-        
+        self._map_area = 5
         
     def getActionSpaceSize(self):
         return self._action_length
@@ -82,7 +82,7 @@ class NavGame2DDirect(Environment):
         #     p.stepSimulation()
         #import ipdb
         #ipdb.set_trace()
-        p.setRealTimeSimulation(1)
+        # p.setRealTimeSimulation(1)
         
         lo = self.getObservation()[0] * 0.0
         hi = lo + 1.0
@@ -93,14 +93,14 @@ class NavGame2DDirect(Environment):
         
     def initEpoch(self):
         import numpy as np
-        map_area = 10
-        x = (np.random.rand()-0.5) * map_area * 2.0
-        y = (np.random.rand()-0.5) * map_area * 2.0
+        
+        x = (np.random.rand()-0.5) * self._map_area * 2.0
+        y = (np.random.rand()-0.5) * self._map_area * 2.0
         p.resetBasePositionAndOrientation(self._agent, [x,y,0.5], p.getQuaternionFromEuler([0.,0,0]))
         p.resetBaseVelocity(self._agent, [0,0,0], [0,0,0])
         
-        x = (np.random.rand()-0.5) * map_area * 2.0
-        y = (np.random.rand()-0.5) * map_area * 2.0
+        x = (np.random.rand()-0.5) * self._map_area * 2.0
+        y = (np.random.rand()-0.5) * self._map_area * 2.0
         p.resetBasePositionAndOrientation(self._target, [x,y,0.5], p.getQuaternionFromEuler([0.,0,0]))
         p.resetBaseVelocity(self._target, [0,0,0], [0,0,0])
         
@@ -131,12 +131,15 @@ class NavGame2DDirect(Environment):
         # goalDir = goalDir / np.sqrt((goalDir*goalDir).sum(axis=0))
         # print ("goalDir: ", goalDir)
         agentVel = np.array(p.getBaseVelocity(self._agent)[0])
-        agentSpeed = np.sqrt((agentVel*agentVel).sum(axis=0))
-        agentVel = agentVel / agentSpeed
+        # agentSpeed = np.sqrt((agentVel*agentVel).sum(axis=0))
+        velDiff = goalDir - agentVel
+        diffMag = np.sqrt((velDiff*velDiff).sum(axis=0))
+        # agentVel = agentVel / agentSpeed
         # print ("agentVel: ", agentVel)
-        agentSpeedDiff = (1 - agentSpeed)
+        # agentSpeedDiff = (1 - agentSpeed)
         ### heading towards goal
-        reward = np.dot(goalDir, agentVel) + np.exp(agentSpeedDiff*agentSpeedDiff * -2.0)
+        # reward = np.dot(goalDir, agentVel) + np.exp(agentSpeedDiff*agentSpeedDiff * -2.0)
+        reward = np.exp((diffMag*diffMag) * -2.0)
         
         return reward
         
@@ -188,7 +191,8 @@ class NavGame2DDirect(Environment):
         posT = np.array(p.getBasePositionAndOrientation(self._target)[0])
         goalDirection = posT-pos
         goalDistance = np.sqrt((goalDirection*goalDirection).sum(axis=0))
-        if (goalDistance < 1.0):
+        # print ("goalDistance: ", goalDistance)
+        if (goalDistance < 1.2):
             return True
         else:
             return False

@@ -60,10 +60,14 @@ class NavGame2D(Environment):
                 cubeStartPos,
                 cubeStartOrientation) 
         
-        blockId = p.loadURDF("cube2.urdf",
-                [2.0,2.0,0.5],
-                cubeStartOrientation,
-                useFixedBase=1) 
+        self._blocks = []
+        for i in range(5):
+            blockId = p.loadURDF("cube2.urdf",
+                    [2.0,2.0,0.5],
+                    cubeStartOrientation,
+                    useFixedBase=1) 
+            self._blocks.append(blockId)
+        
         
         self._target = p.loadURDF("sphere2red.urdf",
                 cubeStartPos,
@@ -101,6 +105,13 @@ class NavGame2D(Environment):
         y = (np.random.rand()-0.5) * self._map_area * 2.0
         p.resetBasePositionAndOrientation(self._target, [x,y,0.5], p.getQuaternionFromEuler([0.,0,0]))
         p.resetBaseVelocity(self._target, [0,0,0], [0,0,0])
+        
+        ### Reset obstacles
+        for i in range(len(self._blocks)):
+            x = (np.random.rand()-0.5) * self._map_area * 2.0
+            y = (np.random.rand()-0.5) * self._map_area * 2.0
+            p.resetBasePositionAndOrientation(self._blocks[i], [x,y,0.5], p.getQuaternionFromEuler([0.,0,0]))
+            p.resetBaseVelocity(self._blocks[i], [0,0,0], [0,0,0]) 
         
     def getObservation(self):
         import numpy as np

@@ -57,7 +57,7 @@ class EnvWrapper(object):
         
     def update(self):
         self._sim.update()
-        if (self._sim.getNumAgents() > 0): ### Multi Character simulation
+        if (self._sim.getNumAgents() > 1): ### Multi Character simulation
             ### End of epoch when first agent falls
             """
             for a in range(self._sim.getNumAgents()):
@@ -78,7 +78,7 @@ class EnvWrapper(object):
             for a in range(self._sim.getNumAgents()):
                 if ( self._sim.endOfEpochForAgent(a) ):
                     fall_s = fall_s + 1
-            if ( fall_s >= (self._sim.getNumAgents()/2.0)):
+            if ( fall_s > (self._sim.getNumAgents()/2.0)):
                 self._done = True
                 return
             else:
@@ -130,7 +130,7 @@ class EnvWrapper(object):
         """
         # action = action[0]
         action = np.array(action, dtype="float64")
-        # print ("step action: ", action)
+        # print ("step action: ", action, " done: ", self._done)
         self.updateAction(action)
         
         # for i in range(15):
