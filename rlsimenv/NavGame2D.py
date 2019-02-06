@@ -71,7 +71,8 @@ class NavGame2D(Environment):
         
         self._target = p.loadURDF("sphere2red.urdf",
                 cubeStartPos,
-                cubeStartOrientation)
+                cubeStartOrientation,
+                useFixedBase=1)
         
          
         #disable the default velocity motors 
@@ -142,8 +143,21 @@ class NavGame2D(Environment):
         
         goalDirection = posT-pos
         goalDistance = np.sqrt((goalDirection*goalDirection).sum(axis=0))
-        reward = np.exp(goalDistance * goalDistance * -1.0)
-        if (goalDistance < 0.5):
+        goalDir = self.getTargetDirection()
+        # goalDir = goalDir / np.sqrt((goalDir*goalDir).sum(axis=0))
+        # print ("goalDir: ", goalDir)
+        agentVel = np.array(p.getBaseVelocity(self._agent)[0])
+        # agentSpeed = np.sqrt((agentVel*agentVel).sum(axis=0))
+        velDiff = goalDir - agentVel
+        diffMag = np.sqrt((velDiff*velDiff).sum(axis=0))
+        # agentVel = agentVel / agentSpeed
+        # print ("agentVel: ", agentVel)
+        # agentSpeedDiff = (1 - agentSpeed)
+        ### heading towards goal
+        # reward = np.dot(goalDir, agentVel) + np.exp(agentSpeedDiff*agentSpeedDiff * -2.0)
+        reward = np.exp((diffMag*diffMag) * -2.0)
+        
+        if (goalDistance < 1.5):
             ### Reached goal
             reward = reward + self._map_area
         
