@@ -155,12 +155,19 @@ class NavGame2D(Environment):
         # agentSpeedDiff = (1 - agentSpeed)
         ### heading towards goal
         # reward = np.dot(goalDir, agentVel) + np.exp(agentSpeedDiff*agentSpeedDiff * -2.0)
-        reward = np.exp((diffMag*diffMag) * -2.0)
-        
+        reward = np.exp((diffMag*diffMag) * -2.0) + np.exp((goalDistance*goalDistance) * -2.0)
+        """
         if (goalDistance < 1.5):
             ### Reached goal
             reward = reward + self._map_area
-        
+        """
+        ### Check contacts with obstacles
+        for box_id in self._blocks:
+            contacts = p.getContactPoints(self._agent, box_id)
+            # print ("contacts: ", contacts)
+            if len(contacts) > 0:
+                reward = reward + -self._map_area
+                break
         return reward
         
         
@@ -200,10 +207,27 @@ class NavGame2D(Environment):
         fromRays = toRays + np.array([0,0,5])
         rayResults = p.rayTestBatch(fromRays, toRays)
         intersections = [ray[0] for ray in rayResults]
-        # print (rayResults)
+        # print (intersections)
+        ### fix intersections that could be goal
+        
+        for ray in range(len(intersections)):
+            if (intersections[ray] in [self._target, self._agent]):
+                # print ("bad index: ", ray)
+                intersections[ray] = -1
+        
+        # bad_indecies = np.where(intersections == self._target)[0]
+        # print ("bad_indecies: ", bad_indecies)
+        # bad_indecies = np.where(intersections == int(self._agent))
+        # print ("bad_indecies: ", bad_indecies)
+        # print ("self._agent: ", self._agent)
+        """
+        if ( len(bad_indecies) > 0):
+            # print ("self._target: ", self._target)
+            intersections[bad_indecies] = -1
+        """
+        # intersections_ = np.reshape(intersections, (size, size))
+        # print ("intersections", intersections_)
         intersections = np.array(np.greater(intersections, 0), dtype="int")
-        # intersections = np.reshape(intersections, (size, size))
-        # print ("intersections", intersections)
         return intersections
     
     def updateAction(self, action):
@@ -219,7 +243,19 @@ class NavGame2D(Environment):
         import numpy as np
         pos = np.array(p.getBasePositionAndOrientation(self._agent)[0])
         vel = np.array(p.getBaseVelocity(self._agent)[0])
-        p.resetBasePositionAndOrientation(self._agent, pos + (vel*self._dt), p.getQuaternionFromEuler([0.,0,0]))
+        pos =  pos + (vel*self._dt)
+        if (pos[0] > self._map_area):
+            pos[0] = self._map_area
+        elif (pos[0] <  (-1.0 * self._map_area)):
+            pos[0] = (-1.0 * self._map_area)
+        if (pos[1] > self._map_area):
+            pos[1] = self._map_area
+        elif (pos[1] <  (-1.0 * self._map_area)):
+            pos[1] = (-1.0 * self._map_area) 
+        pos[2] = 0.5
+        ### Need to do this so the intersetions are 
+        p.stepSimulation()
+        p.resetBasePositionAndOrientation(self._agent, pos, p.getQuaternionFromEuler([0.,0,0]))
         p.resetBaseVelocity(self._agent, linearVelocity=vel, angularVelocity=[0,0,0])
         
         reward = self.computeReward(state=None)

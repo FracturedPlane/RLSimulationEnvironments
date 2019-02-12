@@ -115,8 +115,10 @@ class NavGame2DDirect(Environment):
         ### angular vel
         # out.extend(data[1])
         # print (out)
-        goalDir = self.getTargetDirection()
-        out.extend(goalDir)
+        pos = np.array(p.getBasePositionAndOrientation(self._agent)[0])
+        posT = np.array(p.getBasePositionAndOrientation(self._target)[0])
+        goalDirection = posT-pos
+        out.extend(goalDirection)
         # out = [np.array([np.array(out)])]
         out = np.array([np.array(out)])
         # print ("obs: ", np.array(out))
@@ -170,6 +172,14 @@ class NavGame2DDirect(Environment):
         pos = np.array(p.getBasePositionAndOrientation(self._agent)[0])
         vel = np.array(p.getBaseVelocity(self._agent)[0])
         pos_a = pos + (vel*self._dt)
+        if (pos[0] > self._map_area):
+            pos[0] = self._map_area
+        elif (pos[0] <  (-1.0 * self._map_area)):
+            pos[0] = (-1.0 * self._map_area)
+        if (pos[1] > self._map_area):
+            pos[1] = self._map_area
+        elif (pos[1] <  (-1.0 * self._map_area)):
+            pos[1] = (-1.0 * self._map_area) 
         pos_a[2] = 0.5
         p.resetBasePositionAndOrientation(self._agent, pos_a, p.getQuaternionFromEuler([0.,0,0]))
         p.resetBaseVelocity(self._agent, linearVelocity=vel, angularVelocity=[0,0,0])
