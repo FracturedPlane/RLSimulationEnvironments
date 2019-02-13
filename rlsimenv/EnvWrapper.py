@@ -334,6 +334,7 @@ def getEnv(env_name, render=False):
         else:
             # sys.exit(2)
             print ("Env ", env_data[env_name]['sim_name'], " does not match a simulation environment type")
+            sys.exit()
             return None
     
     ## place holder  
