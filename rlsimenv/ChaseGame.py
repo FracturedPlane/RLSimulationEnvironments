@@ -3,16 +3,6 @@ import random
 import math
 import sys
 import time
-
-
-def loadMap():
-    dataset="map.json"
-    import json
-    dataFile = open(dataset)
-    s = dataFile.read()
-    data = json.loads(s)
-    dataFile.close()
-    return data["map"]
     
 # make values from -5 to 5, for this example
 # zvals = loadMap()
@@ -49,25 +39,25 @@ class ChaseGame(Environment):
         # print ("Game settings: ", self._settings)
         self._action_bounds = self._settings['action_bounds']
         self._state_bounds = self._settings['state_bounds']
-        self._state_length = len(self._state_bounds[0])
+        self._state_length = len(self._state_bounds[0][0])
         # self._state_bounds = np.array([[self._state_bounds[0][0]]*self._state_length, [self._state_bounds[1][0]]*self._state_length])
         ## For plotting objects
+        self._dimensions = 10
+        self._map_size = 10
         self._markerSize = 25
-        self._map = np.zeros((int(self._state_bounds[1][0]-self._state_bounds[0][0]),
-                              int(self._state_bounds[1][0]-self._state_bounds[0][0])))
-        
         self._numberOfAgents = 2
-        self._agent = np.random.random_integers(-8, 8, (self._numberOfAgents, self._state_length))
-        self._target = np.array([0]* self._state_length) ## goal location
+        
+        self._agent = np.random.random_integers(-self._map_size, self._map_size, (self._numberOfAgents, self._dimensions))
+        self._target = np.array([0]* self._dimensions) ## goal location
         
         ## Some obstacles
         obstacles = []
-        obstacles.append([self._state_bounds[0][0]]*self._state_length)
-        obstacles.append([self._state_bounds[1][0]]*self._state_length)
-        obstacles.append([4]*self._state_length)
-        obstacles.append([-4]*self._state_length)
-        obstacles.append([4] + ([-4]*(self._state_length-1)))
-        obstacles.append([-4] + ([4]*(self._state_length-1)))
+        obstacles.append([self._map_size]*self._dimensions)
+        obstacles.append([-self._map_size]*self._dimensions)
+        obstacles.append([4]*self._dimensions)
+        obstacles.append([-4]*self._dimensions)
+        obstacles.append([4] + ([-4]*(self._dimensions-1)))
+        obstacles.append([-4] + ([4]*(self._dimensions-1)))
         """
         num_random_obstacles=5
         for i in range(num_random_obstacles):
@@ -76,16 +66,16 @@ class ChaseGame(Environment):
         self._obstacles = np.array(obstacles)
         
         # if self._settings['render'] == True:
-        U = np.zeros((self._state_length * self._state_length))
-        V = np.ones((self._state_length * self._state_length))
-        Q = np.random.rand((self._state_length * self._state_length))
+        U = np.zeros((self._dimensions * self._dimensions))
+        V = np.ones((self._dimensions * self._dimensions))
+        Q = np.random.rand((self._dimensions * self._dimensions))
         if self._settings['render']:
             self.initRender(U, V, Q)
             
         self.__action = None
         
     def getActionSpaceSize(self):
-        return self._state_length
+        return len(self._action_bounds[0])
     
     def getObservationSpaceSize(self):
         return self._state_length
@@ -101,9 +91,9 @@ class ChaseGame(Environment):
         self.__action = action
         
     def init(self):
-        new_loc = (np.random.rand(self._numberOfAgents, self._state_length) - 0.5) * (8 + 8)
-        self._agent = new_loc # np.random.random_integers(-8, 8, (self._numberOfAgents, self._state_length))
-        self._target = np.array([0]* self._state_length) ## goal location
+        new_loc = (np.random.rand(self._numberOfAgents, self._dimensions) - 0.5) * (8 + 8)
+        self._agent = new_loc # np.random.random_integers(-8, 8, (self._numberOfAgents, self._dimensions))
+        self._target = np.array([0]* self._dimensions) ## goal location
         # self._map[self._target[0]][self._target[1]] = 1
         
         
@@ -112,9 +102,9 @@ class ChaseGame(Environment):
         """
             Reset agent location
         """
-        # new_loc = np.random.random_integers(self._state_bounds[0][0], self._state_bounds[1][0], self._state_length)
-        new_loc = (np.random.rand(self._numberOfAgents, self._state_length) - 0.5) * (8 + 8)
-        self._agent = new_loc # np.random.random_integers(-8, 8, (self._numberOfAgents, self._state_length))
+        # new_loc = np.random.random_integers(self._state_bounds[0][0], self._state_bounds[1][0], self._dimensions)
+        new_loc = (np.random.rand(self._numberOfAgents, self._dimensions) - 0.5) * (8 + 8)
+        self._agent = new_loc # np.random.random_integers(-8, 8, (self._numberOfAgents, self._dimensions))
         
     def generateValidationEnvironmentSample(self, seed):
         self.initEpoch()
@@ -185,7 +175,7 @@ class ChaseGame(Environment):
                 or self.fall(loc)[a]
                 ):
                 ### can't overlap an obstacle or be outside working area
-                r_ = -(self._state_bounds[1][0] - self._state_bounds[0][0])/8.0
+                r_ = -(self._map_size - -self._map_size)/8.0
                 # print ("r_: ", r_)
                 rewards.append([r_])
             else:
@@ -239,20 +229,32 @@ class ChaseGame(Environment):
         # print ("Dist Vector: " + str(a) + " Distance: " + str(d))
         if d < 0.3:
             return 2.0
-        return -d/((self._state_bounds[1][0]- self._state_bounds[0][0])/2.0)
+        return -d/((self._map_size - -self._map_size)/2.0)
     
     def calcReward(self):
         return self.__reward
     
     def getState(self):
-        return self._agent
+        ### Now this changes wrt the number of agents in the sim
+        state = []
+        # for a in range(len(self._numberOfAgents)):
+        agentState = []
+        agentState.extend(self._agent[0])
+        agentState.extend(self._agent[1])
+        state.append(agentState)
+        
+        agentState = []
+        agentState.extend(self._agent[1])
+        agentState.extend(self._agent[0])
+        state.append(agentState)
+        return state
     
     def setState(self, st):
         self._agent = st
         
     def getStateSamples(self):
-        X,Y = np.mgrid[self._state_bounds[0][0]:self._state_bounds[1][0]+1,
-                       self._state_bounds[0][1]:self._state_bounds[1][1]+1]
+        X,Y = np.mgrid[self._state_bounds[0][0][0]:self._state_bounds[0][1][0]+1,
+                       self._state_bounds[0][0][1]:self._state_bounds[0][1][1]+1]
         return (X,Y)
     
     def initRender(self, U, V, Q):
@@ -266,7 +268,6 @@ class ChaseGame(Environment):
         bounds=[-1,-1,1,1]
         norm = matplotlib.colors.BoundaryNorm(bounds, cmap.N)
         
-
         plt.ion()
         
         # Two subplots, unpack the axes array immediately
@@ -290,9 +291,9 @@ class ChaseGame(Environment):
                             origin='lower')
         """
         p = patches.Rectangle(
-            (self._state_bounds[0][0], self._state_bounds[0][0]),
-            (self._state_bounds[1][0]-self._state_bounds[0][0]),
-            (self._state_bounds[1][0]-self._state_bounds[0][0]),
+            (self._self._state_bounds[0][0][0], self._self._state_bounds[0][0][0]),
+            (self._self._state_bounds[0][1][0]-self._self._state_bounds[0][0][0]),
+            (self._self._state_bounds[0][1][0]-self._self._state_bounds[0][0][0]),
             alpha=0.25,
             facecolor="#999999"
             # fill=False      # remove background
@@ -304,9 +305,9 @@ class ChaseGame(Environment):
                             origin='lower')
         """
         p = patches.Rectangle(
-            (self._state_bounds[0][0], self._state_bounds[0][0]),
-            (self._state_bounds[1][0]-self._state_bounds[0][0]),
-            (self._state_bounds[1][0]-self._state_bounds[0][0]),
+            (self._self._state_bounds[0][0][0], self._self._state_bounds[0][0][0]),
+            (self._self._state_bounds[0][1][0]-self._self._state_bounds[0][0][0]),
+            (self._self._state_bounds[0][1][0]-self._self._state_bounds[0][0][0]),
             alpha=0.25,
             facecolor="#999999"
             # fill=False      # remove background
@@ -357,9 +358,9 @@ class ChaseGame(Environment):
                             origin='lower')
         """
         p = patches.Rectangle(
-            (self._state_bounds[0][0], self._state_bounds[0][0]),
-            (self._state_bounds[1][0]-self._state_bounds[0][0]),
-            (self._state_bounds[1][0]-self._state_bounds[0][0]),
+            (self._self._state_bounds[0][0][0], self._self._state_bounds[0][0][0]),
+            (self._self._state_bounds[0][1][0]-self._self._state_bounds[0][0][0]),
+            (self._self._state_bounds[0][1][0]-self._self._state_bounds[0][0][0]),
             alpha=0.25,
             facecolor="#999999"
             # fill=False      # remove background
@@ -390,9 +391,9 @@ class ChaseGame(Environment):
         # self._fd = self._fd_error.quiver(X,Y,U,V, linewidth=0.5, pivot='mid', edgecolor='k', headaxislength=3, facecolor='None', angles='xy', linestyles='-', scale=25.0)
         self._fd_error.set_title('MBAE FD error')
         p = patches.Rectangle(
-            (self._state_bounds[0][0], self._state_bounds[0][0]),
-            (self._state_bounds[1][0]-self._state_bounds[0][0]),
-            (self._state_bounds[1][0]-self._state_bounds[0][0]),
+            (self._self._state_bounds[0][0][0], self._self._state_bounds[0][0][0]),
+            (self._self._state_bounds[0][1][0]-self._self._state_bounds[0][0][0]),
+            (self._self._state_bounds[0][1][0]-self._self._state_bounds[0][0][0]),
             alpha=0.25,
             facecolor="#999999"
             # fill=False      # remove background
