@@ -181,21 +181,26 @@ class NavGameMultiAgent(object):
             if(
                (
                 # np.any(np.less(loc, self._state_bounds[0])) or np.any(np.greater(loc, self._state_bounds[1]))) or
-                np.any(np.less(loc, -8.0)) or np.any(np.greater(loc, 8.0))) or
-                self.collision(loc) or
-                self.fall(loc)
+                np.any(np.less(loc, -8.0)) or np.any(np.greater(loc, 8.0))) 
+                or self.collision(loc) 
+                or self.fall(loc)[a]
                 ):
                 ### can't overlap an obstacle or be outside working area
-                rewards.append([-(self._state_bounds[1][0] - self._state_bounds[0][0])/8.0])
+                r_ = -(self._state_bounds[1][0] - self._state_bounds[0][0])/8.0
+                # print ("r_: ", r_)
+                rewards.append([r_])
             else:
                 # if self._map[loc[0]-1][loc[1]-1] == 1:
                     # Can't walk onto obstacles
                 #     return self.reward() +-5
                 self._agent[a] = loc
-                rewards.append([self.reward(a)])
+                r_ = self.reward(a)
+                # print ("r_: ", r_)
+                rewards.append([r_])
         
         if ( self._settings['render'] == True ):
             self.display()
+        # print ("rewards: ", rewards)
         self.__reward = rewards
         return rewards
     
@@ -204,7 +209,9 @@ class NavGameMultiAgent(object):
         # print (int(math.floor(loc[0])), int(math.floor(loc[1])))
         # if self._map[int(math.floor(loc[0]))][ int(math.floor(loc[1]))] < 0:
         #     return True
-        return False
+        falls_ = [False] * self._numberOfAgents
+        # print ("falls_: ", falls_)
+        return falls_
     
     def agentHasFallen(self):
         loc = self._agent

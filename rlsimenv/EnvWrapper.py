@@ -117,10 +117,11 @@ class EnvWrapper(object):
             and (self._config["use_dual_pose_state_representations"] == True))):
             # print ("np.array(ob): ", np.array(ob).shape)
             return ob
+        ob = np.array(ob)
         # print ("np.array(ob): ", ob)
         # print ("self.getEnv().getObservationSpaceSize(): ", self.getEnv().getObservationSpaceSize())
-        # ob = np.reshape(np.array(ob, (-1, self.getEnv().getObservationSpaceSize())))
-        ob = [ob.flatten()]
+        ob = np.reshape(ob, (-1, int(self.getEnv().getObservationSpaceSize())))
+        # ob = [ob.flatten()]
         # ob = np.asarray(ob)
         return ob
     
