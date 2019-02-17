@@ -66,9 +66,10 @@ class ChaseGame(Environment):
         self._obstacles = np.array(obstacles)
         
         # if self._settings['render'] == True:
-        U = np.zeros((self._dimensions * self._dimensions))
-        V = np.ones((self._dimensions * self._dimensions))
-        Q = np.random.rand((self._dimensions * self._dimensions))
+        X,Y = self.getStateSamples()
+        U = np.zeros((np.array(X).size))
+        V = np.ones((np.array(X).size))
+        Q = np.random.rand((np.array(X).size))
         if self._settings['render']:
             self.initRender(U, V, Q)
             
@@ -275,7 +276,8 @@ class ChaseGame(Environment):
         self._fig.set_size_inches(18.5, 8.5, forward=True)
         self._map_ax.set_title('Map')
         print("self._agent: ", repr(np.array(self._agent)) )
-        self._particles, = self._map_ax.plot(np.array(self._agent)[:,0], np.array(self._agent)[:,1], 'bo', ms=self._markerSize)
+        print("np.array(self._agent)[:,0]: ", repr(np.array(self._agent)[:,0]) )
+        self._particles, = self._map_ax.plot(np.array(self._agent)[:,0], np.array(self._agent)[:,1], 'o', ms=self._markerSize)
         
         self._map_ax.plot([self._target[0]], [self._target[1]], 'ro', ms=self._markerSize)
         
@@ -291,9 +293,9 @@ class ChaseGame(Environment):
                             origin='lower')
         """
         p = patches.Rectangle(
-            (self._self._state_bounds[0][0][0], self._self._state_bounds[0][0][0]),
-            (self._self._state_bounds[0][1][0]-self._self._state_bounds[0][0][0]),
-            (self._self._state_bounds[0][1][0]-self._self._state_bounds[0][0][0]),
+            (self._state_bounds[0][0][0], self._state_bounds[0][0][0]),
+            (self._state_bounds[0][1][0]-self._state_bounds[0][0][0]),
+            (self._state_bounds[0][1][0]-self._state_bounds[0][0][0]),
             alpha=0.25,
             facecolor="#999999"
             # fill=False      # remove background
@@ -305,9 +307,9 @@ class ChaseGame(Environment):
                             origin='lower')
         """
         p = patches.Rectangle(
-            (self._self._state_bounds[0][0][0], self._self._state_bounds[0][0][0]),
-            (self._self._state_bounds[0][1][0]-self._self._state_bounds[0][0][0]),
-            (self._self._state_bounds[0][1][0]-self._self._state_bounds[0][0][0]),
+            (self._state_bounds[0][0][0], self._state_bounds[0][0][0]),
+            (self._state_bounds[0][1][0]-self._state_bounds[0][0][0]),
+            (self._state_bounds[0][1][0]-self._state_bounds[0][0][0]),
             alpha=0.25,
             facecolor="#999999"
             # fill=False      # remove background
@@ -331,6 +333,11 @@ class ChaseGame(Environment):
         
         X,Y = self.getStateSamples()
         print (X,Y)
+        print ("length X: ", np.array(X).shape)
+        print ("length Y: ", np.array(Y).shape)
+        print ("length U: ", np.array(U).shape)
+        print ("length V: ", np.array(V).shape)
+        print ("length Q: ", np.array(Q).shape)
         # self._policy = self._policy_ax.quiver(X[::2, ::2],Y[::2, ::2],U[::2, ::2],V[::2, ::2], linewidth=0.5, pivot='mid', edgecolor='k', headaxislength=5, facecolor='None')
         textstr = "$\max V(s,a)=%.2f$\n$\min V(s,a)=%.2f$"%(np.max(Q), np.min(Q))
         props = dict(boxstyle='round', facecolor='wheat', alpha=0.75)
@@ -358,9 +365,9 @@ class ChaseGame(Environment):
                             origin='lower')
         """
         p = patches.Rectangle(
-            (self._self._state_bounds[0][0][0], self._self._state_bounds[0][0][0]),
-            (self._self._state_bounds[0][1][0]-self._self._state_bounds[0][0][0]),
-            (self._self._state_bounds[0][1][0]-self._self._state_bounds[0][0][0]),
+            (self._state_bounds[0][0][0], self._state_bounds[0][0][0]),
+            (self._state_bounds[0][1][0]-self._state_bounds[0][0][0]),
+            (self._state_bounds[0][1][0]-self._state_bounds[0][0][0]),
             alpha=0.25,
             facecolor="#999999"
             # fill=False      # remove background
@@ -391,9 +398,9 @@ class ChaseGame(Environment):
         # self._fd = self._fd_error.quiver(X,Y,U,V, linewidth=0.5, pivot='mid', edgecolor='k', headaxislength=3, facecolor='None', angles='xy', linestyles='-', scale=25.0)
         self._fd_error.set_title('MBAE FD error')
         p = patches.Rectangle(
-            (self._self._state_bounds[0][0][0], self._self._state_bounds[0][0][0]),
-            (self._self._state_bounds[0][1][0]-self._self._state_bounds[0][0][0]),
-            (self._self._state_bounds[0][1][0]-self._self._state_bounds[0][0][0]),
+            (self._state_bounds[0][0][0], self._state_bounds[0][0][0]),
+            (self._state_bounds[0][1][0]-self._state_bounds[0][0][0]),
+            (self._state_bounds[0][1][0]-self._state_bounds[0][0][0]),
             alpha=0.25,
             facecolor="#999999"
             # fill=False      # remove background
@@ -409,16 +416,16 @@ class ChaseGame(Environment):
         # print ("Agent loc: " + str(self._agent))
         if (self.__action is not None):
             self.__reward = self.actContinuous(self.__action, bootstrapping=False)
-        if self._settings['render']:
-            self._particles.set_data(self._agent[:][0], self._agent[:][1] )
-            self._particles.set_markersize(self._markerSize)
+        self.display()
         # self._line1.set_ydata(np.sin(x + phase))
-        # self._fig.canvas.draw()
         
     def display(self):
         if self._settings['render']:
-            self._particles.set_data(self._agent[:][0], self._agent[:][1] )
+            print ("self._agent: ", self._agent)
+            print ("np.array(self._agent)[:,0]: ", np.array(self._agent)[:,0])
+            self._particles.set_data(np.array(self._agent)[:,0], np.array(self._agent)[:,1] )
             self._particles.set_markersize(self._markerSize)
+            self._fig.canvas.draw()
             
     def updatePolicy(self, U, V, Q):
         # self._policy.set_UVC(U[::2, ::2],V[::2, ::2])

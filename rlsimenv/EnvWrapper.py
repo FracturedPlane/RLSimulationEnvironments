@@ -120,7 +120,7 @@ class EnvWrapper(object):
         ob = np.array(ob)
         # print ("np.array(ob): ", ob)
         # print ("self.getEnv().getObservationSpaceSize(): ", self.getEnv().getObservationSpaceSize())
-        ob = np.reshape(ob, (-1, int(self.getEnv().getObservationSpaceSize())))
+        # ob = np.reshape(ob, (-1, int(self.getEnv().getObservationSpaceSize())))
         # ob = [ob.flatten()]
         # ob = np.asarray(ob)
         return ob
