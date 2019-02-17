@@ -421,8 +421,8 @@ class ChaseGame(Environment):
         
     def display(self):
         if self._settings['render']:
-            print ("self._agent: ", self._agent)
-            print ("np.array(self._agent)[:,0]: ", np.array(self._agent)[:,0])
+            # print ("self._agent: ", self._agent)
+            # print ("np.array(self._agent)[:,0]: ", np.array(self._agent)[:,0])
             self._particles.set_data(np.array(self._agent)[:,0], np.array(self._agent)[:,1] )
             self._particles.set_markersize(self._markerSize)
             self._fig.canvas.draw()

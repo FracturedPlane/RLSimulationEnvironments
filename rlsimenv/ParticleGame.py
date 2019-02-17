@@ -77,9 +77,10 @@ class ParticleGame(object):
         self._obstacles = np.array(obstacles)
         
         # if self._settings['render'] == True:
-        U = np.zeros((self._state_length * self._state_length))
-        V = np.ones((self._state_length * self._state_length))
-        Q = np.random.rand((self._state_length * self._state_length))
+        X,Y = self.getStateSamples()
+        U = np.zeros((np.array(X).size))
+        V = np.ones((np.array(X).size))
+        Q = np.random.rand((np.array(X).size))
         if self._settings['render']:
             self.initRender(U, V, Q)
         
