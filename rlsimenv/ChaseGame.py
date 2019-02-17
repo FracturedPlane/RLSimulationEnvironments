@@ -46,6 +46,7 @@ class ChaseGame(Environment):
         self._map_size = 10
         self._markerSize = 25
         self._numberOfAgents = 2
+        self._numberOf1Agents = 1
         
         self._agent = np.random.random_integers(-self._map_size, self._map_size, (self._numberOfAgents, self._dimensions))
         self._target = np.array([0]* self._dimensions) ## goal location
@@ -185,7 +186,7 @@ class ChaseGame(Environment):
                 #     return self.reward() +-5
                 self._agent[a] = loc
                 if (a == 1):
-                    r_ = self.reward(a, target=self._agent[a]) 
+                    r_ = self.reward(a, target=self._agent[0]) 
                 else:
                     r_ = self.reward(a, target=self._target) - self.reward(a, target=self._agent[1])
                 # print ("r_: ", r_)
@@ -258,6 +259,10 @@ class ChaseGame(Environment):
                        self._state_bounds[0][0][1]:self._state_bounds[0][1][1]+1]
         return (X,Y)
     
+    def getAgentColours(self, num):
+        
+        return [[i/float(num), 1, 1, 1] for i in range(num)]
+    
     def initRender(self, U, V, Q):
         import matplotlib.pyplot as plt
         import matplotlib
@@ -277,7 +282,9 @@ class ChaseGame(Environment):
         self._map_ax.set_title('Map')
         print("self._agent: ", repr(np.array(self._agent)) )
         print("np.array(self._agent)[:,0]: ", repr(np.array(self._agent)[:,0]) )
-        self._particles, = self._map_ax.plot(np.array(self._agent)[:,0], np.array(self._agent)[:,1], 'o', ms=self._markerSize)
+        self._particles1, = self._map_ax.plot(np.array(self._agent)[:1,0], np.array(self._agent)[:1,1], 'o', ms=self._markerSize, c="blue")
+        self._particles2, = self._map_ax.plot(np.array(self._agent)[1:,0], np.array(self._agent)[1:,1], 'o', ms=self._markerSize, c="yellow")
+        # self._particles, = self._map_ax.scatter(np.array(self._agent)[:,0], np.array(self._agent)[:,1], c=self.getAgentColours(self._numberOfAgents))
         
         self._map_ax.plot([self._target[0]], [self._target[1]], 'ro', ms=self._markerSize)
         
@@ -423,8 +430,10 @@ class ChaseGame(Environment):
         if self._settings['render']:
             # print ("self._agent: ", self._agent)
             # print ("np.array(self._agent)[:,0]: ", np.array(self._agent)[:,0])
-            self._particles.set_data(np.array(self._agent)[:,0], np.array(self._agent)[:,1] )
-            self._particles.set_markersize(self._markerSize)
+            self._particles1.set_data(np.array(self._agent)[:1,0], np.array(self._agent)[:1,1] )
+            self._particles1.set_markersize(self._markerSize)
+            self._particles2.set_data(np.array(self._agent)[1:,0], np.array(self._agent)[1:,1] )
+            self._particles2.set_markersize(self._markerSize)
             self._fig.canvas.draw()
             
     def updatePolicy(self, U, V, Q):
