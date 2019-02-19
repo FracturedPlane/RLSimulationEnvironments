@@ -104,6 +104,7 @@ project "eglRenderer"
 		libdirs { 
 			"/usr/lib/nvidia-390",
 			"/usr/lib/nvidia-396",
+			"/usr/lib/nvidia-384",
 		}
 		
 		includedirs { 
