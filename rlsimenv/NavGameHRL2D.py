@@ -4,7 +4,7 @@ import pybullet_data
 import os
 import time
 from rlsimenv.EnvWrapper import ActionSpace
-from rlsimenv.Environment import Environment
+from rlsimenv.Environment import Environment, clampValue
 
 class NavGameHRL2D(Environment):
     
@@ -18,7 +18,8 @@ class NavGameHRL2D(Environment):
         self._action_bounds = self._game_settings['action_bounds']
         self._action_length = len(self._action_bounds[0])
         
-        self._llc_target = [0, 0, 0]
+        self._llc_target = [1.0, 0, 0]
+        
         
         # ob_low = [0] * len(self.getEnv().getObservationSpaceSize()
         # ob_high = [1] * self.getEnv().getObservationSpaceSize() 
@@ -27,6 +28,11 @@ class NavGameHRL2D(Environment):
         self._action_space = ActionSpace(self._game_settings['action_bounds'])
         self._map_area = 10
         
+        self._vel_bounds = [[-2.0, -2.0, -0.00001],
+                            [ 2.0,  2.0,  0.00001]]
+        
+        self._pos_bounds = [[-self._map_area, -self._map_area, -0.00001],
+                            [ self._map_area,  self._map_area,  0.00001]]
         
         
     def getActionSpaceSize(self):
@@ -116,6 +122,13 @@ class NavGameHRL2D(Environment):
         p.resetBasePositionAndOrientation(self._target, [x,y,0.5], p.getQuaternionFromEuler([0.,0,0]))
         p.resetBaseVelocity(self._target, [0,0,0], [0,0,0])
         
+        self._ran = np.random.rand(1)[0]
+        # self._ran = 0.6
+        if ( self._ran > 0.5): ### Update llc_target from hlc
+            self._llc_target = [x, y, 0]
+        else:
+            self._llc_target = [1, 0, 0]
+        
         ### Reset obstacles
         for i in range(len(self._blocks)):
             x = (np.random.rand()-0.5) * self._map_area * 2.0
@@ -135,8 +148,10 @@ class NavGameHRL2D(Environment):
         ### angular vel
         # out.extend(data[1])
         # print (out)
-        goalDir = self.getTargetDirection()
-        out_hlc.extend(goalDir)
+        pos = np.array(p.getBasePositionAndOrientation(self._agent)[0])
+        posT = np.array(p.getBasePositionAndOrientation(self._target)[0])
+        goalDirection = posT-pos
+        out_hlc.extend(goalDirection)
         # out = [np.array([np.array(out)])]
         # out = np.array([np.array(out)])
         # print ("obs: ", np.array(out))
@@ -163,7 +178,7 @@ class NavGameHRL2D(Environment):
         # goalDir = goalDir / np.sqrt((goalDir*goalDir).sum(axis=0))
         # print ("goalDir: ", goalDir)
         agentVel = np.array(p.getBaseVelocity(self._agent)[0])
-        agentDir = np.sqrt((agentVel*agentVel).sum(axis=0))
+        agentDir = agentVel / np.sqrt((agentVel*agentVel).sum(axis=0))
         velDiff = goalDir - agentVel
         diffMag = np.sqrt((velDiff*velDiff).sum(axis=0))
         # agentVel = agentVel / agentSpeed
@@ -171,23 +186,28 @@ class NavGameHRL2D(Environment):
         # agentSpeedDiff = (1 - agentSpeed)
         ### heading towards goal
         # reward = np.dot(goalDir, agentVel) + np.exp(agentSpeedDiff*agentSpeedDiff * -2.0)
-        hlc_reward = np.exp((diffMag*diffMag) * -2.0) + np.exp((goalDistance*goalDistance) * -2.0)
+        # hlc_reward = np.exp((diffMag*diffMag) * -2.0) + np.exp((goalDistance*goalDistance) * -2.0)
+        hlc_reward = np.exp((diffMag*diffMag) * -2.0)
         """
         if (goalDistance < 1.5):
             ### Reached goal
             reward = reward + self._map_area
         """
         ### Check contacts with obstacles
+        """
         for box_id in self._blocks:
             contacts = p.getContactPoints(self._agent, box_id)
             # print ("contacts: ", contacts)
             if len(contacts) > 0:
                 hlc_reward = hlc_reward + -self._map_area
                 break
+        """
+        # print ("self._llc_target: ", self._llc_target)
+        # print ("pos: ", pos, " agentVel: ", agentVel)
         llc_dir = np.array([self._llc_target[0], self._llc_target[1], 0])
-        llc_dir = np.sqrt((llc_dir*llc_dir).sum(axis=0))
+        llc_dir = llc_dir / np.sqrt((llc_dir*llc_dir).sum(axis=0))
         llc_reward = np.dot(agentDir, llc_dir)
-        rewards = [[llc_reward], [hlc_reward]]
+        rewards = [[llc_reward + hlc_reward], [hlc_reward]]
         # print ("rewards: ", rewards)
         return rewards
         
@@ -259,10 +279,13 @@ class NavGameHRL2D(Environment):
         """
         ### apply delta position change.
         action_ = np.array([action[0][0], action[0][1], 0])
+        action_ = clampValue(action_, self._vel_bounds)
         # print ("New action: ", action)
         p.resetBaseVelocity(self._agent, linearVelocity=action_, angularVelocity=[0,0,0])
-        vel = p.getBaseVelocity(self._agent)[0]
-        self._llc_target = [action[1][0], action[1][1], 0]
+        # vel = p.getBaseVelocity(self._agent)[0]
+        if (self._ran > 0.5): ### Only Do HLC training half the time.
+            # print ("Updating llc target from HLC")
+            self._llc_target = [action[1][0], action[1][1], 0]
         # print ("New vel: ", vel)
         
     def update(self):
@@ -270,14 +293,7 @@ class NavGameHRL2D(Environment):
         pos = np.array(p.getBasePositionAndOrientation(self._agent)[0])
         vel = np.array(p.getBaseVelocity(self._agent)[0])
         pos =  pos + (vel*self._dt)
-        if (pos[0] > self._map_area):
-            pos[0] = self._map_area
-        elif (pos[0] <  (-1.0 * self._map_area)):
-            pos[0] = (-1.0 * self._map_area)
-        if (pos[1] > self._map_area):
-            pos[1] = self._map_area
-        elif (pos[1] <  (-1.0 * self._map_area)):
-            pos[1] = (-1.0 * self._map_area) 
+        pos = clampValue(pos, self._pos_bounds)
         pos[2] = 0.5
         ### Need to do this so the intersetions are 
         p.stepSimulation()
