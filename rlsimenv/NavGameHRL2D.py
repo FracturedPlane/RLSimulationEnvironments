@@ -7,6 +7,10 @@ from rlsimenv.EnvWrapper import ActionSpace
 from rlsimenv.Environment import Environment, clampValue
 
 class NavGameHRL2D(Environment):
+    """
+        The HLC is the first agent
+        The LLC is the second agent
+    """
     
     def __init__(self, settings):
         super(NavGameHRL2D,self).__init__(settings)
@@ -110,6 +114,8 @@ class NavGameHRL2D(Environment):
         print ("self._state_length: ", self._state_length)
         self._observation_space = ActionSpace(self._game_settings['state_bounds'])
         
+        self._last_state = self.getState()
+        
     def initEpoch(self):
         import numpy as np
         x = (np.random.rand()-0.5) * self._map_area * 2.0
@@ -160,12 +166,16 @@ class NavGameHRL2D(Environment):
         out_llc.extend(self._llc_target)
         out.append(np.array(out_llc))
         out.append(np.array(out_hlc))
-        return np.array(out)
+        self._last_state = np.array(out)
+        return self._last_state
     
     def getState(self):
         return self.getObservation()
     
     def computeReward(self, state=None):
+        """
+            
+        """
         import numpy as np
         pos = np.array(p.getBasePositionAndOrientation(self._agent)[0])
         posT = np.array(p.getBasePositionAndOrientation(self._target)[0])
@@ -205,9 +215,13 @@ class NavGameHRL2D(Environment):
         # print ("self._llc_target: ", self._llc_target)
         # print ("pos: ", pos, " agentVel: ", agentVel)
         llc_dir = np.array([self._llc_target[0], self._llc_target[1], 0])
+        ### normalize
         llc_dir = llc_dir / np.sqrt((llc_dir*llc_dir).sum(axis=0))
-        llc_reward = np.dot(agentDir, llc_dir)
-        rewards = [[llc_reward + hlc_reward], [hlc_reward]]
+        des_change = (self._last_state[1][:3] + llc_dir) - p.getBaseVelocity(self._agent)[0]
+        # llc_reward = np.dot(agentDir, llc_dir)
+        llc_reward = -(des_change*des_change).sum(axis=0)
+        # llc_reward = np.exp((llc_reward*llc_reward) * -2.0)
+        rewards = [[llc_reward], [hlc_reward]]
         # print ("rewards: ", rewards)
         return rewards
         
