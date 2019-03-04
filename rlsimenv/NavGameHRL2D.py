@@ -115,6 +115,7 @@ class NavGameHRL2D(Environment):
         self._observation_space = ActionSpace(self._game_settings['state_bounds'])
         
         self._last_state = self.getState()
+        self._last_pose = p.getBasePositionAndOrientation(self._agent)[0]
         
     def initEpoch(self):
         import numpy as np
@@ -147,14 +148,15 @@ class NavGameHRL2D(Environment):
         import numpy as np
         out = []
         out_hlc = []
-        localMap = self.getlocalMapObservation()
-        out_hlc.extend(localMap)
+        if ("include_egocentric_vision" in self._game_settings
+            and (self._game_settings["include_egocentric_vision"] == True)):
+            localMap = self.getlocalMapObservation()
+            out_hlc.extend(localMap)
         data = p.getBaseVelocity(self._agent)
         ### linear vel
         out_hlc.extend(data[0])
         ### angular vel
         # out.extend(data[1])
-        # print (out)
         pos = np.array(p.getBasePositionAndOrientation(self._agent)[0])
         posT = np.array(p.getBasePositionAndOrientation(self._target)[0])
         goalDirection = posT-pos
@@ -164,10 +166,13 @@ class NavGameHRL2D(Environment):
         # print ("obs: ", np.array(out))
         out_llc = []
         out_llc.extend(data[0])
-        out_llc.extend(self._llc_target)
+        ### Relative distance from current LLC state
+        out_llc.extend(np.array(self._llc_target) - np.array(data[0]))
+        # print ("out_llc: ", out_llc)
         out.append(np.array(out_hlc))
         out.append(np.array(out_llc))
         self._last_state = np.array(out)
+        self._last_pose = np.array(p.getBasePositionAndOrientation(self._agent)[0])
         return self._last_state
     
     def getState(self):
@@ -218,7 +223,9 @@ class NavGameHRL2D(Environment):
         llc_dir = np.array([self._llc_target[0], self._llc_target[1], 0])
         ### normalize
         # llc_dir = llc_dir / np.sqrt((llc_dir*llc_dir).sum(axis=0))
-        des_change = (self._last_state[1][:3] + llc_dir) - p.getBaseVelocity(self._agent)[0]
+        relative_llc_goal_state = (llc_dir-self._last_state[1][:3])
+        des_change = (self._last_state[1][:3] + relative_llc_goal_state) - p.getBaseVelocity(self._agent)[0]
+        # des_change = (self._last_pose + llc_dir) - np.array(p.getBasePositionAndOrientation(self._agent)[0])
         # print ("self._last_state[1][:3] - p.getBaseVelocity(self._agent)[0]: ", self._last_state[1][:3] - p.getBaseVelocity(self._agent)[0])
         # llc_reward = np.dot(agentDir, llc_dir) - 1
         # llc_reward = -(agentDir*llc_dir).sum(axis=0)
@@ -307,6 +314,9 @@ class NavGameHRL2D(Environment):
         if (self._hlc_timestep >= self._hlc_skip):
             # print ("Updating llc target from HLC")
             self._llc_target = clampValue([action[0][0], action[0][1], 0], self._vel_bounds)
+            ### Need to store this target in the sim as a gobal location to allow for computing local distance state.
+            pos = np.array(p.getBasePositionAndOrientation(self._agent)[0])
+            self._llc_target = self._llc_target + action_
             self._hlc_timestep = 0
             # print ("self._llc_target: ", self._llc_target)
         # print ("New vel: ", vel)
