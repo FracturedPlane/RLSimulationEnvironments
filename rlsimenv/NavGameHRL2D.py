@@ -125,15 +125,16 @@ class NavGameHRL2D(Environment):
         
         x = (np.random.rand()-0.5) * self._map_area * 2.0
         y = (np.random.rand()-0.5) * self._map_area * 2.0
+        # x = (np.random.rand()-0.5) * 2.0 * 2.0
+        # y = (np.random.rand()-0.5) * 2.0 * 2.0
         p.resetBasePositionAndOrientation(self._target, [x,y,0.5], p.getQuaternionFromEuler([0.,0,0]))
         p.resetBaseVelocity(self._target, [0,0,0], [0,0,0])
         
         # self._ran = np.random.rand(1)[0]
         self._ran = 0.6
-        if ( self._ran > 0.5): ### Update llc_target from hlc
-            self._llc_target = [x, y, 0]
-        else:
-            self._llc_target = [1, 0, 0]
+        self._llc_target = [x, y, 0]
+        self._hlc_timestep = 0
+        self._hlc_skip = 5
         
         ### Reset obstacles
         for i in range(len(self._blocks)):
@@ -216,12 +217,13 @@ class NavGameHRL2D(Environment):
         # print ("pos: ", pos, " agentVel: ", agentVel)
         llc_dir = np.array([self._llc_target[0], self._llc_target[1], 0])
         ### normalize
-        llc_dir = llc_dir / np.sqrt((llc_dir*llc_dir).sum(axis=0))
+        # llc_dir = llc_dir / np.sqrt((llc_dir*llc_dir).sum(axis=0))
         des_change = (self._last_state[1][:3] + llc_dir) - p.getBaseVelocity(self._agent)[0]
         # print ("self._last_state[1][:3] - p.getBaseVelocity(self._agent)[0]: ", self._last_state[1][:3] - p.getBaseVelocity(self._agent)[0])
-        # llc_reward = np.dot(agentDir, llc_dir)
-        llc_reward = -(des_change*des_change).sum(axis=0)
+        # llc_reward = np.dot(agentDir, llc_dir) - 1
+        # llc_reward = -(agentDir*llc_dir).sum(axis=0)
         # llc_reward = np.exp((llc_reward*llc_reward) * -2.0)
+        llc_reward = -(des_change*des_change).sum(axis=0)
         rewards = [[hlc_reward], [llc_reward]]
         # print ("rewards: ", rewards)
         return rewards
@@ -294,15 +296,19 @@ class NavGameHRL2D(Environment):
         """
         ### apply delta position change.
         action_ = np.array([action[1][0], action[1][1], 0])
-        agentVel = np.array(p.getBaseVelocity(self._agent)[0])
-        action_ = agentVel + action_
+        # agentVel = np.array(p.getBaseVelocity(self._agent)[0])
+        # action_ = agentVel + action_
         action_ = clampValue(action_, self._vel_bounds)
         # print ("New action: ", action)
         p.resetBaseVelocity(self._agent, linearVelocity=action_, angularVelocity=[0,0,0])
         # vel = p.getBaseVelocity(self._agent)[0]
-        if (self._ran > 0.5): ### Only Do HLC training half the time.
+        # if (self._ran > 0.5): ### Only Do HLC training half the time.
+        self._hlc_timestep = self._hlc_timestep + 1
+        if (self._hlc_timestep >= self._hlc_skip):
             # print ("Updating llc target from HLC")
-            self._llc_target = [action[0][0], action[0][1], 0]
+            self._llc_target = clampValue([action[0][0], action[0][1], 0], self._vel_bounds)
+            self._hlc_timestep = 0
+            # print ("self._llc_target: ", self._llc_target)
         # print ("New vel: ", vel)
         
     def update(self):
