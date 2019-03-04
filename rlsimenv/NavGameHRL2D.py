@@ -30,7 +30,8 @@ class NavGameHRL2D(Environment):
         # observation_space = [ob_low, ob_high]
         # self._observation_space = ActionSpace(observation_space)
         self._action_space = ActionSpace(self._game_settings['action_bounds'])
-        self._map_area = 10
+        self._map_area = self._game_settings['map_size']
+        self._reach_goal_threshold = 1.0
         
         self._vel_bounds = [[-2.0, -2.0, -0.00001],
                             [ 2.0,  2.0,  0.00001]]
@@ -202,7 +203,11 @@ class NavGameHRL2D(Environment):
         # agentSpeedDiff = (1 - agentSpeed)
         ### heading towards goal
         # reward = np.dot(goalDir, agentVel) + np.exp(agentSpeedDiff*agentSpeedDiff * -2.0)
-        hlc_reward = np.exp((goalDistance*goalDistance) * -0.5) * 5
+        if ( goalDistance < self._reach_goal_threshold ):
+            hlc_reward = self._map_area
+        else:
+            hlc_reward = -goalDistance/(self._map_area * 2)
+        # hlc_reward = np.exp((goalDistance*goalDistance) * -0.5) * 5
         # hlc_reward = np.exp((diffMag*diffMag) * -2.0)
         """
         if (goalDistance < 1.5):
@@ -350,7 +355,7 @@ class NavGameHRL2D(Environment):
         posT = np.array(p.getBasePositionAndOrientation(self._target)[0])
         goalDirection = posT-pos
         goalDistance = np.sqrt((goalDirection*goalDirection).sum(axis=0))
-        if (goalDistance < 1.0):
+        if (goalDistance < self._reach_goal_threshold):
             return True
         else:
             return False

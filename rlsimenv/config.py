@@ -843,7 +843,10 @@ SIMULATION_ENVIRONMENTS = """
                       [[-1.2, -1.2, -1.2, -1.2, -1.2, -1.2, -1.2, -1.2, -1.2, -1.2],
                       [ 1.2,  1.2,  1.2,  1.2,  1.2,  1.2,  1.2,  1.2,  1.2,  1.2]]],
         "comment__": "Include an egocentric vision field for agent",
-    "include_egocentric_vision": true
+    "include_egocentric_vision": true,
+        "comment__": "Size of map area",
+    "map_size": 10.0
+        
 },
 "NavGameHRL2D_NoVision_v0": 
 {
@@ -863,7 +866,9 @@ SIMULATION_ENVIRONMENTS = """
     "action_bounds": [[[-1.2, -1.2, -1.2, -1.2, -1.2, -1.2, -1.2, -1.2, -1.2, -1.2],
                       [ 1.2,  1.2,  1.2,  1.2,  1.2,  1.2,  1.2,  1.2,  1.2,  1.2]],
                       [[-1.2, -1.2, -1.2, -1.2, -1.2, -1.2, -1.2, -1.2, -1.2, -1.2],
-                      [ 1.2,  1.2,  1.2,  1.2,  1.2,  1.2,  1.2,  1.2,  1.2,  1.2]]]
+                      [ 1.2,  1.2,  1.2,  1.2,  1.2,  1.2,  1.2,  1.2,  1.2,  1.2]]],
+        "comment__": "Size of map area",
+    "map_size": 5.0
 }
 }
 """
