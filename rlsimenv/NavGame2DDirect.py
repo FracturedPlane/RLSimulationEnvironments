@@ -30,6 +30,8 @@ class NavGame2DDirect(Environment):
         self._vel_bounds = [[-2.0, -2.0, -0.00001],
                             [ 2.0,  2.0,  0.00001]]
         self._llc_target = [1.0, 0, 0]
+        self._hlc_timestep = 0
+        self._hlc_skip = 10
         
     def getActionSpaceSize(self):
         return self._action_length
@@ -50,7 +52,6 @@ class NavGame2DDirect(Environment):
             self._physicsClient = p.connect(p.GUI)
         else:
             self._physicsClient = p.connect(p.DIRECT)
-            
         p.setAdditionalSearchPath(pybullet_data.getDataPath())
         p.resetSimulation()
         #p.setRealTimeSimulation(True)
@@ -109,10 +110,10 @@ class NavGame2DDirect(Environment):
         
         self._llc_target = np.array([x/self._map_area, y/self._map_area, 0])
         self._hlc_timestep = 0
-        self._hlc_skip = 10
         
     def getObservation(self):
         import numpy as np
+
         out = []
         # localMap = self.getlocalMapObservation()
         # out.extend(localMap)
@@ -162,9 +163,10 @@ class NavGame2DDirect(Environment):
         # llc_reward = np.dot(agentDir, llc_dir) - 1
         # llc_reward = -(agentDir*llc_dir).sum(axis=0)
         # llc_reward = np.exp((llc_reward*llc_reward) * -2.0)
+        # print ("des_change: ", des_change*des_change)
         llc_reward = -(des_change*des_change).sum(axis=0)
-        
-        return reward
+        # print ("llc_reward: ", llc_reward)
+        return llc_reward
         
         
         
@@ -190,6 +192,13 @@ class NavGame2DDirect(Environment):
         p.resetBaseVelocity(self._agent, linearVelocity=action, angularVelocity=[0,0,0])
         vel = p.getBaseVelocity(self._agent)[0]
         # print ("New vel: ", vel)
+        self._hlc_timestep = self._hlc_timestep + 1
+        if (self._hlc_timestep > self._hlc_skip):
+            x = (np.random.rand()-0.5) * self._map_area * 2.0
+            y = (np.random.rand()-0.5) * self._map_area * 2.0
+            
+            self._llc_target = np.array([x/self._map_area, y/self._map_area, 0])
+            self._hlc_timestep = 0
         
     def update(self):
         import numpy as np
