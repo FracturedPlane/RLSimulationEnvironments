@@ -4,7 +4,7 @@ import pybullet_data
 import os
 import time
 from rlsimenv.EnvWrapper import ActionSpace
-from rlsimenv.Environment import Environment
+from rlsimenv.Environment import Environment, clampValue
 
 
 class NavGame2DDirect(Environment):
@@ -27,6 +27,9 @@ class NavGame2DDirect(Environment):
         self._action_space = ActionSpace(self._game_settings['action_bounds'])
         
         self._map_area = 5
+        self._vel_bounds = [[-2.0, -2.0, -0.00001],
+                            [ 2.0,  2.0,  0.00001]]
+        self._llc_target = [1.0, 0, 0]
         
     def getActionSpaceSize(self):
         return self._action_length
@@ -104,12 +107,16 @@ class NavGame2DDirect(Environment):
         p.resetBasePositionAndOrientation(self._target, [x,y,0.5], p.getQuaternionFromEuler([0.,0,0]))
         p.resetBaseVelocity(self._target, [0,0,0], [0,0,0])
         
+        self._llc_target = np.array([x/self._map_area, y/self._map_area, 0])
+        self._hlc_timestep = 0
+        self._hlc_skip = 10
+        
     def getObservation(self):
         import numpy as np
         out = []
         # localMap = self.getlocalMapObservation()
         # out.extend(localMap)
-        data = p.getBaseVelocity(self._agent)
+        data = np.array(p.getBaseVelocity(self._agent))
         ### linear vel
         out.extend(data[0])
         ### angular vel
@@ -118,10 +125,12 @@ class NavGame2DDirect(Environment):
         pos = np.array(p.getBasePositionAndOrientation(self._agent)[0])
         posT = np.array(p.getBasePositionAndOrientation(self._target)[0])
         goalDirection = posT-pos
-        out.extend(goalDirection)
+        relative_goal_state = self._llc_target - data[0]
+        # print ("relative_goal_state: ", relative_goal_state)
+        out.extend(relative_goal_state)
         # out = [np.array([np.array(out)])]
+        # print ("obs: ", out)
         out = np.array([np.array(out)])
-        # print ("obs: ", np.array(out))
         return out
     
     def getState(self):
@@ -143,6 +152,18 @@ class NavGame2DDirect(Environment):
         # reward = np.dot(goalDir, agentVel) + np.exp(agentSpeedDiff*agentSpeedDiff * -2.0)
         reward = np.exp((diffMag*diffMag) * -2.0)
         
+        llc_dir = np.array([self._llc_target[0], self._llc_target[1], 0])
+        ### normalize
+        # llc_dir = llc_dir / np.sqrt((llc_dir*llc_dir).sum(axis=0))
+        # relative_llc_goal_state = (llc_dir-self._last_state[:3])
+        des_change = llc_dir - p.getBaseVelocity(self._agent)[0]
+        # des_change = (self._last_pose + llc_dir) - np.array(p.getBasePositionAndOrientation(self._agent)[0])
+        # print ("self._last_state[1][:3] - p.getBaseVelocity(self._agent)[0]: ", self._last_state[1][:3] - p.getBaseVelocity(self._agent)[0])
+        # llc_reward = np.dot(agentDir, llc_dir) - 1
+        # llc_reward = -(agentDir*llc_dir).sum(axis=0)
+        # llc_reward = np.exp((llc_reward*llc_reward) * -2.0)
+        llc_reward = -(des_change*des_change).sum(axis=0)
+        
         return reward
         
         
@@ -161,6 +182,9 @@ class NavGame2DDirect(Environment):
         import numpy as np
         ### apply delta position change.
         action = np.array([action[0], action[1], 0])
+        agentVel = np.array(p.getBaseVelocity(self._agent)[0])
+        action = agentVel + action
+        action = clampValue(action, self._vel_bounds)
         # action = np.array([1, 0, 0])
         # print ("New action: ", action)
         p.resetBaseVelocity(self._agent, linearVelocity=action, angularVelocity=[0,0,0])

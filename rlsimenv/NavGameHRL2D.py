@@ -136,7 +136,7 @@ class NavGameHRL2D(Environment):
         self._ran = 0.6
         self._llc_target = [x, y, 0]
         self._hlc_timestep = 0
-        self._hlc_skip = 5
+        self._hlc_skip = 10
         
         ### Reset obstacles
         for i in range(len(self._blocks)):
@@ -203,10 +203,12 @@ class NavGameHRL2D(Environment):
         # agentSpeedDiff = (1 - agentSpeed)
         ### heading towards goal
         # reward = np.dot(goalDir, agentVel) + np.exp(agentSpeedDiff*agentSpeedDiff * -2.0)
+        """
         if ( goalDistance < self._reach_goal_threshold ):
             hlc_reward = self._map_area
         else:
-            hlc_reward = -goalDistance/(self._map_area * 2)
+        """
+        hlc_reward = -goalDistance/(self._map_area * 2)
         # hlc_reward = np.exp((goalDistance*goalDistance) * -0.5) * 5
         # hlc_reward = np.exp((diffMag*diffMag) * -2.0)
         """
@@ -308,15 +310,15 @@ class NavGameHRL2D(Environment):
         """
         ### apply delta position change.
         action_ = np.array([action[1][0], action[1][1], 0])
-        # agentVel = np.array(p.getBaseVelocity(self._agent)[0])
-        # action_ = agentVel + action_
+        agentVel = np.array(p.getBaseVelocity(self._agent)[0])
+        action_ = agentVel + action_
         action_ = clampValue(action_, self._vel_bounds)
         # print ("New action: ", action)
         p.resetBaseVelocity(self._agent, linearVelocity=action_, angularVelocity=[0,0,0])
         # vel = p.getBaseVelocity(self._agent)[0]
         # if (self._ran > 0.5): ### Only Do HLC training half the time.
         self._hlc_timestep = self._hlc_timestep + 1
-        if (self._hlc_timestep >= self._hlc_skip):
+        if (self._hlc_timestep > self._hlc_skip):
             # print ("Updating llc target from HLC")
             self._llc_target = clampValue([action[0][0], action[0][1], 0], self._vel_bounds)
             ### Need to store this target in the sim as a gobal location to allow for computing local distance state.
