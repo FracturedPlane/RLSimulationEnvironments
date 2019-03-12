@@ -136,7 +136,7 @@ class NavGameHRL2D(Environment):
         
         # self._ran = np.random.rand(1)[0]
         self._ran = 0.6 ## Ignore HLC action and have env generate them if > 0.5.
-        self._llc_target = [x, y, 0]
+        self._llc_target = [x/self._map_area, y/self._map_area, 0]
         self._hlc_timestep = 0
         self._hlc_skip = 10
         
@@ -170,10 +170,10 @@ class NavGameHRL2D(Environment):
         out_llc = []
         out_llc.extend(data[0])
         ### Relative distance from current LLC state
-        if (self._ran < 0.5):
-            out_llc.extend(np.array(self._llc_target) - np.array(data[0]))
-        else:
-            out_llc.extend(np.array(self._llc_target))
+        # if (self._ran < 0.5):
+        out_llc.extend(np.array(self._llc_target) - np.array(data[0]))
+        # else:
+        #     out_llc.extend(np.array(self._llc_target) - pos)
         # print ("out_llc: ", out_llc)
         out.append(np.array(out_hlc))
         out.append(np.array(out_llc))
@@ -232,17 +232,23 @@ class NavGameHRL2D(Environment):
         """
         # print ("self._llc_target: ", self._llc_target)
         # print ("pos: ", pos, " agentVel: ", agentVel)
-        llc_dir = np.array([self._llc_target[0], self._llc_target[1], 0])
-        ### normalize
-        # llc_dir = llc_dir / np.sqrt((llc_dir*llc_dir).sum(axis=0))
-        relative_llc_goal_state = (llc_dir-self._last_state[1][:3])
-        des_change = (self._last_state[1][:3] + relative_llc_goal_state) - p.getBaseVelocity(self._agent)[0]
-        # des_change = (self._last_pose + llc_dir) - np.array(p.getBasePositionAndOrientation(self._agent)[0])
-        # print ("self._last_state[1][:3] - p.getBaseVelocity(self._agent)[0]: ", self._last_state[1][:3] - p.getBaseVelocity(self._agent)[0])
-        # llc_reward = np.dot(agentDir, llc_dir) - 1
-        # llc_reward = -(agentDir*llc_dir).sum(axis=0)
-        # llc_reward = np.exp((llc_reward*llc_reward) * -2.0)
-        llc_reward = -(des_change*des_change).sum(axis=0)
+        if (self._ran < 0.5):
+            llc_dir = np.array([self._llc_target[0], self._llc_target[1], 0])
+            ### normalize
+            # llc_dir = llc_dir / np.sqrt((llc_dir*llc_dir).sum(axis=0))
+            relative_llc_goal_state = (llc_dir-self._last_state[1][:3])
+            des_change = (self._last_state[1][:3] + relative_llc_goal_state) - p.getBaseVelocity(self._agent)[0]
+            # des_change = (self._last_pose + llc_dir) - np.array(p.getBasePositionAndOrientation(self._agent)[0])
+            # print ("self._last_state[1][:3] - p.getBaseVelocity(self._agent)[0]: ", self._last_state[1][:3] - p.getBaseVelocity(self._agent)[0])
+            # llc_reward = np.dot(agentDir, llc_dir) - 1
+            # llc_reward = -(agentDir*llc_dir).sum(axis=0)
+            # llc_reward = np.exp((llc_reward*llc_reward) * -2.0)
+            llc_reward = -(des_change*des_change).sum(axis=0)
+        else:
+            llc_dir = np.array([self._llc_target[0], self._llc_target[1], 0])
+            des_change = llc_dir - agentVel
+            llc_reward = -(des_change*des_change).sum(axis=0)
+            
         rewards = [[hlc_reward], [llc_reward]]
         # print ("rewards: ", rewards)
         return rewards
@@ -331,7 +337,7 @@ class NavGameHRL2D(Environment):
             pos = np.array(p.getBasePositionAndOrientation(self._agent)[0])
             self._llc_target = self._llc_target + action_
             self._hlc_timestep = 0
-            # print ("self._llc_target: ", self._llc_target)
+            print ("self._llc_target: ", self._llc_target)
         # print ("New vel: ", vel)
         
     def update(self):
