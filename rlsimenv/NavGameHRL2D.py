@@ -39,6 +39,8 @@ class NavGameHRL2D(Environment):
         self._pos_bounds = [[-self._map_area, -self._map_area, -0.00001],
                             [ self._map_area,  self._map_area,  0.00001]]
         
+        self._ran = 0.0
+        
         
     def getActionSpaceSize(self):
         return self._action_length
@@ -133,7 +135,7 @@ class NavGameHRL2D(Environment):
         p.resetBaseVelocity(self._target, [0,0,0], [0,0,0])
         
         # self._ran = np.random.rand(1)[0]
-        self._ran = 0.6
+        self._ran = 0.6 ## Ignore HLC action and have env generate them if > 0.5.
         self._llc_target = [x, y, 0]
         self._hlc_timestep = 0
         self._hlc_skip = 10
@@ -168,7 +170,10 @@ class NavGameHRL2D(Environment):
         out_llc = []
         out_llc.extend(data[0])
         ### Relative distance from current LLC state
-        out_llc.extend(np.array(self._llc_target) - np.array(data[0]))
+        if (self._ran < 0.5):
+            out_llc.extend(np.array(self._llc_target) - np.array(data[0]))
+        else:
+            out_llc.extend(np.array(self._llc_target))
         # print ("out_llc: ", out_llc)
         out.append(np.array(out_hlc))
         out.append(np.array(out_llc))
@@ -318,7 +323,8 @@ class NavGameHRL2D(Environment):
         # vel = p.getBaseVelocity(self._agent)[0]
         # if (self._ran > 0.5): ### Only Do HLC training half the time.
         self._hlc_timestep = self._hlc_timestep + 1
-        if (self._hlc_timestep > self._hlc_skip):
+        if (self._hlc_timestep > self._hlc_skip 
+            and (self._ran < 0.5)):
             # print ("Updating llc target from HLC")
             self._llc_target = clampValue([action[0][0], action[0][1], 0], self._vel_bounds)
             ### Need to store this target in the sim as a gobal location to allow for computing local distance state.
