@@ -337,7 +337,7 @@ class NavGameHRL2D(Environment):
             pos = np.array(p.getBasePositionAndOrientation(self._agent)[0])
             self._llc_target = self._llc_target + action_
             self._hlc_timestep = 0
-            print ("self._llc_target: ", self._llc_target)
+            # print ("self._llc_target: ", self._llc_target)
         # print ("New vel: ", vel)
         
     def update(self):
