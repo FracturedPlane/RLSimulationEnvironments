@@ -135,10 +135,16 @@ class NavGameHRL2D(Environment):
         p.resetBaseVelocity(self._target, [0,0,0], [0,0,0])
         
         # self._ran = np.random.rand(1)[0]
-        self._ran = 0.6 ## Ignore HLC action and have env generate them if > 0.5.
+        if ("ignore_hlc_actions" in self._game_settings
+            and (self._game_settings["ignore_hlc_actions"] == True)):
+            self._ran = 0.6 ## Ignore HLC action and have env generate them if > 0.5.
+        else:
+            self._ran = 0.4 ## Ignore HLC action and have env generate them if > 0.5.
         self._llc_target = [x/self._map_area, y/self._map_area, 0]
         self._hlc_timestep = 0
         self._hlc_skip = 10
+        if ("hlc_timestep" in self._game_settings):
+            self._hlc_skip = self._game_settings["hlc_timestep"]
         
         ### Reset obstacles
         for i in range(len(self._blocks)):
@@ -232,6 +238,7 @@ class NavGameHRL2D(Environment):
         """
         # print ("self._llc_target: ", self._llc_target)
         # print ("pos: ", pos, " agentVel: ", agentVel)
+        """
         if (self._ran < 0.5):
             llc_dir = np.array([self._llc_target[0], self._llc_target[1], 0])
             ### normalize
@@ -245,9 +252,10 @@ class NavGameHRL2D(Environment):
             # llc_reward = np.exp((llc_reward*llc_reward) * -2.0)
             llc_reward = -(des_change*des_change).sum(axis=0)
         else:
-            llc_dir = np.array([self._llc_target[0], self._llc_target[1], 0])
-            des_change = llc_dir - agentVel
-            llc_reward = -(des_change*des_change).sum(axis=0)
+        """
+        llc_dir = np.array([self._llc_target[0], self._llc_target[1], 0])
+        des_change = llc_dir - agentVel
+        llc_reward = -(des_change*des_change).sum(axis=0)
             
         rewards = [[hlc_reward], [llc_reward]]
         # print ("rewards: ", rewards)

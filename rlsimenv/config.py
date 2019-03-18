@@ -868,7 +868,36 @@ SIMULATION_ENVIRONMENTS = """
                       [[-1.2, -1.2, -1.2, -1.2, -1.2, -1.2, -1.2, -1.2, -1.2, -1.2],
                       [ 1.2,  1.2,  1.2,  1.2,  1.2,  1.2,  1.2,  1.2,  1.2,  1.2]]],
         "comment__": "Size of map area",
-    "map_size": 5.0
+    "map_size": 5.0,
+        "comment__": "HLC timestep",
+    "hlc_timestep": 10
+},
+"NavGameHRL2D_NoVision_LLC_v0": 
+{
+    "config_file": "./args/genBiped2D/biped2dfull_incline_with_terrain_features.txt",
+    "time_limit": 256,
+    "sim_name": "rlsimenv.NavGameHRL2D.NavGameHRL2D",
+        "comment__": "Possible state bounds to be used for scaling states for networks",
+    "state_bounds": [[[ -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, 
+                        -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0],
+                       [   10.0,  10.0,  10.0,  10.0,  10.0,  10.0,  10.0,  10.0,  10.0,  10.0, 
+                           10.0,  10.0,  10.0,  10.0,  10.0,  10.0,  10.0,  10.0,  10.0,  10.0 ]],
+                    [[ -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, 
+                        -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0],
+                       [   10.0,  10.0,  10.0,  10.0,  10.0,  10.0,  10.0,  10.0,  10.0,  10.0, 
+                           10.0,  10.0,  10.0,  10.0,  10.0,  10.0,  10.0,  10.0,  10.0,  10.0 ]]],
+        "comment__": "Action scaling values to be used to scale values for the network",
+    "action_bounds": [[[-1.2, -1.2, -1.2, -1.2, -1.2, -1.2, -1.2, -1.2, -1.2, -1.2],
+                      [ 1.2,  1.2,  1.2,  1.2,  1.2,  1.2,  1.2,  1.2,  1.2,  1.2]],
+                      [[-1.2, -1.2, -1.2, -1.2, -1.2, -1.2, -1.2, -1.2, -1.2, -1.2],
+                      [ 1.2,  1.2,  1.2,  1.2,  1.2,  1.2,  1.2,  1.2,  1.2,  1.2]]],
+        "comment__": "Size of map area",
+    "map_size": 5.0,
+        "comment__": "HLC timestep",
+    "hlc_timestep": 10,
+        "comment__": "Train the LLC only, HLC actions have no affect.",
+    "ignore_hlc_actions": true
+        
 }
 }
 """
