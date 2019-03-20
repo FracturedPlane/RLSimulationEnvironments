@@ -343,7 +343,7 @@ class NavGameHRL2D(Environment):
             self._llc_target = clampValue([action[0][0], action[0][1], 0], self._vel_bounds)
             ### Need to store this target in the sim as a gobal location to allow for computing local distance state.
             pos = np.array(p.getBasePositionAndOrientation(self._agent)[0])
-            self._llc_target = self._llc_target + action_
+            # self._llc_target = self._llc_target + action_
             self._hlc_timestep = 0
             # print ("self._llc_target: ", self._llc_target)
         # print ("New vel: ", vel)
