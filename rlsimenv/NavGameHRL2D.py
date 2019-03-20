@@ -177,7 +177,8 @@ class NavGameHRL2D(Environment):
         out_llc.extend(data[0])
         ### Relative distance from current LLC state
         # if (self._ran < 0.5):
-        out_llc.extend(np.array(self._llc_target) - np.array(data[0]))
+        # out_llc.extend(np.array(self._llc_target) - np.array(data[0]))
+        out_llc.extend(np.array(self._llc_target))
         # else:
         #     out_llc.extend(np.array(self._llc_target) - pos)
         # print ("out_llc: ", out_llc)
