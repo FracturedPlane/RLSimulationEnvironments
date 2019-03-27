@@ -870,7 +870,7 @@ SIMULATION_ENVIRONMENTS = """
         "comment__": "Size of map area",
     "map_size": 5.0,
         "comment__": "HLC timestep",
-    "hlc_timestep": 10
+    "hlc_timestep": 5
 },
 "NavGameHRL2D_NoVision_LLC_v0": 
 {
@@ -894,7 +894,7 @@ SIMULATION_ENVIRONMENTS = """
         "comment__": "Size of map area",
     "map_size": 5.0,
         "comment__": "HLC timestep",
-    "hlc_timestep": 10,
+    "hlc_timestep": 5,
         "comment__": "Train the LLC only, HLC actions have no affect.",
     "ignore_hlc_actions": true
         
