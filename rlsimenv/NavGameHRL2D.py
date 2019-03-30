@@ -76,7 +76,8 @@ class NavGameHRL2D(Environment):
                 cubeStartOrientation) 
         
         self._blocks = []
-        for i in range(5):
+        self._num_blocks=0
+        for i in range(self._num_blocks):
             blockId = p.loadURDF("cube2.urdf",
                     [2.0,2.0,0.5],
                     cubeStartOrientation,
@@ -141,7 +142,8 @@ class NavGameHRL2D(Environment):
         else:
             self._ran = 0.4 ## Ignore HLC action and have env generate them if > 0.5.
         self._llc_target = [x/self._map_area, y/self._map_area, 0]
-        self._hlc_timestep = 0
+        ### Make sure to apply HLC action right away
+        self._hlc_timestep = 1000000
         self._hlc_skip = 10
         if ("hlc_timestep" in self._game_settings):
             self._hlc_skip = self._game_settings["hlc_timestep"]
@@ -215,12 +217,12 @@ class NavGameHRL2D(Environment):
         # agentSpeedDiff = (1 - agentSpeed)
         ### heading towards goal
         # reward = np.dot(goalDir, agentVel) + np.exp(agentSpeedDiff*agentSpeedDiff * -2.0)
-        """
-        if ( goalDistance < self._reach_goal_threshold ):
-            hlc_reward = self._map_area
-        else:
-        """
+        
+        # if ( goalDistance < self._reach_goal_threshold ):
+        #     hlc_reward = self._map_area
+        # else:
         hlc_reward = -goalDistance
+            # hlc_reward = 0
         # hlc_reward = np.exp((goalDistance*goalDistance) * -0.5) * 5
         # hlc_reward = np.exp((diffMag*diffMag) * -2.0)
         """
