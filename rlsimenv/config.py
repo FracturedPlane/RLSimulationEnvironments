@@ -921,7 +921,7 @@ SIMULATION_ENVIRONMENTS = """
         "comment__": "Size of map area",
     "map_size": 5.0,
         "comment__": "HLC timestep",
-    "hlc_timestep": 5
+    "hlc_timestep": 1
 }
 }
 """

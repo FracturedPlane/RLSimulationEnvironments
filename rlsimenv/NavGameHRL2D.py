@@ -133,7 +133,9 @@ class NavGameHRL2D(Environment):
         # x = (np.random.rand()-0.5) * 2.0 * 2.0
         # y = (np.random.rand()-0.5) * 2.0 * 2.0
         p.resetBasePositionAndOrientation(self._target, [x,y,0.5], p.getQuaternionFromEuler([0.,0,0]))
-        p.resetBaseVelocity(self._target, [0,0,0], [0,0,0])
+        ### Start with random velocity
+        p.resetBaseVelocity(self._target, [(np.random.rand()-0.5) * 2.0,
+                                           (np.random.rand()-0.5) * 2.0,0], [0,0,0])
         
         # self._ran = np.random.rand(1)[0]
         if ("ignore_hlc_actions" in self._game_settings
@@ -154,6 +156,9 @@ class NavGameHRL2D(Environment):
             y = (np.random.rand()-0.5) * self._map_area * 2.0
             p.resetBasePositionAndOrientation(self._blocks[i], [x,y,0.5], p.getQuaternionFromEuler([0.,0,0]))
             p.resetBaseVelocity(self._blocks[i], [0,0,0], [0,0,0]) 
+            
+    def setLLC(self, llc):
+        self._llc = llc
         
     def getObservation(self):
         import numpy as np
@@ -165,22 +170,22 @@ class NavGameHRL2D(Environment):
             out_hlc.extend(localMap)
         data = p.getBaseVelocity(self._agent)
         ### linear vel
-        out_hlc.extend(data[0])
+        out_hlc.extend([data[0][0], data[0][1]])
         ### angular vel
         # out.extend(data[1])
         pos = np.array(p.getBasePositionAndOrientation(self._agent)[0])
         posT = np.array(p.getBasePositionAndOrientation(self._target)[0])
         goalDirection = posT-pos
-        out_hlc.extend(goalDirection)
+        out_hlc.extend([goalDirection[0], goalDirection[1]])
         # out = [np.array([np.array(out)])]
         # out = np.array([np.array(out)])
         # print ("obs: ", np.array(out))
         out_llc = []
-        out_llc.extend(data[0])
+        out_llc.extend([data[0][0], data[0][1]])
         ### Relative distance from current LLC state
         # if (self._ran < 0.5):
         # out_llc.extend(np.array(self._llc_target) - np.array(data[0]))
-        out_llc.extend(np.array(self._llc_target))
+        out_llc.extend(np.array([self._llc_target[0], self._llc_target[1]]))
         # else:
         #     out_llc.extend(np.array(self._llc_target) - pos)
         # print ("out_llc: ", out_llc)
@@ -218,10 +223,10 @@ class NavGameHRL2D(Environment):
         ### heading towards goal
         # reward = np.dot(goalDir, agentVel) + np.exp(agentSpeedDiff*agentSpeedDiff * -2.0)
         
-        # if ( goalDistance < self._reach_goal_threshold ):
-        #     hlc_reward = self._map_area
-        # else:
-        hlc_reward = -goalDistance
+        if ( goalDistance < self._reach_goal_threshold ):
+            hlc_reward = 2.0
+        else:
+            hlc_reward = -goalDistance/((self._map_area - -self._map_area)/2.0)
             # hlc_reward = 0
         # hlc_reward = np.exp((goalDistance*goalDistance) * -0.5) * 5
         # hlc_reward = np.exp((diffMag*diffMag) * -2.0)
@@ -330,15 +335,6 @@ class NavGameHRL2D(Environment):
             action[0] == hlc action
             action[1] == llc action
         """
-        ### apply delta position change.
-        action_ = np.array([action[1][0], action[1][1], 0])
-        agentVel = np.array(p.getBaseVelocity(self._agent)[0])
-        action_ = agentVel + action_
-        action_ = clampValue(action_, self._vel_bounds)
-        # print ("New action: ", action)
-        p.resetBaseVelocity(self._agent, linearVelocity=action_, angularVelocity=[0,0,0])
-        # vel = p.getBaseVelocity(self._agent)[0]
-        # if (self._ran > 0.5): ### Only Do HLC training half the time.
         self._hlc_timestep = self._hlc_timestep + 1
         if (self._hlc_timestep > self._hlc_skip 
             and (self._ran < 0.5)):
@@ -348,7 +344,19 @@ class NavGameHRL2D(Environment):
             pos = np.array(p.getBasePositionAndOrientation(self._agent)[0])
             # self._llc_target = self._llc_target + action_
             self._hlc_timestep = 0
+            ### Update llc action
+            # action[1] = self._llc.predict([self.getObservation()[1]])
+            action[1] = [0.03, -0.023]
             # print ("self._llc_target: ", self._llc_target)
+        ### apply delta position change.
+        action_ = np.array([action[1][0], action[1][1], 0])
+        agentVel = np.array(p.getBaseVelocity(self._agent)[0])
+        action_ = agentVel + action_
+        action_ = clampValue(action_, self._vel_bounds)
+        # print ("New action: ", action)
+        p.resetBaseVelocity(self._agent, linearVelocity=action_, angularVelocity=[0,0,0])
+        # vel = p.getBaseVelocity(self._agent)[0]
+        # if (self._ran > 0.5): ### Only Do HLC training half the time.
         # print ("New vel: ", vel)
         
     def update(self):
