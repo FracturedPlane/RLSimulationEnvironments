@@ -345,7 +345,10 @@ class NavGameHRL2D(Environment):
             # self._llc_target = self._llc_target + action_
             self._hlc_timestep = 0
             ### Update llc action
-            action[1] = self._llc.predict([self.getObservation()[1]])
+            llc_obs = self.getObservation()[1]
+            ### crazy hack to get proper state size...
+            llc_obs = np.concatenate([llc_obs,[0,0,0,0,0,0]])
+            action[1] = self._llc.predict([llc_obs])
             # action[1] = [0.03, -0.023]
             # print ("self._llc_target: ", self._llc_target)
         ### apply delta position change.
