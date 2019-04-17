@@ -11,7 +11,7 @@ class NavGame2D(Environment):
     def __init__(self, settings):
         super(NavGame2D,self).__init__(settings)
         self._GRAVITY = -9.8
-        self._dt = 1/50.0
+        self._dt = 1/25.0
         self._iters=2000 
         
         self._state_bounds = self._game_settings['state_bounds']
@@ -117,8 +117,10 @@ class NavGame2D(Environment):
     def getObservation(self):
         import numpy as np
         out = []
-        localMap = self.getlocalMapObservation()
-        out.extend(localMap)
+        if ("include_egocentric_vision" in self._game_settings
+            and (self._game_settings["include_egocentric_vision"] == True)):
+            localMap = self.getlocalMapObservation()
+            out.extend(localMap)
         data = p.getBaseVelocity(self._agent)
         ### linear vel
         out.extend(data[0])
