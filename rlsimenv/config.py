@@ -919,9 +919,11 @@ SIMULATION_ENVIRONMENTS = """
                       [[-0.2, -0.2],
                       [  0.2,  0.2]]],
         "comment__": "Size of map area",
-    "map_size": 5.0,
+    "map_size": 10.0,
         "comment__": "HLC timestep",
-    "hlc_timestep": 1
+    "hlc_timestep": 1,
+        "comment__": "Flag to ignore LLC action and directly use HLC action.",
+    "use_hlc_action_directly": true
 }
 }
 """

@@ -15,7 +15,7 @@ class NavGameHRL2D(Environment):
     def __init__(self, settings):
         super(NavGameHRL2D,self).__init__(settings)
         self._GRAVITY = -9.8
-        self._dt = 1/50.0
+        self._dt = 1/25.0
         self._iters=2000 
         
         self._state_bounds = self._game_settings['state_bounds']
@@ -347,7 +347,7 @@ class NavGameHRL2D(Environment):
             ### Update llc action
             llc_obs = self.getObservation()[1]
             ### crazy hack to get proper state size...
-            llc_obs = np.concatenate([llc_obs,[0,0,0,0,0,0]])
+            # llc_obs = np.concatenate([llc_obs,[0,0,0,0,0,0]])
             action[1] = self._llc.predict([llc_obs])
             # action[1] = [0.03, -0.023]
             # print ("self._llc_target: ", self._llc_target)
@@ -356,6 +356,9 @@ class NavGameHRL2D(Environment):
         agentVel = np.array(p.getBaseVelocity(self._agent)[0])
         action_ = agentVel + action_
         action_ = clampValue(action_, self._vel_bounds)
+        if ("use_hlc_action_directly" in self._game_settings
+            and (self._game_settings["use_hlc_action_directly"] == True)):
+            action_ = self._llc_target
         # print ("New action: ", action)
         p.resetBaseVelocity(self._agent, linearVelocity=action_, angularVelocity=[0,0,0])
         # vel = p.getBaseVelocity(self._agent)[0]
@@ -367,7 +370,7 @@ class NavGameHRL2D(Environment):
         pos = np.array(p.getBasePositionAndOrientation(self._agent)[0])
         vel = np.array(p.getBaseVelocity(self._agent)[0])
         pos =  pos + (vel*self._dt)
-        pos = clampValue(pos, self._pos_bounds)
+        # pos = clampValue(pos, self._pos_bounds)
         pos[2] = 0.5
         ### Need to do this so the intersetions are 
         p.stepSimulation()
@@ -391,8 +394,13 @@ class NavGameHRL2D(Environment):
         posT = np.array(p.getBasePositionAndOrientation(self._target)[0])
         goalDirection = posT-pos
         goalDistance = np.sqrt((goalDirection*goalDirection).sum(axis=0))
-        if (goalDistance < self._reach_goal_threshold):
+        if ((goalDistance < self._reach_goal_threshold)
+            or (pos[0] > self._map_area)
+            or (pos[1] > self._map_area)
+            or (pos[0] < -self._map_area)
+            or (pos[1] < -self._map_area)):
             return True
+        
         else:
             return False
         
