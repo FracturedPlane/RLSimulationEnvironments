@@ -36,8 +36,8 @@ class NavGameHRL2D(Environment):
         self._vel_bounds = [[-2.0, -2.0, -0.00001],
                             [ 2.0,  2.0,  0.00001]]
         
-        self._pos_bounds = [[-self._map_area, -self._map_area, -0.00001],
-                            [ self._map_area,  self._map_area,  0.00001]]
+        self._pos_bounds = [[-self._map_area, -self._map_area,  0.499999],
+                            [ self._map_area,  self._map_area,  0.50001]]
         
         self._ran = 0.0
         
@@ -228,8 +228,8 @@ class NavGameHRL2D(Environment):
         else:
             hlc_reward = -goalDistance/((self._map_area - -self._map_area)/2.0)
             # hlc_reward = 0
-        # hlc_reward = np.exp((goalDistance*goalDistance) * -0.5) * 5
-        # hlc_reward = np.exp((diffMag*diffMag) * -2.0)
+        # hlc_reward = np.exp((goalDistance*goalDistance) * -0.1) + np.exp((diffMag*diffMag) * -2.0)
+        hlc_reward = np.exp((diffMag*diffMag) * -2.0)
         """
         if (goalDistance < 1.5):
             ### Reached goal
@@ -336,7 +336,7 @@ class NavGameHRL2D(Environment):
             action[1] == llc action
         """
         self._hlc_timestep = self._hlc_timestep + 1
-        if (self._hlc_timestep > self._hlc_skip 
+        if (self._hlc_timestep >= self._hlc_skip 
             and (self._ran < 0.5)):
             # print ("Updating llc target from HLC")
             self._llc_target = clampValue([action[0][0], action[0][1], 0], self._vel_bounds)
@@ -370,9 +370,9 @@ class NavGameHRL2D(Environment):
         pos = np.array(p.getBasePositionAndOrientation(self._agent)[0])
         vel = np.array(p.getBaseVelocity(self._agent)[0])
         pos =  pos + (vel*self._dt)
-        # pos = clampValue(pos, self._pos_bounds)
+        # pos = clampValue(pos, self._pos_bounds) ### Don't do this allow epoch to reset instead.
         pos[2] = 0.5
-        ### Need to do this so the intersetions are 
+        ### Need to do this so the intersections are updated
         p.stepSimulation()
         p.resetBasePositionAndOrientation(self._agent, pos, p.getQuaternionFromEuler([0.,0,0]))
         p.resetBaseVelocity(self._agent, linearVelocity=vel, angularVelocity=[0,0,0])

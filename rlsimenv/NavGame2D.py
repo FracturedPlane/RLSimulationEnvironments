@@ -61,7 +61,7 @@ class NavGame2D(Environment):
                 cubeStartOrientation) 
         
         self._blocks = []
-        for i in range(5):
+        for i in range(0):
             blockId = p.loadURDF("cube2.urdf",
                     [2.0,2.0,0.5],
                     cubeStartOrientation,
@@ -164,12 +164,14 @@ class NavGame2D(Environment):
             reward = reward + self._map_area
         """
         ### Check contacts with obstacles
+        """
         for box_id in self._blocks:
             contacts = p.getContactPoints(self._agent, box_id)
             # print ("contacts: ", contacts)
             if len(contacts) > 0:
                 reward = reward + -self._map_area
                 break
+        """
         return reward
         
         
@@ -246,14 +248,6 @@ class NavGame2D(Environment):
         pos = np.array(p.getBasePositionAndOrientation(self._agent)[0])
         vel = np.array(p.getBaseVelocity(self._agent)[0])
         pos =  pos + (vel*self._dt)
-        if (pos[0] > self._map_area):
-            pos[0] = self._map_area
-        elif (pos[0] <  (-1.0 * self._map_area)):
-            pos[0] = (-1.0 * self._map_area)
-        if (pos[1] > self._map_area):
-            pos[1] = self._map_area
-        elif (pos[1] <  (-1.0 * self._map_area)):
-            pos[1] = (-1.0 * self._map_area) 
         pos[2] = 0.5
         ### Need to do this so the intersetions are 
         p.stepSimulation()
@@ -277,7 +271,11 @@ class NavGame2D(Environment):
         posT = np.array(p.getBasePositionAndOrientation(self._target)[0])
         goalDirection = posT-pos
         goalDistance = np.sqrt((goalDirection*goalDirection).sum(axis=0))
-        if (goalDistance < 1.0):
+        if (goalDistance < 1.0
+            or (pos[0] > self._map_area)
+            or (pos[1] > self._map_area)
+            or (pos[0] < -self._map_area)
+            or (pos[1] < -self._map_area)):
             return True
         else:
             return False
