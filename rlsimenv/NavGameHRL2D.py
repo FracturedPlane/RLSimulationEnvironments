@@ -228,8 +228,8 @@ class NavGameHRL2D(Environment):
         else:
             hlc_reward = -goalDistance/((self._map_area - -self._map_area)/2.0)
             # hlc_reward = 0
-        # hlc_reward = np.exp((goalDistance*goalDistance) * -0.1) + np.exp((diffMag*diffMag) * -2.0)
-        hlc_reward = np.exp((diffMag*diffMag) * -2.0)
+        hlc_reward = np.exp((goalDistance*goalDistance) * -1.0) + np.exp((diffMag*diffMag) * -2.0)
+        # hlc_reward = np.exp((diffMag*diffMag) * -2.0)
         """
         if (goalDistance < 1.5):
             ### Reached goal
