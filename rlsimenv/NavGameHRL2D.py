@@ -133,9 +133,7 @@ class NavGameHRL2D(Environment):
         # x = (np.random.rand()-0.5) * 2.0 * 2.0
         # y = (np.random.rand()-0.5) * 2.0 * 2.0
         p.resetBasePositionAndOrientation(self._target, [x,y,0.5], p.getQuaternionFromEuler([0.,0,0]))
-        ### Start with random velocity
-        p.resetBaseVelocity(self._target, [(np.random.rand()-0.5) * 2.0,
-                                           (np.random.rand()-0.5) * 2.0,0], [0,0,0])
+        p.resetBaseVelocity(self._target, [0,0,0], [0,0,0])
         
         # self._ran = np.random.rand(1)[0]
         if ("ignore_hlc_actions" in self._game_settings
