@@ -1069,7 +1069,7 @@ class CannonGame(object):
         state.extend(charState)
         state.extend(kincharState)
         state.extend(diffState)
-        return state
+        return [state]
     
     def setRandomSeed(self, seed):
         """
