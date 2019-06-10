@@ -913,7 +913,7 @@ class GapGame1D(object):
             # add character State
             state[self._num_points+num_extra_feature:self._num_points+num_extra_feature+len(charState)] = charState
         
-        return state
+        return [state]
     
     def setRandomSeed(self, seed):
         """
