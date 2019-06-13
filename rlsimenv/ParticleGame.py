@@ -231,7 +231,7 @@ class ParticleGame(object):
         return reward
     
     def getState(self):
-        return self._target - self._agent
+        return [self._target - self._agent]
     
     def setState(self, st):
         self._agent = st

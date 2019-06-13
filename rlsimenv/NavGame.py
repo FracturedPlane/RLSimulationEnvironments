@@ -247,7 +247,7 @@ class NavGame(object):
         self._agent = state_
     
     def getState(self):
-        return self._agent
+        return [self._agent]
     
     def getStateForAgent(self, i):
         return self.getState()
