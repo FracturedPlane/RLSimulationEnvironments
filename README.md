@@ -9,10 +9,12 @@
 
 Follow instructions for building on Linux (Ubuntu)
  1.  Create a variable for the path to the TerrainRL folder. I often stick this in my ~/.bashrc file in ubuntu.
-  ```export RLSIMENV_PATH=/path/to/RLSimulationEnvironments
+```
+export RLSIMENV_PATH=/path/to/RLSimulationEnvironments
 ``` 
   or
-   ```setenv RLSIMENV_PATH /path/to/RLSimulationEnvironments
+```
+setenv RLSIMENV_PATH /path/to/RLSimulationEnvironments
 ``` 
    
 ```
