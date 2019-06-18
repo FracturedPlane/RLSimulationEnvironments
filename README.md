@@ -2,8 +2,8 @@
 
 ##Dependancies:
 
- 1. pip3 install --user pybullet
-
+ 1. pip3 install --user pybullet==2.4.6
+Versions after this one may not work for Ubuntu 16.04
 
 ## Install
 
