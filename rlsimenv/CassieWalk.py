@@ -181,7 +181,7 @@ class CassieWalk(Environment):
         reward_diff = np.sum(np.square(diff))
         rewards = np.exp(reward_diff * -2.0)
         # rewards = data[0][0]
-        print ("rewards: ", rewards)
+        # print ("rewards: ", rewards)
         return rewards
         
     def updateAction(self, action):
