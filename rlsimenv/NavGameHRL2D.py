@@ -102,7 +102,7 @@ class NavGameHRL2D(Environment):
         #     p.stepSimulation()
         #import ipdb
         #ipdb.set_trace()
-        p.setRealTimeSimulation(1)
+        p.setRealTimeSimulation(0)
         
         lo = [0.0 for l in self.getObservation()[0]]
         hi = [1.0 for l in self.getObservation()[0]]
@@ -121,6 +121,10 @@ class NavGameHRL2D(Environment):
         self._last_state = self.getState()
         self._last_pose = p.getBasePositionAndOrientation(self._agent)[0]
         
+    def reset(self):
+        self.initEpoch()
+        return self.getObservation()
+    
     def initEpoch(self):
         import numpy as np
         x = (np.random.rand()-0.5) * self._map_area * 2.0
@@ -352,12 +356,13 @@ class NavGameHRL2D(Environment):
         ### apply delta position change.
         action_ = np.array([action[1][0], action[1][1], 0])
         agentVel = np.array(p.getBaseVelocity(self._agent)[0])
+        # print ("action_: ", action_, " agentVel: ", agentVel) 
         action_ = agentVel + action_
         action_ = clampValue(action_, self._vel_bounds)
         if ("use_hlc_action_directly" in self._game_settings
             and (self._game_settings["use_hlc_action_directly"] == True)):
             action_ = self._llc_target
-        # print ("New action: ", action)
+        # print ("New action: ", action_)
         p.resetBaseVelocity(self._agent, linearVelocity=action_, angularVelocity=[0,0,0])
         # vel = p.getBaseVelocity(self._agent)[0]
         # if (self._ran > 0.5): ### Only Do HLC training half the time.
@@ -368,12 +373,13 @@ class NavGameHRL2D(Environment):
         pos = np.array(p.getBasePositionAndOrientation(self._agent)[0])
         vel = np.array(p.getBaseVelocity(self._agent)[0])
         pos =  pos + (vel*self._dt)
+        # print ("vel: ", vel)
         # pos = clampValue(pos, self._pos_bounds) ### Don't do this allow epoch to reset instead.
         pos[2] = 0.5
         ### Need to do this so the intersections are updated
+        p.resetBaseVelocity(self._agent, linearVelocity=vel, angularVelocity=[0,0,0])
         p.stepSimulation()
         p.resetBasePositionAndOrientation(self._agent, pos, p.getQuaternionFromEuler([0.,0,0]))
-        p.resetBaseVelocity(self._agent, linearVelocity=vel, angularVelocity=[0,0,0])
         
         reward = self.computeReward(state=None)
         # print("reward: ", reward)
@@ -412,13 +418,29 @@ class NavGameHRL2D(Environment):
         """
         # random.seed(seed)
         np.random.seed(seed)
-        
 
-if __name__ == "__main__":
+class LLC(object):
+
+    def __init__(self):
+        pass
     
-    sim = NavGame2D()
+    def predict(self, state):
+        
+        return [0.5,0.5]
+if __name__ == "__main__":
+    import numpy as np
+    settings = {"state_bounds": [[0],[1]],
+                "action_bounds": [[0],[1]],
+                "render": True,
+                "map_size": 10.0}
+    
+    sim = NavGameHRL2D(settings)
     sim.init()
+    
+    llc = LLC()
+    sim.setLLC(llc)
 
+    action = np.array([[0.5, 0.5], [-0.5, -0.5]])
     import time
     for i in range(10000):
         if (i % 100 == 0):
@@ -427,10 +449,11 @@ if __name__ == "__main__":
         # p.setJointMotorControl2(botId, 1, p.TORQUE_CONTROL, force=1098.0)
         # p.setGravity(0,0,sim._GRAVITY)
         time.sleep(1/240.)
-        sim.updateAction([0.1,0.1])
+        sim.updateAction(action)
+        sim.update()
         ob = sim.getObservation()
         reward = sim.computeReward()
+        time.sleep(1/25.0)
         print ("Reward: ", reward)
         print ("od: ", ob)
         
-    time.sleep(1000)

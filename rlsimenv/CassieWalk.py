@@ -14,7 +14,7 @@ class CassieWalk(Environment):
     def __init__(self, settings):
         super(CassieWalk,self).__init__(settings)
         self._GRAVITY = -9.8
-        self._dt = 1/25.0
+        self._dt = 1/240.0
         self._iters=2000 
         
         
@@ -69,12 +69,12 @@ class CassieWalk(Environment):
         p.resetSimulation()
         #p.setRealTimeSimulation(True)
         p.setGravity(0,0,self._GRAVITY)
-        # p.setTimeStep(self._dt)
+        p.setTimeStep(self._dt)
         # p.connect(p.GUI)
         
         p.loadURDF("plane.urdf")
         self._agent = p.loadURDF("rlsimenv/data/cassie/urdf/cassie_collide.urdf",[0,0,0.8], useFixedBase=False)
-        gravId = p.addUserDebugParameter("gravity",-10,10,-10)
+        # gravId = p.addUserDebugParameter("gravity",-10,10,-10)
         self._jointIds=[]
         paramIds=[]
         
@@ -96,7 +96,7 @@ class CassieWalk(Environment):
                 p.resetJointState(self._agent, j, self._jointAngles[activeJoint])
                 activeJoint+=1
                 
-        p.setRealTimeSimulation(1)
+        p.setRealTimeSimulation(0)
         
         lo = [0.0 for l in self.getObservation()[0]]
         hi = [1.0 for l in self.getObservation()[0]]
@@ -221,10 +221,11 @@ if __name__ == "__main__":
         # p.setJointMotorControl2(botId, 1, p.TORQUE_CONTROL, force=1098.0)
         # p.setGravity(0,0,sim._GRAVITY)
         sim.updateAction(action + np.random.normal(0,0.1, len(action)))
+        sim.update()
         # sim.updateAction(action)
         ob = sim.getObservation()
         reward = sim.computeReward()
-        time.sleep(1/2.)
+        time.sleep(1/240.)
         print ("Reward: ", reward)
         print ("od: ", ob)
         
