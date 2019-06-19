@@ -40,7 +40,7 @@ class CassieWalk(Environment):
             jointName = info[1]
             jointType = info[2]
             if (jointType==p.JOINT_PRISMATIC or jointType==p.JOINT_REVOLUTE):
-                self._jointIds.append(j)
+                # self._jointIds.append(j)
                 # paramIds.append(p.addUserDebugParameter(jointName.decode("utf-8"),-4,4,jointAngles[activeJoint]))
                 p.resetJointState(self._agent, j, self._jointAngles[activeJoint])
                 activeJoint+=1
@@ -68,8 +68,8 @@ class CassieWalk(Environment):
         p.setAdditionalSearchPath(pybullet_data.getDataPath())
         p.resetSimulation()
         #p.setRealTimeSimulation(True)
-        # p.setGravity(0,0,self._GRAVITY)
-        p.setTimeStep(self._dt)
+        p.setGravity(0,0,self._GRAVITY)
+        # p.setTimeStep(self._dt)
         # p.connect(p.GUI)
         
         p.loadURDF("plane.urdf")
@@ -92,6 +92,7 @@ class CassieWalk(Environment):
             if (jointType==p.JOINT_PRISMATIC or jointType==p.JOINT_REVOLUTE):
                 self._jointIds.append(j)
                 # paramIds.append(p.addUserDebugParameter(jointName.decode("utf-8"),-4,4,jointAngles[activeJoint]))
+                # self._paramIds.append()
                 p.resetJointState(self._agent, j, self._jointAngles[activeJoint])
                 activeJoint+=1
                 
@@ -153,9 +154,10 @@ class CassieWalk(Environment):
         # while(1):
         # p.getCameraImage(320,200)
         # p.setGravity(0,0,p.readUserDebugParameter(gravId))
-        for i in range(len(action)):
+        for i in range(len(self._jointIds)):
+            c = self._jointIds[i]
             targetPos = action[i]
-            p.setJointMotorControl2(self._agent,self._jointIds[i],p.POSITION_CONTROL,targetPos, force=140.)    
+            p.setJointMotorControl2(self._agent,c,p.POSITION_CONTROL,targetPos, force=140.)    
         # time.sleep(0.01)
         
     def update(self):
@@ -202,25 +204,28 @@ class CassieWalk(Environment):
         
 
 if __name__ == "__main__":
-    
+    import numpy as np
     settings = {"state_bounds": [[0],[1]],
                 "action_bounds": [[0],[1]],
                 "render": True}
     sim = CassieWalk(settings)
     sim.init()
+    action = np.array([0,0,1.0204,-1.97,-0.084,2.06,-1.9,0,0,1.0204,-1.97,-0.084,2.06,-1.9,0])
 
     import time
-    for i in range(10000):
+    
+    for i in range(1000):
         if (i % 100 == 0):
             sim.reset()
         # p.stepSimulation()
         # p.setJointMotorControl2(botId, 1, p.TORQUE_CONTROL, force=1098.0)
         # p.setGravity(0,0,sim._GRAVITY)
-        time.sleep(1/240.)
-        sim.updateAction([0,0,1.0204,-1.97,-0.084,2.06,-1.9,0,0,1.0204,-1.97,-0.084,2.06,-1.9,0])
+        sim.updateAction(action + np.random.normal(0,0.1, len(action)))
+        # sim.updateAction(action)
         ob = sim.getObservation()
         reward = sim.computeReward()
+        time.sleep(1/2.)
         print ("Reward: ", reward)
         print ("od: ", ob)
         
-    time.sleep(1000)
+    
