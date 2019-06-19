@@ -174,8 +174,14 @@ class CassieWalk(Environment):
         """
         import numpy as np
         data = p.getBaseVelocity(self._agent)
-        rewards = data[0][0]
-        # print ("rewards: ", rewards)
+        # print ("vel: ", data[0])
+        target_vel = np.array([1.0, 0.0, 0.0])
+        agent_vel = np.array(data[0])
+        diff = target_vel - agent_vel
+        reward_diff = np.sum(np.square(diff))
+        rewards = np.exp(reward_diff * -2.0)
+        # rewards = data[0][0]
+        print ("rewards: ", rewards)
         return rewards
         
     def updateAction(self, action):
@@ -252,9 +258,9 @@ if __name__ == "__main__":
         # p.stepSimulation()
         # p.setJointMotorControl2(botId, 1, p.TORQUE_CONTROL, force=1098.0)
         # p.setGravity(0,0,sim._GRAVITY)
-        sim.updateAction(action + np.random.normal(0,0.1, len(action)))
-        sim.update()
+        # sim.updateAction(action + np.random.normal(0,0.1, len(action)))
         # sim.updateAction(action)
+        sim.update()
         ob = sim.getObservation()
         reward = sim.computeReward()
         time.sleep(1/240.)
