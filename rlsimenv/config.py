@@ -966,6 +966,34 @@ SIMULATION_ENVIRONMENTS = """
     "hlc_timestep": 5,
         "comment__": "Flag to ignore LLC action and directly use HLC action.",
     "use_hlc_action_directly": false
+},
+"Cassie_Walk_v0": 
+{
+    "config_file": "./args/genBiped2D/biped2dfull_incline_with_terrain_features.txt",
+    "time_limit": 256,
+    "sim_name": "rlsimenv.CassieWalk.CassieWalk",
+        "comment__": "Possible state bounds to be used for scaling states for networks",
+    "state_bounds": [[[ -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, 
+                        -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0],
+                       [   10.0,  10.0,  10.0,  10.0,  10.0,  10.0,  10.0,  10.0,  10.0,  10.0, 
+                           10.0,  10.0,  10.0,  10.0,  10.0,  10.0,  10.0,  10.0,  10.0,  10.0 ]],
+                    [[ -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, 
+                        -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0],
+                       [   10.0,  10.0,  10.0,  10.0,  10.0,  10.0,  10.0,  10.0,  10.0,  10.0, 
+                           10.0,  10.0,  10.0,  10.0,  10.0,  10.0,  10.0,  10.0,  10.0,  10.0 ]]],
+        "comment__": "Action scaling values to be used to scale values for the network",
+    "action_bounds": [[[-1.2, -1.2],
+                      [  1.2,  1.2]],
+                      [[-0.2, -0.2],
+                      [  0.2,  0.2]]],
+        "comment__": "Size of map area",
+    "map_size": 10.0,
+        "comment__": "HLC timestep",
+    "control_substeps": 10,
+        "comment__": "physics timestep (300hz)",
+    "physics_timestep": 0.00333333333,
+        "comment__": "Flag to ignore LLC action and directly use HLC action.",
+    "use_hlc_action_directly": false
 }
 }
 """

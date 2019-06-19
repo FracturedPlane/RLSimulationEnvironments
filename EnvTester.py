@@ -6,12 +6,13 @@ if __name__ == '__main__':
     
     # env = getEnv(env_name="ParticleGame_2D-v0", render=False)
     # env = getEnv(env_name="CannonGameViz2-v0", render=True)
-    env = getEnv(env_name="ProjectileGameViz_DualState_WithCamVel_32x32_v0", render=True)
+    env = getEnv(env_name="Cassie_Walk_v0", render=True)
 
     actionSpace = env.getActionSpace()
     env.setRandomSeed(1234)
     
-    print("observation_space: ", env.observation_space.getMaximum())
+    print("observation space min: ", env.observation_space.getMinimum())
+    print("observation space max: ", env.observation_space.getMaximum())
     print("Actions space max: ", len(env.action_space.getMaximum()))
     print("Actions space min: ", env.action_space.getMinimum())
     print("Actions space max: ", env.action_space.getMaximum())
@@ -29,11 +30,12 @@ if __name__ == '__main__':
             if (env.getNumberofAgents() > 1):
                 observation, reward,  done, info = env.step(actions)
             else:
-                # observation, reward,  done, info = env.step(actions[0])
-                observation, reward,  done, info = env.step([0,0])
+                observation, reward,  done, info = env.step(actions[0])
+                # observation, reward,  done, info = env.step([0,0])
             # print ("Reward: ", reward, "Action: ", actions, " observation: ", observation)
-            print ("observation size: ", np.array(observation[0][1]).shape)
+            print ("observation size: ", np.array(observation).shape)
             print ("Done: ", done)
+            """
             vizData = env.getVisualState()
             # print("visual Data: " +  str(vizData))
             vizImitateData = env.getImitationVisualState()
@@ -65,6 +67,7 @@ if __name__ == '__main__':
                     plt.show()
                     
             img = env.getEnv().getVisualState()
+            """
             if ( done ):
                 break
             

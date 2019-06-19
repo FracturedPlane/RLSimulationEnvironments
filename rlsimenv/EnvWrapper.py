@@ -26,7 +26,7 @@ class ActionSpace(object):
 
 class EnvWrapper(object):
     """
-        Wrapper for the TerrainRLSim env to make function calls more simple
+        Wrapper for the RLSimEnv to make function calls simple
     """
     def __init__(self, sim, render=False, config=None):
         
@@ -34,14 +34,8 @@ class EnvWrapper(object):
         self._render = render
         self._done = None
         
-        act_low = [0] * self.getEnv().getActionSpaceSize()
-        act_high = [1] * self.getEnv().getActionSpaceSize() 
-        action_space = [act_low, act_high]
-        self._action_space = ActionSpace(action_space)
-        ob_low = [0] * self.getEnv().getObservationSpaceSize()
-        ob_high = [1] * self.getEnv().getObservationSpaceSize() 
-        observation_space = [ob_low, ob_high]
-        self._observation_space = ActionSpace(observation_space)
+        self._action_space = self.getEnv().getActionSpace()
+        self._observation_space = self.getEnv().getObservationSpace()
         self._config = config
         
     def render(self):

@@ -16,3 +16,9 @@ class Environment(object):
     
     def __init__(self, settings):
         self._game_settings = settings
+
+    def getActionSpace(self):
+        return self._action_space
+    
+    def getObservationSpace(self):
+        return self._observation_space
