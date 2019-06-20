@@ -992,8 +992,10 @@ SIMULATION_ENVIRONMENTS = """
     "hlc_timestep": 5,
         "comment__": "Flag to ignore LLC action and directly use HLC action.",
     "use_hlc_action_directly": false,
-            "comment__": "Include a local egocentric vizual map around the agent as state observation",
-    "include_egocentric_vision": true
+        "comment__": "Include a local egocentric vizual map around the agent as state observation",
+    "include_egocentric_vision": true,
+        "comment__": "The number of randomly placed blocks to place in the environment",
+    "num_blocks": 5
 },
 "Cassie_Walk_v0": 
 {

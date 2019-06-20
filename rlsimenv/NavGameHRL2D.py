@@ -77,6 +77,8 @@ class NavGameHRL2D(Environment):
         
         self._blocks = []
         self._num_blocks=0
+        if ("num_blocks" in self._game_settings):
+            self._num_blocks = self._game_settings["num_blocks"] 
         for i in range(self._num_blocks):
             blockId = p.loadURDF("cube2.urdf",
                     [2.0,2.0,0.5],
@@ -238,14 +240,14 @@ class NavGameHRL2D(Environment):
             reward = reward + self._map_area
         """
         ### Check contacts with obstacles
-        """
+        
         for box_id in self._blocks:
             contacts = p.getContactPoints(self._agent, box_id)
             # print ("contacts: ", contacts)
             if len(contacts) > 0:
                 hlc_reward = hlc_reward + -self._map_area
                 break
-        """
+        
         # print ("self._llc_target: ", self._llc_target)
         # print ("pos: ", pos, " agentVel: ", agentVel)
         """
