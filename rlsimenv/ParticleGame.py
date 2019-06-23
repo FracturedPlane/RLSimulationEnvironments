@@ -22,6 +22,9 @@ def loadMap():
 
 # print (zvals)
 
+from rlsimenv.EnvWrapper import ActionSpace
+from rlsimenv.Environment import Environment, clampValue
+
 def resetExtent(data,im):
     """
     Using the data and axes from an AxesImage, im, force the extent and 
@@ -40,7 +43,7 @@ def resetExtent(data,im):
         ax.set_ylim((-.5,dataShape[1]-.5))
 
 
-class ParticleGame(object):
+class ParticleGame(Environment):
     """
         An n-d continuous grid world like navigation game
         The dimension of the world is determined from the length of state bounds
@@ -85,6 +88,11 @@ class ParticleGame(object):
             self.initRender(U, V, Q)
         
         self.__action = None
+        
+        self._observation_space = ActionSpace([[self._state_bounds[0][0]]*self._state_length,  [self._state_bounds[1][0]]*self._state_length])
+        self._action_space = ActionSpace([[self._action_bounds[0][0]]*self._state_length,  [self._action_bounds[1][0]]*self._state_length])
+        print ("self._action_space : ", repr(self._action_space .getMinimum()))
+        print ("self._observation_space : ", repr(self._observation_space .getMinimum()))
         
     def init(self):
         self._agent = np.array([2]* self._state_length) ## Somewhat random initial spot

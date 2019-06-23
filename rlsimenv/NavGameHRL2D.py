@@ -77,8 +77,8 @@ class NavGameHRL2D(Environment):
         
         self._blocks = []
         self._num_blocks=0
-        if ("num_blocks" in self._game_settings):
-            self._num_blocks = self._game_settings["num_blocks"] 
+        # if ("num_blocks" in self._game_settings):
+        #     self._num_blocks = self._game_settings["num_blocks"] 
         for i in range(self._num_blocks):
             blockId = p.loadURDF("cube2.urdf",
                     [2.0,2.0,0.5],
@@ -132,7 +132,9 @@ class NavGameHRL2D(Environment):
         x = (np.random.rand()-0.5) * self._map_area * 2.0
         y = (np.random.rand()-0.5) * self._map_area * 2.0
         p.resetBasePositionAndOrientation(self._agent, [x,y,0.5], p.getQuaternionFromEuler([0.,0,0]))
-        p.resetBaseVelocity(self._agent, [0,0,0], [0,0,0])
+        x = (np.random.rand()-0.5) *  2.0
+        y = (np.random.rand()-0.5) *  2.0
+        p.resetBaseVelocity(self._agent, [x,y,0], [0,0,0])
         
         x = (np.random.rand()-0.5) * self._map_area * 2.0
         y = (np.random.rand()-0.5) * self._map_area * 2.0
@@ -240,14 +242,14 @@ class NavGameHRL2D(Environment):
             reward = reward + self._map_area
         """
         ### Check contacts with obstacles
-        
+        """
         for box_id in self._blocks:
             contacts = p.getContactPoints(self._agent, box_id)
             # print ("contacts: ", contacts)
             if len(contacts) > 0:
-                hlc_reward = hlc_reward + -self._map_area
+                hlc_reward = hlc_reward + -1
                 break
-        
+        """
         # print ("self._llc_target: ", self._llc_target)
         # print ("pos: ", pos, " agentVel: ", agentVel)
         """
@@ -379,9 +381,10 @@ class NavGameHRL2D(Environment):
         # pos = clampValue(pos, self._pos_bounds) ### Don't do this allow epoch to reset instead.
         pos[2] = 0.5
         ### Need to do this so the intersections are updated
-        p.resetBaseVelocity(self._agent, linearVelocity=vel, angularVelocity=[0,0,0])
         p.stepSimulation()
         p.resetBasePositionAndOrientation(self._agent, pos, p.getQuaternionFromEuler([0.,0,0]))
+        ### This must be after setting position, because setting the position removes the velocity
+        p.resetBaseVelocity(self._agent, linearVelocity=vel, angularVelocity=[0,0,0])
         
         reward = self.computeReward(state=None)
         # print("reward: ", reward)
