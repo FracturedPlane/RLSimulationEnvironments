@@ -967,6 +967,34 @@ SIMULATION_ENVIRONMENTS = """
         "comment__": "Flag to ignore LLC action and directly use HLC action.",
     "use_hlc_action_directly": false
 },
+"NavGameHRL2D_NoVision_HLC_Centralized_v1": 
+{
+    "config_file": "./args/genBiped2D/biped2dfull_incline_with_terrain_features.txt",
+    "time_limit": 256,
+    "sim_name": "rlsimenv.NavGameHRL2D.NavGameHRL2D",
+        "comment__": "Possible state bounds to be used for scaling states for networks",
+    "state_bounds": [[[ -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, 
+                        -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0],
+                       [   10.0,  10.0,  10.0,  10.0,  10.0,  10.0,  10.0,  10.0,  10.0,  10.0, 
+                           10.0,  10.0,  10.0,  10.0,  10.0,  10.0,  10.0,  10.0,  10.0,  10.0 ]],
+                    [[ -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, 
+                        -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0],
+                       [   10.0,  10.0,  10.0,  10.0,  10.0,  10.0,  10.0,  10.0,  10.0,  10.0, 
+                           10.0,  10.0,  10.0,  10.0,  10.0,  10.0,  10.0,  10.0,  10.0,  10.0 ]]],
+        "comment__": "Action scaling values to be used to scale values for the network",
+    "action_bounds": [[[-1.2, -1.2],
+                      [  1.2,  1.2]],
+                      [[-0.2, -0.2],
+                      [  0.2,  0.2]]],
+        "comment__": "Size of map area",
+    "map_size": 10.0,
+        "comment__": "HLC timestep",
+    "hlc_timestep": 5,
+        "comment__": "Flag to ignore LLC action and directly use HLC action.",
+    "use_hlc_action_directly": false,
+        "comment__": "Append centralized state hack to allow llc preiction",
+    "append_centralized_state_hack": true
+},
 "NavGameHRL2D_Vision_HLC_v1": 
 {
     "config_file": "./args/genBiped2D/biped2dfull_incline_with_terrain_features.txt",
