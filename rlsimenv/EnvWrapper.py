@@ -124,8 +124,8 @@ class EnvWrapper(object):
             Adding multi character support
         """
         # action = action[0]
-        action = np.array(action, dtype="float64")
         # print ("step action: ", action, " done: ", self._done)
+        # action = np.array(action, dtype="float64")
         self.updateAction(action)
         
         # for i in range(15):

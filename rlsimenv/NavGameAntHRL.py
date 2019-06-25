@@ -111,76 +111,6 @@ class NavGameAntHRL(PyBulletEnv):
         self._last_state = self.getState()
         self._last_pose = self._p.getBasePositionAndOrientation(self._agent)[0]
         
-    def addToScene(self, bullet_client, bodies):
-        self._p = bullet_client
-    
-        if self.parts is not None:
-          parts = self.parts
-        else:
-          parts = {}
-    
-        if self.jdict is not None:
-          joints = self.jdict
-        else:
-          joints = {}
-    
-        if self.ordered_joints is not None:
-          ordered_joints = self.ordered_joints
-        else:
-          ordered_joints = []
-    
-        if np.isscalar(bodies):  # streamline the case where bodies is actually just one body
-          bodies = [bodies]
-    
-        dump = 0
-        for i in range(len(bodies)):
-          if self._p.getNumJoints(bodies[i]) == 0:
-            part_name, robot_name = self._p.getBodyInfo(bodies[i])
-            self.robot_name = robot_name.decode("utf8")
-            part_name = part_name.decode("utf8")
-            parts[part_name] = BodyPart(self._p, part_name, bodies, i, -1)
-          for j in range(self._p.getNumJoints(bodies[i])):
-            self._p.setJointMotorControl2(bodies[i],
-                                          j,
-                                          pybullet.POSITION_CONTROL,
-                                          positionGain=0.1,
-                                          velocityGain=0.1,
-                                          force=0)
-            jointInfo = self._p.getJointInfo(bodies[i], j)
-            joint_name = jointInfo[1]
-            part_name = jointInfo[12]
-    
-            joint_name = joint_name.decode("utf8")
-            part_name = part_name.decode("utf8")
-    
-            if dump: print("ROBOT PART '%s'" % part_name)
-            if dump:
-              print(
-                  "ROBOT JOINT '%s'" % joint_name
-              )  # limits = %+0.2f..%+0.2f effort=%0.3f speed=%0.3f" % ((joint_name,) + j.limits()) )
-    
-            parts[part_name] = BodyPart(self._p, part_name, bodies, i, j)
-    
-            if i == 0 and j == 0:  # if nothing else works, we take this as robot_body
-              parts["agent"] = BodyPart(self._p, "agent", bodies, 0, -1)
-              self.robot_body = parts["agent"]
-    
-            if joint_name[:6] == "ignore":
-              Joint(self._p, joint_name, bodies, i, j).disable_motor()
-              continue
-    
-            if joint_name[:8] != "jointfix":
-              joints[joint_name] = Joint(self._p, joint_name, bodies, i, j)
-              ordered_joints.append(joints[joint_name])
-    
-              joints[joint_name].power_coef = 100.0
-    
-            # TODO: Maybe we need this
-            # joints[joint_name].power_coef, joints[joint_name].max_velocity = joints[joint_name].limits()[2:4]
-            # self.ordered_joints.append(joints[joint_name])
-            # self.jdict[joint_name] = joints[joint_name]
-
-        return parts, joints, ordered_joints, self.robot_body
 
     def reset(self):
         self.initEpoch()
@@ -309,23 +239,6 @@ class NavGameAntHRL(PyBulletEnv):
                 hlc_reward = hlc_reward + -1.0
                 break
         
-        # print ("self._llc_target: ", self._llc_target)
-        # print ("pos: ", pos, " agentVel: ", agentVel)
-        """
-        if (self._ran < 0.5):
-            llc_dir = np.array([self._llc_target[0], self._llc_target[1], 0])
-            ### normalize
-            # llc_dir = llc_dir / np.sqrt((llc_dir*llc_dir).sum(axis=0))
-            relative_llc_goal_state = (llc_dir-self._last_state[1][:3])
-            des_change = (self._last_state[1][:3] + relative_llc_goal_state) - self._p.getBaseVelocity(self._agent)[0]
-            # des_change = (self._last_pose + llc_dir) - np.array(self._p.getBasePositionAndOrientation(self._agent)[0])
-            # print ("self._last_state[1][:3] - self._p.getBaseVelocity(self._agent)[0]: ", self._last_state[1][:3] - self._p.getBaseVelocity(self._agent)[0])
-            # llc_reward = np.dot(agentDir, llc_dir) - 1
-            # llc_reward = -(agentDir*llc_dir).sum(axis=0)
-            # llc_reward = np.exp((llc_reward*llc_reward) * -2.0)
-            llc_reward = -(des_change*des_change).sum(axis=0)
-        else:
-        """
         llc_dir = np.array([self._llc_target[0], self._llc_target[1], 0])
         des_change = llc_dir - agentVel
         llc_reward = -(des_change*des_change).sum(axis=0)
@@ -415,7 +328,7 @@ class NavGameAntHRL(PyBulletEnv):
             if ("append_centralized_state_hack" in self._game_settings
                 and (self._game_settings["append_centralized_state_hack"] == True)):
                 llc_obs = np.concatenate([llc_obs,[0,0,0,0,0,0]])
-            action[1] = self._llc.predict([llc_obs])
+            action[1] = self._llc.predict([llc_obs])[0]
             # action[1] = [0.03, -0.023]
             # print ("self._llc_target: ", self._llc_target)
         ### apply delta position change.
@@ -425,15 +338,12 @@ class NavGameAntHRL(PyBulletEnv):
             and (self._game_settings["use_hlc_action_directly"] == True)):
             action_ = self._llc_target
         """
-        print ("New action: ", action_)
+        # print ("New action: ", action_)
         # self._p.resetBaseVelocity(self._agent, linearVelocity=action_, angularVelocity=[0,0,0])
         super(NavGameAntHRL,self).updateAction(action_)
         # vel = self._p.getBaseVelocity(self._agent)[0]
         # if (self._ran > 0.5): ### Only Do HLC training half the time.
         # print ("New vel: ", vel)
-        
-    def calcReward(self):
-        return self.__reward
         
     def agentHasFallen(self):
         return self.endOfEpoch()
