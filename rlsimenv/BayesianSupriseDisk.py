@@ -53,9 +53,6 @@ class BayesianSupriseDisk(PyBulletEnv):
     def getObservationSpaceSize(self):
         return self._state_length
 
-    def getNumAgents(self):
-        return 2
-    
     def display(self):
         pass
     
@@ -179,7 +176,7 @@ class BayesianSupriseDisk(PyBulletEnv):
         ### number of samples
         size = 64
         ### width of box
-        dimensions = 10.0
+        dimensions = 25.0
         toRays = []
         for i in range(0,size):
             for j in range(0,size):
@@ -191,14 +188,18 @@ class BayesianSupriseDisk(PyBulletEnv):
         fromRays = toRays + np.array([0,0,5])
         rayResults = self._p.rayTestBatch(fromRays, toRays)
         intersections = [ray[0] for ray in rayResults]
-        # print ("intersections: ", intersections)
+        print ("intersections: ", intersections)
         for ray in range(len(intersections)):
             if (intersections[ray] in [self._agent]):
                 # print ("bad index: ", ray)
                 ### Remove agent from vision
-                intersections[ray] = -1
+                pass
+                # intersections[ray] = -1
         intersections = np.array(np.greater(intersections, 0), dtype="int")
         return intersections
+    
+    def getVisualState(self):
+        return self.getlocalMapObservation(pos=(0,0,0))
     
     def updateAction(self, action):
         import numpy as np
@@ -228,7 +229,7 @@ class BayesianSupriseDisk(PyBulletEnv):
         
         reward = self.computeReward(state=None)
         # print("reward: ", reward)
-        self.__reward = reward
+        self._reward = reward
         
     def agentHasFallen(self):
         return self.endOfEpoch()
@@ -236,19 +237,7 @@ class BayesianSupriseDisk(PyBulletEnv):
     def endOfEpoch(self):
         import numpy as np
         
-        pos = np.array(self._p.getBasePositionAndOrientation(self._agent)[0])
-        posT = np.array(self._p.getBasePositionAndOrientation(self._target)[0])
-        goalDirection = posT-pos
-        goalDistance = np.sqrt((goalDirection*goalDirection).sum(axis=0))
-        if ((goalDistance < self._reach_goal_threshold)
-            or (pos[0] > self._map_area)
-            or (pos[1] > self._map_area)
-            or (pos[0] < -self._map_area)
-            or (pos[1] < -self._map_area)):
-            return True
-        
-        else:
-            return False
+        return False
         
     def setRandomSeed(self, seed):
         import numpy as np

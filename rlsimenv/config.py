@@ -1121,7 +1121,7 @@ SIMULATION_ENVIRONMENTS = """
 {
     "config_file": "./args/genBiped2D/biped2dfull_incline_with_terrain_features.txt",
     "time_limit": 256,
-    "sim_name": "rlsimenv.NavGameHRL2D.NavGameHRL2D",
+    "sim_name": "rlsimenv.BayesianSupriseDisk.BayesianSupriseDisk",
         "comment__": "Possible state bounds to be used for scaling states for networks",
     "state_bounds": [[[ -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, 
                         -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0],
@@ -1145,7 +1145,11 @@ SIMULATION_ENVIRONMENTS = """
         "comment__": "Include a local egocentric vizual map around the agent as state observation",
     "include_egocentric_vision": true,
         "comment__": "The number of randomly placed blocks to place in the environment",
-    "num_blocks": 15
+    "num_blocks": 15,
+        "comment__": "PD control timestep",    
+    "control_substeps": 1,
+        "comment__": "physics timestep (300hz)",
+    "physics_timestep": 0.02
 }
 }
 """
