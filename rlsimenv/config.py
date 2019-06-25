@@ -1057,7 +1057,7 @@ SIMULATION_ENVIRONMENTS = """
 {
     "config_file": "./args/genBiped2D/biped2dfull_incline_with_terrain_features.txt",
     "time_limit": 256,
-    "sim_name": "rlsimenv.NavGameHRL2D.NavGameHRL2D",
+    "sim_name": "rlsimenv.NavGameAntHRL.NavGameAntHRL",
         "comment__": "Possible state bounds to be used for scaling states for networks",
     "state_bounds": [[[ -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, 
                         -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0],
@@ -1077,7 +1077,11 @@ SIMULATION_ENVIRONMENTS = """
         "comment__": "HLC timestep",
     "hlc_timestep": 5,
         "comment__": "Flag to ignore LLC action and directly use HLC action.",
-    "use_hlc_action_directly": false
+    "use_hlc_action_directly": false,
+        "comment__": "PD control timestep",    
+    "control_substeps": 10,
+        "comment__": "physics timestep (300hz)",
+    "physics_timestep": 0.00333333333,
 }
 }
 """
