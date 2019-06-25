@@ -97,10 +97,13 @@ class NavGameAntHRL(PyBulletEnv):
         lo = [0.0 for l in self.getObservation()[0]]
         hi = [1.0 for l in self.getObservation()[0]]
         state_bounds_llc = [lo, hi]
-        lo = [0.0 for l in self.getObservation()[1]]
-        hi = [1.0 for l in self.getObservation()[1]]
-        state_bounds_hlc = [lo, hi]
-        state_bounds = [state_bounds_llc, state_bounds_hlc]
+        state_bounds = state_bounds_llc
+        if ( "use_MARL_HRL" in self._game_settings
+             and (self._game_settings["use_MARL_HRL"] == True)):
+            lo = [0.0 for l in self.getObservation()[1]]
+            hi = [1.0 for l in self.getObservation()[1]]
+            state_bounds_hlc = [lo, hi]
+            state_bounds = [state_bounds_llc, state_bounds_hlc]
         
         print ("NavGameHRL2D state bounds: ", state_bounds)
         self._game_settings['state_bounds'] = [lo, hi]
@@ -138,6 +141,7 @@ class NavGameAntHRL(PyBulletEnv):
             self._ran = 0.6 ## Ignore HLC action and have env generate them if > 0.5.
         else:
             self._ran = 0.4 ## Ignore HLC action and have env generate them if > 0.5.
+        ### By default init this to direction towards goal
         self._llc_target = [x/self._map_area, y/self._map_area, 0]
         ### Make sure to apply HLC action right away
         self._hlc_timestep = 1000000
@@ -180,11 +184,18 @@ class NavGameAntHRL(PyBulletEnv):
         ### Relative distance from current LLC state
         # if (self._ran < 0.5):
         # out_llc.extend(np.array(self._llc_target) - np.array(data[0]))
-        out_llc.extend(np.array([self._llc_target[0], self._llc_target[1]]))
+        
+        if ( "use_MARL_HRL" in self._game_settings
+             and (self._game_settings["use_MARL_HRL"] == True)):
+            out_llc.extend(np.array([goalDirection[0], goalDirection[1]]))
+        else:
+            out_llc.extend(np.array([self._llc_target[0], self._llc_target[1]]))
         # else:
         #     out_llc.extend(np.array(self._llc_target) - pos)
         # print ("out_llc: ", out_llc)
-        out.append(np.array(out_hlc))
+        if ( "use_MARL_HRL" in self._game_settings
+             and (self._game_settings["use_MARL_HRL"] == True)):
+            out.append(np.array(out_hlc))
         out.append(np.array(out_llc))
         self._last_state = np.array(out)
         self._last_pose = np.array(self._p.getBasePositionAndOrientation(self._agent)[0])
@@ -242,8 +253,12 @@ class NavGameAntHRL(PyBulletEnv):
         llc_dir = np.array([self._llc_target[0], self._llc_target[1], 0])
         des_change = llc_dir - agentVel
         llc_reward = -(des_change*des_change).sum(axis=0)
-            
-        rewards = [[hlc_reward], [llc_reward]]
+        if ( "use_MARL_HRL" in self._game_settings
+             and (self._game_settings["use_MARL_HRL"] == True)):
+            rewards = [[hlc_reward], [llc_reward]]
+        else:
+            ### Use Simple HLC reward in this case
+            rewards = [ [hlc_reward]]
         # print ("rewards: ", rewards)
         return rewards
         
@@ -279,31 +294,14 @@ class NavGameAntHRL(PyBulletEnv):
         toRays = np.array(toRays)
         ### Adjust to put agent in middle of map
         toRays = toRays + pos - np.array([dimensions/2.0, dimensions/2.0, 0])
-        # print ("toRays:", toRays )
-        
         fromRays = toRays + np.array([0,0,5])
         rayResults = self._p.rayTestBatch(fromRays, toRays)
         intersections = [ray[0] for ray in rayResults]
-        # print (intersections)
-        ### fix intersections that could be goal
         
         for ray in range(len(intersections)):
             if (intersections[ray] in [self._target, self._agent]):
                 # print ("bad index: ", ray)
                 intersections[ray] = -1
-        
-        # bad_indecies = np.where(intersections == self._target)[0]
-        # print ("bad_indecies: ", bad_indecies)
-        # bad_indecies = np.where(intersections == int(self._agent))
-        # print ("bad_indecies: ", bad_indecies)
-        # print ("self._agent: ", self._agent)
-        """
-        if ( len(bad_indecies) > 0):
-            # print ("self._target: ", self._target)
-            intersections[bad_indecies] = -1
-        """
-        # intersections_ = np.reshape(intersections, (size, size))
-        # print ("intersections", intersections_)
         intersections = np.array(np.greater(intersections, 0), dtype="int")
         return intersections
     
@@ -315,7 +313,9 @@ class NavGameAntHRL(PyBulletEnv):
         """
         self._hlc_timestep = self._hlc_timestep + 1
         if (self._hlc_timestep >= self._hlc_skip 
-            and (self._ran < 0.5)):
+            and (self._ran < 0.5) and 
+            (( "use_MARL_HRL" in self._game_settings
+             and (self._game_settings["use_MARL_HRL"] == True)))):
             # print ("Updating llc target from HLC")
             self._llc_target = clampValue([action[0][0], action[0][1], 0], self._vel_bounds)
             ### Need to store this target in the sim as a gobal location to allow for computing local distance state.
@@ -332,7 +332,11 @@ class NavGameAntHRL(PyBulletEnv):
             # action[1] = [0.03, -0.023]
             # print ("self._llc_target: ", self._llc_target)
         ### apply delta position change.
-        action_ = np.array(action[1])
+        if ( "use_MARL_HRL" in self._game_settings
+             and (self._game_settings["use_MARL_HRL"] == False)):
+            action_ = np.array(action[0])
+        else:
+            action_ = np.array(action[1])
         """
         if ("use_hlc_action_directly" in self._game_settings
             and (self._game_settings["use_hlc_action_directly"] == True)):
