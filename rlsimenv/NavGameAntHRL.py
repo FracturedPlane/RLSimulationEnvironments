@@ -74,7 +74,7 @@ class NavGameAntHRL(PyBulletEnv):
         
         lo = [-1.0 for l in range(len(self._jointIds))]
         hi = [ 1.0 for l in range(len(self._jointIds))]
-        self._action_bounds = [lo, hi]
+        self._action_bounds = np.array([lo, hi])
         
         self._blocks = []
         self._num_blocks=0
@@ -503,11 +503,11 @@ if __name__ == "__main__":
             sim.reset()
         time.sleep(1/240.)
         print ("llc action bounds: ", llc._llc_action_bounds)
-        sim.updateAction([[-1.1232,1.534534],action])
+        sim.updateAction([[-1.1232,1.534534],np.random.normal(action, sim._action_bounds[1] - sim._action_bounds[0])])
         sim.update()
         ob = sim.getObservation()
         reward = sim.computeReward()
-        time.sleep(1/25.0)
+        time.sleep(1/30.0)
         print ("Reward: ", reward)
         print ("od: ", ob)
         
