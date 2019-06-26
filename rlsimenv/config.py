@@ -1145,7 +1145,7 @@ SIMULATION_ENVIRONMENTS = """
         "comment__": "Include a local egocentric vizual map around the agent as state observation",
     "include_egocentric_vision": true,
         "comment__": "The number of randomly placed blocks to place in the environment",
-    "num_blocks": 15,
+    "num_blocks": 150,
         "comment__": "PD control timestep",    
     "control_substeps": 1,
         "comment__": "physics timestep (300hz)",
