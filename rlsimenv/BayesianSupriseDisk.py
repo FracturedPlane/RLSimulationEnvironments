@@ -61,11 +61,12 @@ class BayesianSupriseDisk(PyBulletEnv):
         RLSIMENV_PATH = os.environ['RLSIMENV_PATH']
         cubeStartPos = [0,0,0.5]
         cubeStartOrientation = self._p.getQuaternionFromEuler([0.,0,0])
+        ### For colissions to work one object should not be fixed
         self._agent = self._p.loadURDF(RLSIMENV_PATH + "/rlsimenv/data/disk.urdf",
         # self._agent = self._p.loadURDF("sphere2red.urdf",
                     [0.0,0.0,0.5],
                     cubeStartOrientation,
-                    useFixedBase=1) 
+                    useFixedBase=0) 
         RLSIMENV_PATH = os.environ['RLSIMENV_PATH']
         
         lo = [-1.0 , -1.0]
@@ -150,7 +151,13 @@ class BayesianSupriseDisk(PyBulletEnv):
             
         """
         import numpy as np
-        rewards = [-len(self._blocks)]
+        active_blocks = 0
+        for box_id in self._blocks:
+            pos = np.array(self._p.getBasePositionAndOrientation(box_id)[0])
+            if pos[2] > 0.0: ### Above ground
+                active_blocks = active_blocks + 1
+        
+        rewards = [-active_blocks]
         return rewards
         
         
@@ -226,16 +233,15 @@ class BayesianSupriseDisk(PyBulletEnv):
         pos[2] = 0.5
         ### Need to do this so the intersections are updated
         self._p.stepSimulation()
-        # self._p.resetBasePositionAndOrientation(self._agent, pos, self._p.getQuaternionFromEuler([0.,0,0]))
+        self._p.resetBasePositionAndOrientation(self._agent, pos, self._p.getQuaternionFromEuler([0.,0,0]))
         ### This must be after setting position, because setting the position removes the velocity
-        # self._p.resetBaseVelocity(self._agent, linearVelocity=vel, angularVelocity=[0,0,0])
+        self._p.resetBaseVelocity(self._agent, linearVelocity=vel, angularVelocity=[0,0,0])
         
         for box_id in self._blocks:
             contacts = self._p.getContactPoints(self._agent, box_id)
-            print ("box ", box_id, " contacts: ", contacts)
+            # print ("box ", box_id, " contacts: ", contacts)
             if len(contacts) > 0:
                 ### Push block under ground
-                print ("Agent obs intersect")
                 pos = np.array(self._p.getBasePositionAndOrientation(box_id)[0])
                 pos[2] = -5
                 self._p.resetBasePositionAndOrientation(box_id, pos, self._p.getQuaternionFromEuler([0.,0,0]))
