@@ -1149,7 +1149,7 @@ SIMULATION_ENVIRONMENTS = """
         "comment__": "PD control timestep",    
     "control_substeps": 1,
         "comment__": "physics timestep (300hz)",
-    "physics_timestep": 0.02
+    "physics_timestep": 0.05
 }
 }
 """

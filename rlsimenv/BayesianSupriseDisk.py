@@ -1,6 +1,4 @@
 
-import pybullet as p
-import pybullet
 import pybullet_data
 import os
 import time
@@ -59,10 +57,12 @@ class BayesianSupriseDisk(PyBulletEnv):
     def init(self):
         
         super(BayesianSupriseDisk,self).init()
+        
         RLSIMENV_PATH = os.environ['RLSIMENV_PATH']
         cubeStartPos = [0,0,0.5]
         cubeStartOrientation = self._p.getQuaternionFromEuler([0.,0,0])
         self._agent = self._p.loadURDF(RLSIMENV_PATH + "/rlsimenv/data/disk.urdf",
+        # self._agent = self._p.loadURDF("sphere2red.urdf",
                     [0.0,0.0,0.5],
                     cubeStartOrientation,
                     useFixedBase=1) 
@@ -120,7 +120,7 @@ class BayesianSupriseDisk(PyBulletEnv):
             self._ran = 0.4 ## Ignore HLC action and have env generate them if > 0.5.
         
         ### Reset obstacles
-        for i in range(len(self._blocks)):
+        for i in range(self._num_blocks):
             x = (np.random.rand()-0.5) * self._map_area * 2.0
             y = (np.random.rand()-0.5) * self._map_area * 2.0
             self._p.resetBasePositionAndOrientation(self._blocks[i], [x,y,0.5], self._p.getQuaternionFromEuler([0.,0,0]))
@@ -180,7 +180,7 @@ class BayesianSupriseDisk(PyBulletEnv):
         toRays = []
         for i in range(0,size):
             for j in range(0,size):
-                toRays.append([(1.0/(size * 1.0))*i*dimensions,(1.0/(size * 1.0))*j*dimensions,0])
+                toRays.append([(1.0/(size * 1.0))*i*dimensions,(1.0/(size * 1.0))*j*dimensions,-1])
         assert (len(toRays) == (size*size))
         toRays = np.array(toRays)
         ### Adjust to put agent in middle of map
@@ -188,14 +188,17 @@ class BayesianSupriseDisk(PyBulletEnv):
         fromRays = toRays + np.array([0,0,5])
         rayResults = self._p.rayTestBatch(fromRays, toRays)
         intersections = [ray[0] for ray in rayResults]
-        print ("intersections: ", intersections)
+        # print ("intersections: ", intersections)
+        
         for ray in range(len(intersections)):
             if (intersections[ray] in [self._agent]):
                 # print ("bad index: ", ray)
                 ### Remove agent from vision
-                pass
-                # intersections[ray] = -1
-        intersections = np.array(np.greater(intersections, 0), dtype="int")
+                # print ("Hit Agent")
+                
+                intersections[ray] = 1
+        
+        intersections = np.array(np.greater(intersections, 0.1), dtype="int")
         return intersections
     
     def getVisualState(self):
@@ -207,25 +210,35 @@ class BayesianSupriseDisk(PyBulletEnv):
             action[0] == hlc action
             action[1] == llc action
         """
-        print ("action: ", action[0])
+        # print ("action: ", action[0])
         self._p.resetBaseVelocity(self._agent, linearVelocity=[action[0][0], action[0][1], 0], angularVelocity=[0,0,0])
         # super(BayesianSupriseDisk,self).updateAction(action_)
         vel = self._p.getBaseVelocity(self._agent)[0]
         # if (self._ran > 0.5): ### Only Do HLC training half the time.
-        print ("New vel: ", vel)
+        # print ("New vel: ", vel)
         
     def update(self):
         import numpy as np
         pos = np.array(self._p.getBasePositionAndOrientation(self._agent)[0])
         vel = np.array(self._p.getBaseVelocity(self._agent)[0])
-        print ("vel: ", vel)
+        # print ("vel: ", vel)
         pos =  pos + (vel*self._dt)
         pos[2] = 0.5
         ### Need to do this so the intersections are updated
         self._p.stepSimulation()
-        self._p.resetBasePositionAndOrientation(self._agent, pos, self._p.getQuaternionFromEuler([0.,0,0]))
+        # self._p.resetBasePositionAndOrientation(self._agent, pos, self._p.getQuaternionFromEuler([0.,0,0]))
         ### This must be after setting position, because setting the position removes the velocity
-        self._p.resetBaseVelocity(self._agent, linearVelocity=vel, angularVelocity=[0,0,0])
+        # self._p.resetBaseVelocity(self._agent, linearVelocity=vel, angularVelocity=[0,0,0])
+        
+        for box_id in self._blocks:
+            contacts = self._p.getContactPoints(self._agent, box_id)
+            print ("box ", box_id, " contacts: ", contacts)
+            if len(contacts) > 0:
+                ### Push block under ground
+                print ("Agent obs intersect")
+                pos = np.array(self._p.getBasePositionAndOrientation(box_id)[0])
+                pos[2] = -5
+                self._p.resetBasePositionAndOrientation(box_id, pos, self._p.getQuaternionFromEuler([0.,0,0]))
         
         reward = self.computeReward(state=None)
         # print("reward: ", reward)
