@@ -130,8 +130,6 @@ class NavGameAntHRL(PyBulletEnv):
         
         x = (np.random.rand()-0.5) * self._map_area * 2.0
         y = (np.random.rand()-0.5) * self._map_area * 2.0
-        # x = (np.random.rand()-0.5) * 2.0 * 2.0
-        # y = (np.random.rand()-0.5) * 2.0 * 2.0
         self._p.resetBasePositionAndOrientation(self._target, [x,y,0.5], self._p.getQuaternionFromEuler([0.,0,0]))
         self._p.resetBaseVelocity(self._target, [0,0,0], [0,0,0])
         
@@ -142,7 +140,11 @@ class NavGameAntHRL(PyBulletEnv):
         else:
             self._ran = 0.4 ## Ignore HLC action and have env generate them if > 0.5.
         ### By default init this to direction towards goal
-        self._llc_target = [x/self._map_area, y/self._map_area, 0]
+        if ( "use_full_pose_goal" in self._game_settings
+             and (self._game_settings["use_full_pose_goal"] == True)):
+            self._llc_target = self.getRobotPose()
+        else:
+            self._llc_target = [x/self._map_area, y/self._map_area]
         ### Make sure to apply HLC action right away
         self._hlc_timestep = 1000000
         self._hlc_skip = 10
@@ -171,14 +173,10 @@ class NavGameAntHRL(PyBulletEnv):
         ### linear vel
         out_hlc.extend(data)
         ### angular vel
-        # out.extend(data[1])
         pos = np.array(self._p.getBasePositionAndOrientation(self._agent)[0])
         posT = np.array(self._p.getBasePositionAndOrientation(self._target)[0])
         goalDirection = posT-pos
         out_hlc.extend([goalDirection[0], goalDirection[1]])
-        # out = [np.array([np.array(out)])]
-        # out = np.array([np.array(out)])
-        # print ("obs: ", np.array(out))
         out_llc = []
         out_llc.extend(data)
         ### Relative distance from current LLC state
@@ -187,9 +185,9 @@ class NavGameAntHRL(PyBulletEnv):
         
         if ( "use_MARL_HRL" in self._game_settings
              and (self._game_settings["use_MARL_HRL"] == True)):
-            out_llc.extend(np.array([goalDirection[0], goalDirection[1]]))
+            out_llc.extend(np.array(self._llc_target))
         else:
-            out_llc.extend(np.array([self._llc_target[0], self._llc_target[1]]))
+            out_llc.extend(np.array([goalDirection[0], goalDirection[1]]))
         # else:
         #     out_llc.extend(np.array(self._llc_target) - pos)
         # print ("out_llc: ", out_llc)
@@ -212,20 +210,14 @@ class NavGameAntHRL(PyBulletEnv):
         pos = np.array(self._p.getBasePositionAndOrientation(self._agent)[0])
         posT = np.array(self._p.getBasePositionAndOrientation(self._target)[0])
         rewards = []
-        # print ("self._llc_target: ", self._llc_target)
         
         goalDirection = posT-pos
         goalDistance = np.sqrt((goalDirection*goalDirection).sum(axis=0))
         goalDir = self.getTargetDirection()
-        # goalDir = goalDir / np.sqrt((goalDir*goalDir).sum(axis=0))
-        # print ("goalDir: ", goalDir)
         agentVel = np.array(self._p.getBaseVelocity(self._agent)[0])
         agentDir = agentVel / np.sqrt((agentVel*agentVel).sum(axis=0))
         velDiff = goalDir - agentVel
         diffMag = np.sqrt((velDiff*velDiff).sum(axis=0))
-        # agentVel = agentVel / agentSpeed
-        # print ("agentVel: ", agentVel)
-        # agentSpeedDiff = (1 - agentSpeed)
         ### heading towards goal
         # reward = np.dot(goalDir, agentVel) + np.exp(agentSpeedDiff*agentSpeedDiff * -2.0)
         
@@ -249,9 +241,13 @@ class NavGameAntHRL(PyBulletEnv):
             if len(contacts) > 0:
                 hlc_reward = hlc_reward + -1.0
                 break
-        
-        llc_dir = np.array([self._llc_target[0], self._llc_target[1], 0])
-        des_change = llc_dir - agentVel
+        if ( "use_full_pose_goal" in self._game_settings
+             and (self._game_settings["use_full_pose_goal"] == True)):
+            llc_dir = self.getRobotPose()
+            des_change = llc_dir - self._llc_target
+        else:
+            llc_dir = np.array([self._llc_target[0], self._llc_target[1], 0])
+            des_change = llc_dir - agentVel
         llc_reward = -(des_change*des_change).sum(axis=0)
         if ( "use_MARL_HRL" in self._game_settings
              and (self._game_settings["use_MARL_HRL"] == True)):
@@ -261,7 +257,6 @@ class NavGameAntHRL(PyBulletEnv):
             rewards = [ [hlc_reward]]
         # print ("rewards: ", rewards)
         return rewards
-        
         
         
     def getTargetDirection(self):
@@ -317,7 +312,11 @@ class NavGameAntHRL(PyBulletEnv):
             (( "use_MARL_HRL" in self._game_settings
              and (self._game_settings["use_MARL_HRL"] == True)))):
             # print ("Updating llc target from HLC")
-            self._llc_target = clampValue([action[0][0], action[0][1], 0], self._vel_bounds)
+            if ( "use_full_pose_goal" in self._game_settings
+             and (self._game_settings["use_full_pose_goal"] == True)):
+                pass
+            else:
+                self._llc_target = clampValue([action[0][0], action[0][1]], self._vel_bounds)
             ### Need to store this target in the sim as a gobal location to allow for computing local distance state.
             pos = np.array(self._p.getBasePositionAndOrientation(self._agent)[0])
             # self._llc_target = self._llc_target + action_
