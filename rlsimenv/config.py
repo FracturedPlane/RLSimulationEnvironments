@@ -1211,7 +1211,7 @@ SIMULATION_ENVIRONMENTS = """
         "comment__": "Size of map area",
     "map_size": 10.0,
         "comment__": "HLC timestep",
-    "hlc_timestep": 5,
+    "hlc_timestep": 10,
         "comment__": "Flag to ignore LLC action and directly use HLC action.",
     "use_hlc_action_directly": false,
         "comment__": "PD control timestep",    
