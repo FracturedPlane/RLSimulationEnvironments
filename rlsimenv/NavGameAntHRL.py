@@ -141,10 +141,12 @@ class NavGameAntHRL(PyBulletEnv):
             self._ran = 0.4 ## Ignore HLC action and have env generate them if > 0.5.
         ### By default init this to direction towards goal
         if ( "use_full_pose_goal" in self._game_settings
-             and (self._game_settings["use_full_pose_goal"] == True)):
+         and (self._game_settings["use_full_pose_goal"] == True)):
             self._llc_target = self.getRobotPose()
         else:
-            self._llc_target = [x/self._map_area, y/self._map_area]
+            x = (np.random.rand()-0.5) * 2.0
+            y = (np.random.rand()-0.5) * 2.0
+            self._llc_target = [x, y]
         ### Make sure to apply HLC action right away
         self._hlc_timestep = 1000000
         self._hlc_skip = 10
@@ -248,7 +250,8 @@ class NavGameAntHRL(PyBulletEnv):
         else:
             llc_dir = np.array([self._llc_target[0], self._llc_target[1], 0])
             des_change = llc_dir - agentVel
-        llc_reward = -(des_change*des_change).sum(axis=0)
+        # llc_reward = -(des_change*des_change).sum(axis=0)
+        llc_reward = -(np.fabs(des_change)).sum(axis=0)
         if ( "use_MARL_HRL" in self._game_settings
              and (self._game_settings["use_MARL_HRL"] == True)):
             rewards = [[hlc_reward], [llc_reward]]
@@ -312,21 +315,33 @@ class NavGameAntHRL(PyBulletEnv):
             (( "use_MARL_HRL" in self._game_settings
              and (self._game_settings["use_MARL_HRL"] == True)))):
             # print ("Updating llc target from HLC")
-            if ( "use_full_pose_goal" in self._game_settings
-             and (self._game_settings["use_full_pose_goal"] == True)):
+            if ("use_hardCoded_LLC_goals" in self._game_settings
+             and (self._game_settings["use_hardCoded_LLC_goals"] == True)):
                 pass
+                """
+                if ( "use_full_pose_goal" in self._game_settings
+                 and (self._game_settings["use_full_pose_goal"] == True)):
+                    self._llc_target = self.getRobotPose()
+                else:
+                    x = (np.random.rand()-0.5) * 2.0
+                    y = (np.random.rand()-0.5) * 2.0
+                    self._llc_target = [x, y]
+                """
             else:
-                self._llc_target = clampValue([action[0][0], action[0][1]], self._vel_bounds)
+                if ( "use_full_pose_goal" in self._game_settings
+                 and (self._game_settings["use_full_pose_goal"] == True)):
+                    self._llc_target = action[0]
+                else:
+                    self._llc_target = clampValue([action[0][0], action[0][1]], self._vel_bounds)
             ### Need to store this target in the sim as a gobal location to allow for computing local distance state.
             pos = np.array(self._p.getBasePositionAndOrientation(self._agent)[0])
-            # self._llc_target = self._llc_target + action_
             self._hlc_timestep = 0
             ### Update llc action
             llc_obs = self.getObservation()[1]
             ### crazy hack to get proper state size...
             if ("append_centralized_state_hack" in self._game_settings
                 and (self._game_settings["append_centralized_state_hack"] == True)):
-                llc_obs = np.concatenate([llc_obs,[0,0,0,0,0,0]])
+                llc_obs = np.concatenate([llc_obs,[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]])
             action[1] = self._llc.predict([llc_obs])[0]
             # action[1] = [0.03, -0.023]
             # print ("self._llc_target: ", self._llc_target)
