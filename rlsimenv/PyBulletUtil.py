@@ -39,6 +39,35 @@ class PyBulletEnv(Environment):
         
         self._p.loadURDF("plane.urdf")
         
+    def computeActionBounds(self):
+        # self._jointIds=[]
+        paramIds=[]
+        
+        activeJoint=0
+        for j in range (self._p.getNumJoints(self._agent)):
+            self._p.changeDynamics(self._agent,j,linearDamping=0, angularDamping=0)
+            info = self._p.getJointInfo(self._agent,j)
+            #print(info)
+            jointName = info[1]
+            jointType = info[2]
+            if (jointType==self._p.JOINT_PRISMATIC or jointType==self._p.JOINT_REVOLUTE):
+                # self._jointIds.append(j)
+                ### Update action bounds
+                self._action_bounds[0][activeJoint] = info[8]
+                self._action_bounds[1][activeJoint] = info[9]
+                # print ("self._action_bounds: ", self._action_bounds)
+                # paramIds.append(p.addUserDebugParameter(jointName.decode("utf-8"),-4,4,jointAngles[activeJoint]))
+                # self._paramIds.append()
+                # p.resetJointState(self._agent, j, self._jointAngles[activeJoint])
+                activeJoint+=1
+                
+    def genRandomPose(self):
+        
+        # pose = ((np.array(self._action_bounds[1]) - np.array(self._action_bounds[0])) * np.random.uniform(size=len(self._action_bounds[0]))  ) + np.array(self._action_bounds[0])
+        pose = self.getRobotPose()
+        pose = pose + np.random.normal(0, 0.1, size=len(pose))
+        return pose
+                
     def getActionSpaceSize(self):
         return self._action_length
     

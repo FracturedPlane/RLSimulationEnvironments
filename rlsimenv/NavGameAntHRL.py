@@ -59,6 +59,7 @@ class NavGameAntHRL(PyBulletEnv):
     def display(self):
         pass
     
+    
     def init(self):
         
         super(NavGameAntHRL,self).init()
@@ -75,6 +76,7 @@ class NavGameAntHRL(PyBulletEnv):
         lo = [-1.0 for l in range(len(self._jointIds))]
         hi = [ 1.0 for l in range(len(self._jointIds))]
         self._action_bounds = np.array([lo, hi])
+        self.computeActionBounds()
         
         self._blocks = []
         self._num_blocks=0
@@ -142,7 +144,7 @@ class NavGameAntHRL(PyBulletEnv):
         ### By default init this to direction towards goal
         if ( "use_full_pose_goal" in self._game_settings
          and (self._game_settings["use_full_pose_goal"] == True)):
-            self._llc_target = self.getRobotPose()
+            self._llc_target = self.genRandomPose()
         else:
             x = (np.random.rand()-0.5) * 2.0
             y = (np.random.rand()-0.5) * 2.0
@@ -317,16 +319,14 @@ class NavGameAntHRL(PyBulletEnv):
             # print ("Updating llc target from HLC")
             if ("use_hardCoded_LLC_goals" in self._game_settings
              and (self._game_settings["use_hardCoded_LLC_goals"] == True)):
-                pass
-                """
+                # pass
                 if ( "use_full_pose_goal" in self._game_settings
                  and (self._game_settings["use_full_pose_goal"] == True)):
-                    self._llc_target = self.getRobotPose()
+                    self._llc_target = self.genRandomPose()
                 else:
                     x = (np.random.rand()-0.5) * 2.0
                     y = (np.random.rand()-0.5) * 2.0
                     self._llc_target = [x, y]
-                """
             else:
                 if ( "use_full_pose_goal" in self._game_settings
                  and (self._game_settings["use_full_pose_goal"] == True)):

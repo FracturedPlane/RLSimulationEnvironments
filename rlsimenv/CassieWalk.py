@@ -64,6 +64,28 @@ class CassieWalk(Environment):
     def display(self):
         pass
     
+    def computeActionBounds(self):
+        self._jointIds=[]
+        paramIds=[]
+        
+        activeJoint=0
+        for j in range (p.getNumJoints(self._agent)):
+            p.changeDynamics(self._agent,j,linearDamping=0, angularDamping=0)
+            info = p.getJointInfo(self._agent,j)
+            #print(info)
+            jointName = info[1]
+            jointType = info[2]
+            if (jointType==p.JOINT_PRISMATIC or jointType==p.JOINT_REVOLUTE):
+                self._jointIds.append(j)
+                ### Update action bounds
+                self._action_bounds[0][activeJoint] = info[8]
+                self._action_bounds[1][activeJoint] = info[9]
+                # print ("self._action_bounds: ", self._action_bounds)
+                # paramIds.append(p.addUserDebugParameter(jointName.decode("utf-8"),-4,4,jointAngles[activeJoint]))
+                # self._paramIds.append()
+                p.resetJointState(self._agent, j, self._jointAngles[activeJoint])
+                activeJoint+=1
+        
     def init(self):
         
         if (self._game_settings['render']):
@@ -83,8 +105,6 @@ class CassieWalk(Environment):
         p.loadURDF("plane.urdf")
         self._agent = p.loadURDF(RLSIMENV_PATH + "/rlsimenv/data/cassie/urdf/cassie_collide.urdf",[0,0,0.8], useFixedBase=False)
         # gravId = p.addUserDebugParameter("gravity",-10,10,-10)
-        self._jointIds=[]
-        paramIds=[]
         
         self._init_root_vel = p.getBaseVelocity(self._agent)
         self._init_root_pos = p.getBasePositionAndOrientation(self._agent)
@@ -93,24 +113,7 @@ class CassieWalk(Environment):
         p.setPhysicsEngineParameter(numSolverIterations=100)
         p.changeDynamics(self._agent,-1,linearDamping=0, angularDamping=0)
         
-        self._jointAngles=[0,0,1.0204,-1.97,-0.084,2.06,-1.9,0,0,1.0204,-1.97,-0.084,2.06,-1.9,0]
-        activeJoint=0
-        for j in range (p.getNumJoints(self._agent)):
-            p.changeDynamics(self._agent,j,linearDamping=0, angularDamping=0)
-            info = p.getJointInfo(self._agent,j)
-            #print(info)
-            jointName = info[1]
-            jointType = info[2]
-            if (jointType==p.JOINT_PRISMATIC or jointType==p.JOINT_REVOLUTE):
-                self._jointIds.append(j)
-                ### Update action bounds
-                self._action_bounds[0][activeJoint] = info[8]
-                self._action_bounds[1][activeJoint] = info[9]
-                # print ("self._action_bounds: ", self._action_bounds)
-                # paramIds.append(p.addUserDebugParameter(jointName.decode("utf-8"),-4,4,jointAngles[activeJoint]))
-                # self._paramIds.append()
-                p.resetJointState(self._agent, j, self._jointAngles[activeJoint])
-                activeJoint+=1
+        self.computeActionBounds()
                 
         p.setRealTimeSimulation(0)
         
