@@ -31,7 +31,7 @@ class NavGameHRL2D(Environment):
         # self._observation_space = ActionSpace(observation_space)
         self._action_space = ActionSpace(self._game_settings['action_bounds'])
         self._map_area = self._game_settings['map_size']
-        self._reach_goal_threshold = 1.0
+        self._reach_goal_threshold = 1.5
         
         self._vel_bounds = [[-2.0, -2.0, -0.00001],
                             [ 2.0,  2.0,  0.00001]]
@@ -40,7 +40,6 @@ class NavGameHRL2D(Environment):
                             [ self._map_area,  self._map_area,  0.50001]]
         
         self._ran = 0.0
-        
         
     def getActionSpaceSize(self):
         return self._action_length
@@ -390,6 +389,18 @@ class NavGameHRL2D(Environment):
         
         reward = self.computeReward(state=None)
         # print("reward: ", reward)
+        ### Change goal location if reached
+        pos = np.array(p.getBasePositionAndOrientation(self._agent)[0])
+        posT = np.array(p.getBasePositionAndOrientation(self._target)[0])
+        goalDirection = posT-pos
+        goalDistance = np.sqrt((goalDirection*goalDirection).sum(axis=0))
+        if ((goalDistance < self._reach_goal_threshold)):
+            x = (np.random.rand()-0.5) * self._map_area * 2.0
+            y = (np.random.rand()-0.5) * self._map_area * 2.0
+            # x = (np.random.rand()-0.5) * 2.0 * 2.0
+            # y = (np.random.rand()-0.5) * 2.0 * 2.0
+            p.resetBasePositionAndOrientation(self._target, [x,y,0.5], p.getQuaternionFromEuler([0.,0,0]))
+            p.resetBaseVelocity(self._target, [0,0,0], [0,0,0])
         self.__reward = reward
         
     def calcReward(self):
@@ -405,8 +416,9 @@ class NavGameHRL2D(Environment):
         posT = np.array(p.getBasePositionAndOrientation(self._target)[0])
         goalDirection = posT-pos
         goalDistance = np.sqrt((goalDirection*goalDirection).sum(axis=0))
-        if ((goalDistance < self._reach_goal_threshold)
-            or (pos[0] > self._map_area)
+        if (
+            # (goalDistance < self._reach_goal_threshold) or
+             (pos[0] > self._map_area)
             or (pos[1] > self._map_area)
             or (pos[0] < -self._map_area)
             or (pos[1] < -self._map_area)):
