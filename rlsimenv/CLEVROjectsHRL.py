@@ -108,6 +108,8 @@ class CLEVROjectsHRL(PyBulletEnv):
                 cubeStartOrientation,
                 useFixedBase=1)
         
+        self._p.setCollisionFilterPair(self._agent, self._target, -1, -1, 0)
+        
          
         lo = [0.0 for l in self.getObservation()[0]]
         hi = [1.0 for l in self.getObservation()[0]]
@@ -149,6 +151,7 @@ class CLEVROjectsHRL(PyBulletEnv):
             self._ran = 0.6 ## Ignore HLC action and have env generate them if > 0.5.
         else:
             self._ran = 0.4 ## Ignore HLC action and have env generate them if > 0.5.
+        pos = np.array(self._p.getBasePositionAndOrientation(self._agent)[0])
         ### By default init this to direction towards goal
         if ( "use_full_pose_goal" in self._game_settings
          and (self._game_settings["use_full_pose_goal"] == True)):
@@ -157,8 +160,8 @@ class CLEVROjectsHRL(PyBulletEnv):
             x = (np.random.rand()-0.5) * 2.0
             y = (np.random.rand()-0.5) * 2.0
             z = np.random.rand()
-            self._llc_target = [x, y, z]
-            
+            self._llc_target = np.array([x, y, z]) + pos
+        
         self._p.resetBasePositionAndOrientation(self._target, [self._llc_target[0],self._llc_target[1],0.5], self._p.getQuaternionFromEuler([0.,0,0]))
         self._p.resetBaseVelocity(self._target, [0,0,0], [0,0,0])
         
@@ -388,6 +391,16 @@ class CLEVROjectsHRL(PyBulletEnv):
         vel = action_ + vel
         vel = clampValue(vel, self._llc_pose_bounds)
         self._p.resetBaseVelocity(self._agent, linearVelocity=vel, angularVelocity=[0,0,0])
+        ### For any object within distance and z < 0.5 pull object
+        for i in range(len(self._blocks)):
+            posT = np.array(self._p.getBasePositionAndOrientation(self._blocks[i])[0])
+            goalDirection = posT-pos
+            goalDistance = np.sqrt((goalDirection*goalDirection).sum(axis=0))
+            if ( goalDistance < self._reach_goal_threshold
+                 and (pos[2] < 0.5)):
+                self._p.resetBaseVelocity(self._blocks[i], linearVelocity=vel, angularVelocity=[0,0,0])
+            else:
+                self._p.resetBaseVelocity(self._blocks[i], linearVelocity=[0,0,0], angularVelocity=[0,0,0])
         super(CLEVROjectsHRL,self).updateAction(action_)
         # vel = self._p.getBaseVelocity(self._agent)[0]
         # if (self._ran > 0.5): ### Only Do HLC training half the time.
@@ -467,7 +480,7 @@ if __name__ == "__main__":
             sim.reset()
         time.sleep(1/240.)
         print ("llc action bounds: ", llc._llc_action_bounds)
-        sim.updateAction([[-1.1232,1.534534, 0],np.random.normal(action, sim._action_bounds[1] - sim._action_bounds[0])])
+        sim.updateAction([[-2.0,2.0, 0],np.random.normal(action, sim._action_bounds[1] - sim._action_bounds[0])])
         sim.update()
         ob = sim.getObservation()
         reward = sim.computeReward()
