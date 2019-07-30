@@ -13,7 +13,7 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-			<cylinder length="0.5" radius="2.0"/>
+			<cylinder length="0.05" radius="1.0"/>
       </geometry>
        <material name="white">
         <color rgba="0.2 0.2 1 1"/>
@@ -22,7 +22,7 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-			<cylinder length="0.05" radius="0.5"/>
+			<cylinder length="0.05" radius="1.0"/>
       </geometry>
     </collision>
   </link>
