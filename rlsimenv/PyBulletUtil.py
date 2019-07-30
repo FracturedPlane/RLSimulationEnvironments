@@ -37,7 +37,7 @@ class PyBulletEnv(Environment):
         
         self._p.setRealTimeSimulation(0)
         
-        self._p.loadURDF("plane.urdf")
+        self._ground = self._p.loadURDF("plane.urdf")
         
     def computeActionBounds(self):
         # self._jointIds=[]

@@ -38,7 +38,7 @@ class CLEVROjectsHRL(PyBulletEnv):
         # self._observation_space = ActionSpace(observation_space)
         self._action_space = ActionSpace(self._game_settings['action_bounds'])
         self._map_area = self._game_settings['map_size']
-        self._reach_goal_threshold = 1.0
+        self._reach_goal_threshold = 2.0
         
         self._llc_pose_bounds = [[-2.0, -2.0, 0.0],
                             [ 2.0,  2.0,  1.0]]
@@ -92,7 +92,7 @@ class CLEVROjectsHRL(PyBulletEnv):
             blockId = self._p.loadURDF(RLSIMENV_PATH + "/rlsimenv/data/cube2.urdf",
                     [2.0,2.0,0.5],
                     cubeStartOrientation,
-                    useFixedBase=1) 
+                    useFixedBase=0) 
             self._p.changeVisualShape(blockId, -1, rgbaColor=self._block_colours[i])
             self._blocks.append(blockId)
             goalId = self._p.loadURDF(RLSIMENV_PATH + "/rlsimenv/data/diskSmall.urdf",
@@ -101,6 +101,10 @@ class CLEVROjectsHRL(PyBulletEnv):
                     useFixedBase=1) 
             self._p.changeVisualShape(goalId, -1, rgbaColor=self._block_colours[i])
             self._blocks_goals.append(goalId)
+            
+        for i in range(len(self._blocks)):
+            for j in range(len(self._blocks_goals)):
+                self._p.setCollisionFilterPair(self._blocks[i], self._blocks_goals[j], -1, -1, 0)
         
     
         self._target = self._p.loadURDF("sphere2red.urdf",
@@ -109,7 +113,7 @@ class CLEVROjectsHRL(PyBulletEnv):
                 useFixedBase=1)
         
         self._p.setCollisionFilterPair(self._agent, self._target, -1, -1, 0)
-        
+        self._p.setCollisionFilterPair(self._agent, self._ground, -1, -1, 0)
          
         lo = [0.0 for l in self.getObservation()[0]]
         hi = [1.0 for l in self.getObservation()[0]]
@@ -476,7 +480,7 @@ if __name__ == "__main__":
     action = np.mean(sim._action_bounds, axis=0)
     import time
     for i in range(10000):
-        if (i % 100 == 0):
+        if (i % 250 == 0):
             sim.reset()
         time.sleep(1/240.)
         print ("llc action bounds: ", llc._llc_action_bounds)
