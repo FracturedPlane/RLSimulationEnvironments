@@ -95,7 +95,7 @@ class CLEVROjectsHRL(PyBulletEnv):
                     useFixedBase=1) 
             self._p.changeVisualShape(blockId, -1, rgbaColor=self._block_colours[i])
             self._blocks.append(blockId)
-            goalId = self._p.loadURDF(RLSIMENV_PATH + "/rlsimenv/data/disk.urdf",
+            goalId = self._p.loadURDF(RLSIMENV_PATH + "/rlsimenv/data/diskSmall.urdf",
                     [2.0,2.0,0.5],
                     cubeStartOrientation,
                     useFixedBase=1) 
