@@ -1321,9 +1321,9 @@ SIMULATION_ENVIRONMENTS = """
         "comment__": "Should multi agent HRL be used",
     "use_MARL_HRL": true,
         "comment__": "Should the full agent pose be used for communication",
-    "use_full_pose_goal": true,
+    "use_full_pose_goal": false,
         "comment__": "The number of randomly placed blocks to place in the environment",
-    "num_blocks": 5,
+    "num_blocks": 3
 }
 }
 """

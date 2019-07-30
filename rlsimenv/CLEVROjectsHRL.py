@@ -24,7 +24,7 @@ class CLEVROjectsHRL(PyBulletEnv):
         self.agent = None
     
         
-        self._state_bounds = self._game_settings['state_bounds']
+        self._state_bounds = self._game_settings['state_bounds'][1]
         self._action_bounds = np.array(self._game_settings['action_bounds'][1])
         self._action_length = len(self._action_bounds[0])
         
@@ -126,7 +126,7 @@ class CLEVROjectsHRL(PyBulletEnv):
             state_bounds_hlc = [lo, hi]
             state_bounds = [state_bounds_llc, state_bounds_hlc]
         
-        print ("NavGameHRL2D state bounds: ", state_bounds)
+        print ("CLEVROjectsHRL state bounds: ", state_bounds)
         self._game_settings['state_bounds'] = [lo, hi]
         self._state_length = len(self._game_settings['state_bounds'][0])
         print ("self._state_length: ", self._state_length)
@@ -192,6 +192,10 @@ class CLEVROjectsHRL(PyBulletEnv):
     def setLLC(self, llc):
         self._llc = llc
         
+    def getRobotPose(self):
+        pose = super(CLEVROjectsHRL,self).getRobotPose()
+        return pose[:3]
+        
     def getObservation(self):
         import numpy as np
         out = []
@@ -201,6 +205,7 @@ class CLEVROjectsHRL(PyBulletEnv):
             localMap = self.getlocalMapObservation()
             out_hlc.extend(localMap)
         data = self.getRobotPose()
+        # print ("Data: ", data)
         ### linear vel
         out_hlc.extend(data)
         ### angular vel
