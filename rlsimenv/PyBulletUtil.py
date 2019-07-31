@@ -106,11 +106,11 @@ class PyBulletEnv(Environment):
         data = self._p.getBaseVelocity(self._agent)
         ### root linear vel
         out_hlc.extend(data[0])
+        ### root height
+        pos = np.array(self._p.getBasePositionAndOrientation(self._agent))
+        out_hlc.append(pos[0][1])
         ### root angular vel
         out_hlc.extend(data[1])
-        pos = np.array(self._p.getBasePositionAndOrientation(self._agent))
-        ### root height
-        out_hlc.append(pos[0][1])
         ### root rotation
         out_hlc.extend(pos[1])
         

@@ -194,7 +194,7 @@ class CLEVROjectsHRL(PyBulletEnv):
         
     def getRobotPose(self):
         pose = super(CLEVROjectsHRL,self).getRobotPose()
-        return pose[:3]
+        return pose[:4]
         
     def getObservation(self):
         import numpy as np
