@@ -64,6 +64,7 @@ class CLEVROjectsHRL(PyBulletEnv):
     def init(self):
         
         super(CLEVROjectsHRL,self).init()
+        self._p.setGravity(0,0,self._GRAVITY)
         
         cubeStartPos = [0,0,0.5]
         cubeStartOrientation = p.getQuaternionFromEuler([0.,0,0])
@@ -77,6 +78,10 @@ class CLEVROjectsHRL(PyBulletEnv):
         self.computeActionBounds()
         
         RLSIMENV_PATH = os.environ['RLSIMENV_PATH']
+        self._target = self._p.loadURDF("sphere2red.urdf",
+                cubeStartPos,
+                cubeStartOrientation,
+                useFixedBase=1)
         self._blocks = []
         self._blocks_goals = []
         self._num_blocks=0
@@ -105,15 +110,16 @@ class CLEVROjectsHRL(PyBulletEnv):
         for i in range(len(self._blocks)):
             for j in range(len(self._blocks_goals)):
                 self._p.setCollisionFilterPair(self._blocks[i], self._blocks_goals[j], -1, -1, 0)
+                
+            self._p.setCollisionFilterPair(self._agent, self._blocks_goals[i], -1, -1, 0)
+            self._p.setCollisionFilterPair(self._target, self._blocks_goals[i], -1, -1, 0)
+            self._p.setCollisionFilterPair(self._target, self._blocks[i], -1, -1, 0)
         
     
-        self._target = self._p.loadURDF("sphere2red.urdf",
-                cubeStartPos,
-                cubeStartOrientation,
-                useFixedBase=1)
         
         self._p.setCollisionFilterPair(self._agent, self._target, -1, -1, 0)
         self._p.setCollisionFilterPair(self._agent, self._ground, -1, -1, 0)
+        self._p.setCollisionFilterPair(self._target, self._ground, -1, -1, 0)
          
         lo = [0.0 for l in self.getObservation()[0]]
         hi = [1.0 for l in self.getObservation()[0]]
@@ -166,7 +172,7 @@ class CLEVROjectsHRL(PyBulletEnv):
             z = np.random.rand()
             self._llc_target = np.array([x, y, z]) + pos
         
-        self._p.resetBasePositionAndOrientation(self._target, [self._llc_target[0],self._llc_target[1],0.5], self._p.getQuaternionFromEuler([0.,0,0]))
+        self._p.resetBasePositionAndOrientation(self._target, self._llc_target, self._p.getQuaternionFromEuler([0.,0,0]))
         self._p.resetBaseVelocity(self._target, [0,0,0], [0,0,0])
         
         ### Make sure to apply HLC action right away
@@ -348,27 +354,19 @@ class CLEVROjectsHRL(PyBulletEnv):
         self._hlc_timestep = self._hlc_timestep + 1
         pos = np.array(self._p.getBasePositionAndOrientation(self._agent)[0])
         if (self._hlc_timestep >= self._hlc_skip 
-            and (self._ran < 0.5) and 
-            (( "use_MARL_HRL" in self._game_settings
+            # and (self._ran < 0.5) 
+            and  (( "use_MARL_HRL" in self._game_settings
              and (self._game_settings["use_MARL_HRL"] == True)))):
             # print ("Updating llc target from HLC")
             if ("use_hardCoded_LLC_goals" in self._game_settings
              and (self._game_settings["use_hardCoded_LLC_goals"] == True)):
-                # pass
-                if ( "use_full_pose_goal" in self._game_settings
-                 and (self._game_settings["use_full_pose_goal"] == True)):
-                    self._llc_target = self.genRandomPose()
-                else:
-                    x = (np.random.rand()-0.5) * 2.0
-                    y = (np.random.rand()-0.5) * 2.0
-                    z = (np.random.rand()-0.5) * 2.0
-                    self._llc_target = pos + np.array([x, y, z])
+                x = (np.random.rand()-0.5) * 2.0
+                y = (np.random.rand()-0.5) * 2.0
+                z = (np.random.rand()-0.5) * 2.0
+                self._llc_target = pos + np.array([x, y, z])
             else:
-                if ( "use_full_pose_goal" in self._game_settings
-                 and (self._game_settings["use_full_pose_goal"] == True)):
-                    self._llc_target = pos + action[0] 
-                else:
-                    self._llc_target = clampValue(action[0], self._llc_pose_bounds)
+            
+                self._llc_target = pos + clampValue(action[0], self._llc_pose_bounds)
             ### Need to store this target in the sim as a gobal location to allow for computing local distance state.
             pos = np.array(self._p.getBasePositionAndOrientation(self._agent)[0])
             self._hlc_timestep = 0
@@ -393,8 +391,12 @@ class CLEVROjectsHRL(PyBulletEnv):
             action_ = self._llc_target
         """
         # print ("New action: ", action_)
+        self._p.resetBasePositionAndOrientation(self._target, self._llc_target, self._p.getQuaternionFromEuler([0.,0,0]))
+        self._p.resetBaseVelocity(self._target, [0,0,0], [0,0,0])
+        
         vel = self._p.getBaseVelocity(self._agent)[0]
         pos = np.array(self._p.getBasePositionAndOrientation(self._agent)[0])
+        pos = clampValue(pos, self._pos_bounds)
         self._p.resetBasePositionAndOrientation(self._agent, [pos[0],pos[1],pos[2] + (action_[2]*self._dt)], self._p.getQuaternionFromEuler([0.,0,0]))
         action_[2] = 0
         vel = action_ + vel
@@ -425,8 +427,10 @@ class CLEVROjectsHRL(PyBulletEnv):
         posT = np.array(self._p.getBasePositionAndOrientation(self._target)[0])
         goalDirection = posT-pos
         goalDistance = np.sqrt((goalDirection*goalDirection).sum(axis=0))
-        if ((goalDistance < self._reach_goal_threshold)
-            or (pos[0] > self._map_area)
+        
+        if (
+            # (goalDistance < self._reach_goal_threshold)
+            (pos[0] > self._map_area)
             or (pos[1] > self._map_area)
             or (pos[0] < -self._map_area)
             or (pos[1] < -self._map_area)):
