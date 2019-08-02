@@ -1317,7 +1317,7 @@ SIMULATION_ENVIRONMENTS = """
         "comment__": "PD control timestep",    
     "control_substeps": 10,
         "comment__": "physics timestep (300hz)",
-    "physics_timestep": 0.00333333333,
+    "physics_timestep": 0.1,
         "comment__": "Should multi agent HRL be used",
     "use_MARL_HRL": true,
         "comment__": "Should the full agent pose be used for communication",
