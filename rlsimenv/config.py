@@ -1315,7 +1315,7 @@ SIMULATION_ENVIRONMENTS = """
         "comment__": "Flag to ignore LLC action and directly use HLC action.",
     "use_hlc_action_directly": false,
         "comment__": "PD control timestep",    
-    "control_substeps": 10,
+    "control_substeps": 1,
         "comment__": "physics timestep (300hz)",
     "physics_timestep": 0.1,
         "comment__": "Should multi agent HRL be used",

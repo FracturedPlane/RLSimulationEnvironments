@@ -43,6 +43,9 @@ class CLEVROjectsHRL(PyBulletEnv):
         self._llc_pose_bounds = [[-2.0, -2.0, 0.0],
                             [ 2.0,  2.0,  1.0]]
         
+        self._llc_vel_bounds = [[-2.0, -2.0, -0.5],
+                            [ 2.0,  2.0,  0.5]]
+        
         self._pos_bounds = [[-self._map_area, -self._map_area,  0.0],
                             [ self._map_area,  self._map_area,  1.0]]
         
@@ -148,11 +151,11 @@ class CLEVROjectsHRL(PyBulletEnv):
     
     def initEpoch(self):
         import numpy as np
-        x = (np.random.rand()-0.5) * self._map_area * 2.0
-        y = (np.random.rand()-0.5) * self._map_area * 2.0
+        x = (np.random.rand()-0.5) * self._map_area
+        y = (np.random.rand()-0.5) * self._map_area
         self._p.resetBasePositionAndOrientation(self._agent, [x,y,0.5], self._p.getQuaternionFromEuler([0.,0,0]))
-        x = (np.random.rand()-0.5) *  2.0
-        y = (np.random.rand()-0.5) *  2.0
+        x = (np.random.rand()-0.5) 
+        y = (np.random.rand()-0.5)
         self._p.resetBaseVelocity(self._agent, [x,y,0], [0,0,0])
         
         # self._ran = np.random.rand(1)[0]
@@ -397,10 +400,12 @@ class CLEVROjectsHRL(PyBulletEnv):
         vel = self._p.getBaseVelocity(self._agent)[0]
         pos = np.array(self._p.getBasePositionAndOrientation(self._agent)[0])
         pos = clampValue(pos, self._pos_bounds)
-        self._p.resetBasePositionAndOrientation(self._agent, [pos[0],pos[1],pos[2] + (action_[2]*self._dt)], self._p.getQuaternionFromEuler([0.,0,0]))
-        action_[2] = 0
+        self._p.resetBasePositionAndOrientation(self._agent, pos, self._p.getQuaternionFromEuler([0.,0,0]))
+        # action_[2] = 0
+        # print ("action_, vel: ", action_, vel)
         vel = action_ + vel
-        vel = clampValue(vel, self._llc_pose_bounds)
+        vel = clampValue(vel, self._llc_vel_bounds)
+        # print ("vel: ", vel)
         self._p.resetBaseVelocity(self._agent, linearVelocity=vel, angularVelocity=[0,0,0])
         ### For any object within distance and z < 0.5 pull object
         for i in range(len(self._blocks)):
@@ -413,7 +418,7 @@ class CLEVROjectsHRL(PyBulletEnv):
             else:
                 self._p.resetBaseVelocity(self._blocks[i], linearVelocity=[0,0,0], angularVelocity=[0,0,0])
         super(CLEVROjectsHRL,self).updateAction(action_)
-        # vel = self._p.getBaseVelocity(self._agent)[0]
+        vel = self._p.getBaseVelocity(self._agent)[0]
         # if (self._ran > 0.5): ### Only Do HLC training half the time.
         # print ("New vel: ", vel)
                
@@ -424,16 +429,19 @@ class CLEVROjectsHRL(PyBulletEnv):
         import numpy as np
         
         pos = np.array(self._p.getBasePositionAndOrientation(self._agent)[0])
-        posT = np.array(self._p.getBasePositionAndOrientation(self._target)[0])
-        goalDirection = posT-pos
-        goalDistance = np.sqrt((goalDirection*goalDirection).sum(axis=0))
-        
+        # posT = np.array(self._p.getBasePositionAndOrientation(self._target)[0])
+        # goalDirection = posT-pos
+        # goalDistance = np.sqrt((goalDirection*goalDirection).sum(axis=0))
+        # print ("pos: ", pos)
         if (
             # (goalDistance < self._reach_goal_threshold)
+        
             (pos[0] > self._map_area)
             or (pos[1] > self._map_area)
             or (pos[0] < -self._map_area)
-            or (pos[1] < -self._map_area)):
+            or (pos[1] < -self._map_area)
+            or (pos[2] > self._map_area)
+            or (pos[2] < -self._map_area)):
             return True
         
         else:
