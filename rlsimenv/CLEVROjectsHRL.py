@@ -40,8 +40,8 @@ class CLEVROjectsHRL(PyBulletEnv):
         self._map_area = self._game_settings['map_size']
         self._reach_goal_threshold = 2.0
         
-        self._llc_pose_bounds = [[-2.0, -2.0, 0.0],
-                            [ 2.0,  2.0,  1.0]]
+        self._llc_pose_bounds = [[-1.0, -1.0, 0.0],
+                            [ 1.0,  1.0,  1.0]]
         
         self._llc_vel_bounds = [[-2.0, -2.0, -0.5],
                             [ 2.0,  2.0,  0.5]]
@@ -67,7 +67,7 @@ class CLEVROjectsHRL(PyBulletEnv):
     def init(self):
         
         super(CLEVROjectsHRL,self).init()
-        self._p.setGravity(0,0,self._GRAVITY)
+        self._p.setGravity(0,0,0)
         
         cubeStartPos = [0,0,0.5]
         cubeStartOrientation = p.getQuaternionFromEuler([0.,0,0])
@@ -114,9 +114,10 @@ class CLEVROjectsHRL(PyBulletEnv):
             for j in range(len(self._blocks_goals)):
                 self._p.setCollisionFilterPair(self._blocks[i], self._blocks_goals[j], -1, -1, 0)
                 
+            self._p.setCollisionFilterPair(self._agent, self._blocks[i], -1, -1, 0)
             self._p.setCollisionFilterPair(self._agent, self._blocks_goals[i], -1, -1, 0)
-            self._p.setCollisionFilterPair(self._target, self._blocks_goals[i], -1, -1, 0)
             self._p.setCollisionFilterPair(self._target, self._blocks[i], -1, -1, 0)
+            self._p.setCollisionFilterPair(self._target, self._blocks_goals[i], -1, -1, 0)
         
     
         
@@ -303,7 +304,7 @@ class CLEVROjectsHRL(PyBulletEnv):
         else:
             ### Use Simple HLC reward in this case
             rewards = [ [hlc_reward]]
-        # print ("rewards: ", rewards)
+        print ("rewards: ", rewards)
         return rewards
         
         
