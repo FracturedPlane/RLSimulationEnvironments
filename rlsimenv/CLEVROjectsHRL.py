@@ -304,7 +304,7 @@ class CLEVROjectsHRL(PyBulletEnv):
         else:
             ### Use Simple HLC reward in this case
             rewards = [ [hlc_reward]]
-        print ("rewards: ", rewards)
+        # print ("rewards: ", rewards)
         return rewards
         
         
