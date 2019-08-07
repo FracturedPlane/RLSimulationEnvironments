@@ -366,11 +366,13 @@ class CLEVROjectsHRL(PyBulletEnv):
              and (self._game_settings["use_hardCoded_LLC_goals"] == True)):
                 x = (np.random.rand()-0.5) * 2.0
                 y = (np.random.rand()-0.5) * 2.0
-                z = (np.random.rand()-0.5) * 2.0
+                z = (np.random.rand()-0.5)
                 self._llc_target = pos + np.array([x, y, z])
             else:
             
                 self._llc_target = pos + clampValue(action[0], self._llc_pose_bounds)
+            ### To make sure the LLP target is reachable
+            self._llc_target = clampValue(self._llc_target, self._pos_bounds)
             ### Need to store this target in the sim as a gobal location to allow for computing local distance state.
             pos = np.array(self._p.getBasePositionAndOrientation(self._agent)[0])
             self._hlc_timestep = 0
