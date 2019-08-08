@@ -260,26 +260,45 @@ class CLEVROjectsHRL(PyBulletEnv):
             
         """
         import numpy as np
-        pos = np.array(self._p.getBasePositionAndOrientation(self._blocks[self._goal_index])[0])
-        posT = np.array(self._p.getBasePositionAndOrientation(self._blocks_goals[self._goal_index])[0])
-        rewards = []
+        # pos = np.array(self._p.getBasePositionAndOrientation(self._blocks[self._goal_index])[0])
+        # posT = np.array(self._p.getBasePositionAndOrientation(self._blocks_goals[self._goal_index])[0])
+        
+        pos = np.array(self._p.getBasePositionAndOrientation(self._agent)[0])
+        posT = np.array(self._p.getBasePositionAndOrientation(self._blocks[self._goal_index])[0])
         
         goalDirection = posT-pos
         goalDistance = np.sqrt((goalDirection*goalDirection).sum(axis=0))
         goalDir = self.getTargetDirection()
         agentVel = np.array(self._p.getBaseVelocity(self._agent)[0])
         agentDir = agentVel / np.sqrt((agentVel*agentVel).sum(axis=0))
-        velDiff = goalDir - agentVel
+        velDiff = goalDir - agentDir
         diffMag = np.sqrt((velDiff*velDiff).sum(axis=0))
+        
+        pos1 = np.array(self._p.getBasePositionAndOrientation(self._agent)[0])
+        posT1 = np.array(self._p.getBasePositionAndOrientation(self._blocks[self._goal_index])[0])
+        
+        rewards = []
+        
+        goalDirection1 = posT1-pos1
+        goalDistance1 = np.sqrt((goalDirection1*goalDirection1).sum(axis=0))
+        goalDir1 = self.getTargetDirection()
+        agentVel1 = np.array(self._p.getBaseVelocity(self._agent)[0])
+        agentDir1 = agentVel1 / np.sqrt((agentVel1*agentVel1).sum(axis=0))
+        velDiff1 = goalDir1 - agentDir1
+        diffMag1 = np.sqrt((velDiff1*velDiff1).sum(axis=0))
         ### heading towards goal
         # reward = np.dot(goalDir, agentVel) + np.exp(agentSpeedDiff*agentSpeedDiff * -2.0)
         
         if ( goalDistance < self._reach_goal_threshold ):
-            hlc_reward = 2.0
+            hlc_reward = 10.0
         else:
-            hlc_reward = -goalDistance/((self._map_area - -self._map_area)/2.0)
+            # hlc_reward = -goalDistance/((self._map_area - -self._map_area)/2.0)
             # hlc_reward = 0
-        # hlc_reward = np.exp((goalDistance*goalDistance) * -1.0) + np.exp((diffMag*diffMag) * -2.0)
+            hlc_reward = (np.exp((goalDistance*goalDistance) * -1.0) 
+                                 + np.exp((diffMag*diffMag) * -2.0)
+                          + np.exp((goalDistance1*goalDistance1) * -1.0) 
+                             + np.exp((diffMag1*diffMag1) * -2.0)
+                                )
         # hlc_reward = np.exp((diffMag*diffMag) * -2.0)
         """
         if (goalDistance < 1.5):
@@ -313,7 +332,7 @@ class CLEVROjectsHRL(PyBulletEnv):
         import numpy as np
         
         pos = np.array(self._p.getBasePositionAndOrientation(self._agent)[0])
-        posT = np.array(self._p.getBasePositionAndOrientation(self._target)[0])
+        posT = np.array(self._p.getBasePositionAndOrientation(self._blocks[self._goal_index])[0])
         goalDirection = posT-pos
         goalDirection = goalDirection / np.sqrt((goalDirection*goalDirection).sum(axis=0))
         return goalDirection
@@ -391,11 +410,11 @@ class CLEVROjectsHRL(PyBulletEnv):
             action_ = np.array(action[0])
         else:
             action_ = np.array(action[1])
-        """
+        
         if ("use_hlc_action_directly" in self._game_settings
             and (self._game_settings["use_hlc_action_directly"] == True)):
-            action_ = self._llc_target
-        """
+            action_ = action[0]
+        
         # print ("New action: ", action_)
         self._p.resetBasePositionAndOrientation(self._target, self._llc_target, self._p.getQuaternionFromEuler([0.,0,0]))
         self._p.resetBaseVelocity(self._target, [0,0,0], [0,0,0])
