@@ -277,16 +277,18 @@ class CLEVROjectsHRL(PyBulletEnv):
         velDiff = goalDir - agentDir
         diffMag = np.sqrt((velDiff*velDiff).sum(axis=0))
         
-        pos1 = np.array(self._p.getBasePositionAndOrientation(self._agent)[0])
-        posT1 = np.array(self._p.getBasePositionAndOrientation(self._blocks[self._goal_index])[0])
         
         rewards = []
         
-        goalDirection1 = posT1-pos1
+        goalDirection1 = posTT-posT
         goalDistance1 = np.sqrt((goalDirection1*goalDirection1).sum(axis=0))
-        goalDir1 = self.getTargetDirection()
-        agentVel1 = np.array(self._p.getBaseVelocity(self._agent)[0])
-        agentDir1 = agentVel1 / np.sqrt((agentVel1*agentVel1).sum(axis=0))
+        goalDir1 = self.getTargetDirection(pos=posT, posT=posTT)
+        agentVel1 = np.array(self._p.getBaseVelocity(self._blocks[self._goal_index])[0])
+        agentSpeed = (agentVel1*agentVel1).sum(axis=0)
+        if (agentSpeed > 0.01):
+            agentDir1 = agentVel1 / np.sqrt(agentSpeed)
+        else:
+            agentDir1 = [0,0,0]
         velDiff1 = goalDir1 - agentDir1
         diffMag1 = np.sqrt((velDiff1*velDiff1).sum(axis=0))
         ### heading towards goal
@@ -294,11 +296,9 @@ class CLEVROjectsHRL(PyBulletEnv):
         hlc_reward = 0
         if ( goalDistance < self._reach_goal_threshold ):
             hlc_reward = 10.0
-            
-        pos = np.array(self._p.getBasePositionAndOrientation(self._agent)[0])
-        posT = np.array(self._p.getBasePositionAndOrientation(self._blocks[self._goal_index])[0])
-        
-        goalDirection = posT-pos
+
+        ### Is the block approaching its goal?            
+        goalDirection = posTT-posT
         goalDistance = np.sqrt((goalDirection*goalDirection).sum(axis=0))
         if ( goalDistanceTT < self._reach_goal_threshold ):
             hlc_reward = hlc_reward + 10
@@ -337,12 +337,14 @@ class CLEVROjectsHRL(PyBulletEnv):
         return rewards
         
         
-    def getTargetDirection(self):
+    def getTargetDirection(self, pos=None, posT=None):
         ### raycast around the area of the agent
         import numpy as np
         
-        pos = np.array(self._p.getBasePositionAndOrientation(self._agent)[0])
-        posT = np.array(self._p.getBasePositionAndOrientation(self._blocks[self._goal_index])[0])
+        if (pos is None):
+            pos = np.array(self._p.getBasePositionAndOrientation(self._agent)[0])
+        if (posT is None):
+            posT = np.array(self._p.getBasePositionAndOrientation(self._blocks[self._goal_index])[0])
         goalDirection = posT-pos
         goalDirection = goalDirection / np.sqrt((goalDirection*goalDirection).sum(axis=0))
         return goalDirection
