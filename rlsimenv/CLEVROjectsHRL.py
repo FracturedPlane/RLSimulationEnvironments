@@ -293,10 +293,11 @@ class CLEVROjectsHRL(PyBulletEnv):
             hlc_reward = hlc_reward + 10
         # hlc_reward = -goalDistance/((self._map_area - -self._map_area)/2.0)
         # hlc_reward = 0
-        hlc_reward = hlc_reward + (np.exp((goalDistance*goalDistance) * -1.0) 
-                             + np.exp((diffMag*diffMag) * -2.0)
+        hlc_reward = hlc_reward + (
+                    np.exp((goalDistance*goalDistance) * -1.0) ### Getting close to goal
+                    #         + np.exp((diffMag*diffMag) * -2.0) ### heading towards goal
                       + np.exp((goalDistanceTT*goalDistanceTT) * -1.0) 
-                         + np.exp((diffMag1*diffMag1) * -2.0)
+                    #     + np.exp((diffMag1*diffMag1) * -2.0)
                             )
         # hlc_reward = np.exp((diffMag*diffMag) * -2.0)
         """
