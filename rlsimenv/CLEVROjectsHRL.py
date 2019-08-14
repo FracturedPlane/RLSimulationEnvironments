@@ -203,6 +203,7 @@ class CLEVROjectsHRL(PyBulletEnv):
         self._llc = llc
         
     def getRobotPose(self):
+        ### local velocity, height
         pose = super(CLEVROjectsHRL,self).getRobotPose()
         return pose[:4]
         
@@ -236,7 +237,8 @@ class CLEVROjectsHRL(PyBulletEnv):
         
         if ( "use_MARL_HRL" in self._game_settings
              and (self._game_settings["use_MARL_HRL"] == True)):
-            out_llc.extend(np.array(self._llc_target))
+            diff = self._llc_target - pos
+            out_llc.extend(np.array(diff))
         else:
             posT = np.array(self._p.getBasePositionAndOrientation(self._blocks[i])[0])
             goalDirection = posT-pos
@@ -427,7 +429,11 @@ class CLEVROjectsHRL(PyBulletEnv):
         self._p.resetBasePositionAndOrientation(self._agent, pos, self._p.getQuaternionFromEuler([0.,0,0]))
         # action_[2] = 0
         # print ("action_, vel: ", action_, vel)
-        vel = action_ + vel
+        if ("use_direct_llc_action" in self._game_settings
+            and (self._game_settings["use_direct_llc_action"] == True)):
+            vel = action_
+        else:
+            vel = action_ + vel
         vel = clampValue(vel, self._llc_vel_bounds)
         # print ("vel: ", vel)
         self._p.resetBaseVelocity(self._agent, linearVelocity=vel, angularVelocity=[0,0,0])
