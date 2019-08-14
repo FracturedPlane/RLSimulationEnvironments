@@ -316,7 +316,7 @@ class CLEVROjectsHRL(PyBulletEnv):
             des_change = llc_dir - self._llc_target
         else:
             # llc_dir = np.array([self._llc_target[0], self._llc_target[1], 0])
-            pos = np.array(self._p.getBasePositionAndOrientation(self._agent)[0])
+            # pos = np.array(self._p.getBasePositionAndOrientation(self._agent)[0])
             des_change = self._llc_target - agentVel
         # llc_reward = -(des_change*des_change).sum(axis=0)
         llc_reward = -(np.fabs(des_change)).sum(axis=0)
