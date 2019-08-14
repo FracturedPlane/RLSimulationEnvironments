@@ -237,7 +237,8 @@ class CLEVROjectsHRL(PyBulletEnv):
         
         if ( "use_MARL_HRL" in self._game_settings
              and (self._game_settings["use_MARL_HRL"] == True)):
-            diff = self._llc_target - pos
+            # diff = self._llc_target - pos
+            diff = self._llc_target
             out_llc.extend(np.array(diff))
         else:
             posT = np.array(self._p.getBasePositionAndOrientation(self._blocks[i])[0])
@@ -316,7 +317,7 @@ class CLEVROjectsHRL(PyBulletEnv):
         else:
             # llc_dir = np.array([self._llc_target[0], self._llc_target[1], 0])
             pos = np.array(self._p.getBasePositionAndOrientation(self._agent)[0])
-            des_change = self._llc_target - pos
+            des_change = self._llc_target - agentVel
         # llc_reward = -(des_change*des_change).sum(axis=0)
         llc_reward = -(np.fabs(des_change)).sum(axis=0)
         if ( "use_MARL_HRL" in self._game_settings
@@ -390,12 +391,12 @@ class CLEVROjectsHRL(PyBulletEnv):
                 x = (np.random.rand()-0.5) * 2.0
                 y = (np.random.rand()-0.5) * 2.0
                 z = (np.random.rand()-0.5)
-                self._llc_target = pos + np.array([x, y, z])
+                self._llc_target = np.array([x, y, z])
             else:
             
-                self._llc_target = pos + clampValue(action[0], self._llc_pose_bounds)
+                self._llc_target = clampValue(action[0], self._llc_vel_bounds)
             ### To make sure the LLP target is reachable
-            self._llc_target = clampValue(self._llc_target, self._pos_bounds)
+            # self._llc_target = clampValue(self._llc_target, self._pos_bounds)
             ### Need to store this target in the sim as a gobal location to allow for computing local distance state.
             pos = np.array(self._p.getBasePositionAndOrientation(self._agent)[0])
             self._hlc_timestep = 0
