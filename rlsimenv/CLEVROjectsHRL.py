@@ -266,42 +266,46 @@ class CLEVROjectsHRL(PyBulletEnv):
         # pos = np.array(self._p.getBasePositionAndOrientation(self._blocks[self._goal_index])[0])
         # posT = np.array(self._p.getBasePositionAndOrientation(self._blocks_goals[self._goal_index])[0])
         
-        pos = np.array(self._p.getBasePositionAndOrientation(self._agent)[0])
-        posT = np.array(self._p.getBasePositionAndOrientation(self._blocks[self._goal_index])[0])
-        posTT = np.array(self._p.getBasePositionAndOrientation(self._blocks_goals[self._goal_index])[0])
-        
-        goalDirection = posT-pos
-        goalDirectionTT = posTT-posT
-        goalDistance = np.sqrt((goalDirection*goalDirection).sum(axis=0))
-        goalDistanceTT = np.sqrt((goalDirectionTT*goalDirectionTT).sum(axis=0))
-        goalDir = self.getTargetDirection()
-        agentVel = np.array(self._p.getBaseVelocity(self._agent)[0])
-        velDiff = goalDir - agentVel
-        diffMag = np.sqrt((velDiff*velDiff).sum(axis=0))
-        
-        rewards = []
-        
-        goalDir1 = self.getTargetDirection(pos=posT, posT=posTT)
-        agentVel1 = np.array(self._p.getBaseVelocity(self._blocks[self._goal_index])[0])
-        velDiff1 = goalDir1 - agentVel1
-        diffMag1 = np.sqrt((velDiff1*velDiff1).sum(axis=0))
         ### heading towards goal
         # reward = np.dot(goalDir, agentVel) + np.exp(agentSpeedDiff*agentSpeedDiff * -2.0)
         hlc_reward = 0
-        if ( goalDistance < self._reach_goal_threshold ):
-            hlc_reward = 10.0
-
-        ### Is the block approaching its goal?            
-        if ( goalDistanceTT < self._reach_goal_threshold ):
-            hlc_reward = hlc_reward + 10
-        # hlc_reward = -goalDistance/((self._map_area - -self._map_area)/2.0)
-        # hlc_reward = 0
-        hlc_reward = hlc_reward + (
-                    np.exp((goalDistance*goalDistance) * -1.0) ### Getting close to goal
-                    #         + np.exp((diffMag*diffMag) * -2.0) ### heading towards goal
-                      + np.exp((goalDistanceTT*goalDistanceTT) * -1.0) 
-                    #     + np.exp((diffMag1*diffMag1) * -2.0)
-                            )
+        for goal in range(len(self._blocks)):
+            pos = np.array(self._p.getBasePositionAndOrientation(self._agent)[0])
+            posT = np.array(self._p.getBasePositionAndOrientation(self._blocks[goal])[0])
+            posTT = np.array(self._p.getBasePositionAndOrientation(self._blocks_goals[goal])[0])
+            
+            goalDirection = posT-pos
+            goalDirectionTT = posTT-posT
+            goalDistance = np.sqrt((goalDirection*goalDirection).sum(axis=0))
+            goalDistanceTT = np.sqrt((goalDirectionTT*goalDirectionTT).sum(axis=0))
+            goalDir = self.getTargetDirection()
+            agentVel = np.array(self._p.getBaseVelocity(self._agent)[0])
+            velDiff = goalDir - agentVel
+            diffMag = np.sqrt((velDiff*velDiff).sum(axis=0))
+            
+            rewards = []
+            
+            goalDir1 = self.getTargetDirection(pos=posT, posT=posTT)
+            agentVel1 = np.array(self._p.getBaseVelocity(self._blocks[self._goal_index])[0])
+            velDiff1 = goalDir1 - agentVel1
+            diffMag1 = np.sqrt((velDiff1*velDiff1).sum(axis=0))
+            if ( goalDistance < self._reach_goal_threshold ):
+                hlc_reward = 5.0
+                
+    
+            ### Is the block approaching its goal?            
+            if ( goalDistanceTT < self._reach_goal_threshold ):
+                hlc_reward = hlc_reward + 10
+            else:
+                # hlc_reward = -goalDistance/((self._map_area - -self._map_area)/2.0)
+                # hlc_reward = 0
+                hlc_reward = hlc_reward + (
+                            np.exp((goalDistance*goalDistance) * -1.0) ### Getting close to goal
+                            #         + np.exp((diffMag*diffMag) * -2.0) ### heading towards goal
+                              + np.exp((goalDistanceTT*goalDistanceTT) * -1.0) 
+                            #     + np.exp((diffMag1*diffMag1) * -2.0)
+                                    )
+                break
         # hlc_reward = np.exp((diffMag*diffMag) * -2.0)
         """
         if (goalDistance < 1.5):
