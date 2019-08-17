@@ -296,6 +296,7 @@ class CLEVROjectsHRL(PyBulletEnv):
             ### Is the block approaching its goal?            
             if ( goalDistanceTT < self._reach_goal_threshold ):
                 hlc_reward = hlc_reward + 10
+                
             else:
                 # hlc_reward = -goalDistance/((self._map_area - -self._map_area)/2.0)
                 # hlc_reward = 0
