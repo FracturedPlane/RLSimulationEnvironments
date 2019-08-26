@@ -50,6 +50,7 @@ class CLEVROjectsHRL(PyBulletEnv):
                             [ self._map_area,  self._map_area,  1.0]]
         
         self._ran = 0.0
+        self._hlp = None
         
     def getActionSpaceSize(self):
         return self._action_length
@@ -124,6 +125,13 @@ class CLEVROjectsHRL(PyBulletEnv):
         self._p.setCollisionFilterPair(self._agent, self._target, -1, -1, 0)
         self._p.setCollisionFilterPair(self._agent, self._ground, -1, -1, 0)
         self._p.setCollisionFilterPair(self._target, self._ground, -1, -1, 0)
+        
+        ### Make sure to apply HLC action right away
+        self._hlc_timestep = 1000000
+        self._hlc_skip = 10
+        self._update_goal = True
+        if ("hlc_timestep" in self._game_settings):
+            self._hlc_skip = self._game_settings["hlc_timestep"]
          
         lo = [0.0 for l in self.getObservation()[0]]
         hi = [1.0 for l in self.getObservation()[0]]
@@ -159,6 +167,13 @@ class CLEVROjectsHRL(PyBulletEnv):
         y = (np.random.rand()-0.5)
         self._p.resetBaseVelocity(self._agent, [x,y,0], [0,0,0])
         
+        ### Make sure to apply HLC action right away
+        self._hlc_timestep = 1000000
+        self._hlc_skip = 10
+        self._update_goal = True
+        if ("hlc_timestep" in self._game_settings):
+            self._hlc_skip = self._game_settings["hlc_timestep"]
+        
         # self._ran = np.random.rand(1)[0]
         if ("ignore_hlc_actions" in self._game_settings
             and (self._game_settings["ignore_hlc_actions"] == True)):
@@ -179,12 +194,6 @@ class CLEVROjectsHRL(PyBulletEnv):
         self._p.resetBasePositionAndOrientation(self._target, self._llc_target, self._p.getQuaternionFromEuler([0.,0,0]))
         self._p.resetBaseVelocity(self._target, [0,0,0], [0,0,0])
         
-        ### Make sure to apply HLC action right away
-        self._hlc_timestep = 1000000
-        self._hlc_skip = 10
-        if ("hlc_timestep" in self._game_settings):
-            self._hlc_skip = self._game_settings["hlc_timestep"]
-        
         ### Reset obstacles
         for i in range(len(self._blocks)):
             x = (np.random.rand()-0.5) * self._map_area * 2.0
@@ -202,6 +211,9 @@ class CLEVROjectsHRL(PyBulletEnv):
     def setLLC(self, llc):
         self._llc = llc
         
+    def setHLP(self, hlp):
+        self._hlp = hlp
+                
     def getRobotPose(self):
         ### local velocity, height
         pose = super(CLEVROjectsHRL,self).getRobotPose()
@@ -229,6 +241,27 @@ class CLEVROjectsHRL(PyBulletEnv):
             posT = np.array(self._p.getBasePositionAndOrientation(self._blocks_goals[i])[0])
             goalDirection = posT-pos
             out_hlc.extend([goalDirection[0], goalDirection[1]])
+            
+            
+        if (self._hlc_timestep >= self._hlc_skip 
+            # and (self._ran < 0.5) 
+            and  (( "use_MARL_HRL" in self._game_settings
+             and (self._game_settings["use_MARL_HRL"] == True)))):
+            # print ("Updating llc target from HLC")
+            if ("use_hardCoded_LLC_goals" in self._game_settings
+             and (self._game_settings["use_hardCoded_LLC_goals"] == True)):
+                x = (np.random.rand()-0.5) * 2.0
+                y = (np.random.rand()-0.5) * 2.0
+                z = (np.random.rand()-0.5)
+                self._llc_target = np.array([x, y, z])
+            else:
+                if (self._hlp is not None):
+                    goal = self._hlp.predict([out_hlc])[0]
+                else:
+                    goal = [0,0,0]
+                # print ("goal: ", goal)
+                self._llc_target = clampValue(goal, self._llc_vel_bounds)
+            self._update_goal = False
         out_llc = []
         out_llc.extend(data)
         ### Relative distance from current LLC state
@@ -384,36 +417,13 @@ class CLEVROjectsHRL(PyBulletEnv):
             action[0] == hlc action
             action[1] == llc action
         """
-        self._hlc_timestep = self._hlc_timestep + 1
-        pos = np.array(self._p.getBasePositionAndOrientation(self._agent)[0])
         if (self._hlc_timestep >= self._hlc_skip 
             # and (self._ran < 0.5) 
             and  (( "use_MARL_HRL" in self._game_settings
              and (self._game_settings["use_MARL_HRL"] == True)))):
-            # print ("Updating llc target from HLC")
-            if ("use_hardCoded_LLC_goals" in self._game_settings
-             and (self._game_settings["use_hardCoded_LLC_goals"] == True)):
-                x = (np.random.rand()-0.5) * 2.0
-                y = (np.random.rand()-0.5) * 2.0
-                z = (np.random.rand()-0.5)
-                self._llc_target = np.array([x, y, z])
-            else:
-            
-                self._llc_target = clampValue(action[0], self._llc_vel_bounds)
-            ### To make sure the LLP target is reachable
-            # self._llc_target = clampValue(self._llc_target, self._pos_bounds)
-            ### Need to store this target in the sim as a gobal location to allow for computing local distance state.
-            pos = np.array(self._p.getBasePositionAndOrientation(self._agent)[0])
             self._hlc_timestep = 0
-            ### Update llc action
-            llc_obs = self.getObservation()[1]
-            ### crazy hack to get proper state size...
-            if ("append_centralized_state_hack" in self._game_settings
-                and (self._game_settings["append_centralized_state_hack"] == True)):
-                llc_obs = np.concatenate([llc_obs,[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]])
-            action[1] = self._llc.predict([llc_obs])[0]
-            # action[1] = [0.03, -0.023]
-            # print ("self._llc_target: ", self._llc_target)
+            self._update_goal = True
+        self._hlc_timestep = self._hlc_timestep + 1
         ### apply delta position change.
         if ( "use_MARL_HRL" in self._game_settings
              and (self._game_settings["use_MARL_HRL"] == False)):
