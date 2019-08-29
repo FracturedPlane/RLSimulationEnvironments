@@ -256,6 +256,8 @@ class CLEVROjectsHRL(PyBulletEnv):
                 self._llc_target = np.array([x, y, z])
             else:
                 if (self._hlp is not None):
+                    # out_hlc = out_hlc + [0] * 35
+                    
                     goal = self._hlp.predict([out_hlc])[0]
                 else:
                     goal = [0,0,0]
