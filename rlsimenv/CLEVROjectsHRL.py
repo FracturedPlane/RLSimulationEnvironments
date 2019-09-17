@@ -304,8 +304,8 @@ class CLEVROjectsHRL(PyBulletEnv):
         ### heading towards goal
         # reward = np.dot(goalDir, agentVel) + np.exp(agentSpeedDiff*agentSpeedDiff * -2.0)
         hlc_reward = 0
-        # for goal in range(len(self._blocks)):
-        for goal in range(1):
+        for goal in range(len(self._blocks)):
+        # for goal in range(1):
             hlc_reward_ = 0
             pos = np.array(self._p.getBasePositionAndOrientation(self._agent)[0])
             posT = np.array(self._p.getBasePositionAndOrientation(self._blocks[goal])[0])

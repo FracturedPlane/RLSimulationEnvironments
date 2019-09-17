@@ -40,6 +40,13 @@ class NavGameHRL2D(Environment):
                             [ self._map_area,  self._map_area,  0.50001]]
         
         self._ran = 0.0
+        self._hlp = None
+        ### Make sure to apply HLC action right away
+        self._hlc_timestep = 0
+        self._update_goal = True
+        self._hlc_skip = 10
+        if ("hlc_timestep" in self._game_settings):
+            self._hlc_skip = self._game_settings["hlc_timestep"]
         
     def getActionSpaceSize(self):
         return self._action_length
@@ -149,11 +156,6 @@ class NavGameHRL2D(Environment):
         else:
             self._ran = 0.4 ## Ignore HLC action and have env generate them if > 0.5.
         self._llc_target = [x/self._map_area, y/self._map_area, 0]
-        ### Make sure to apply HLC action right away
-        self._hlc_timestep = 1000000
-        self._hlc_skip = 10
-        if ("hlc_timestep" in self._game_settings):
-            self._hlc_skip = self._game_settings["hlc_timestep"]
         
         ### Reset obstacles
         for i in range(len(self._blocks)):
@@ -193,6 +195,26 @@ class NavGameHRL2D(Environment):
         ### Relative distance from current LLC state
         # if (self._ran < 0.5):
         # out_llc.extend(np.array(self._llc_target) - np.array(data[0]))
+        # if (self._hlc_timestep > self._hlc_skip):
+        if (self._update_goal):
+            if ("use_hardCoded_LLC_goals" in self._game_settings
+             and (self._game_settings["use_hardCoded_LLC_goals"] == True)
+             ):
+                x = (np.random.rand()-0.5) * 2.0
+                y = (np.random.rand()-0.5) * 2.0
+                z = (np.random.rand()-0.5)
+                self._llc_target = np.array([x, y, z])
+            else:
+                if (self._hlp is not None):
+                    # out_hlc = out_hlc + [0] * 35
+                    goal = self._hlp.predict([out_hlc])[0]
+                else:
+                    goal = [0,0,0]
+                # print ("goal: ", goal)
+                # self._llc_target = clampValue(goal, self._llc_vel_bounds)
+                self._llc_target = goal
+            self._update_goal = False
+
         out_llc.extend(np.array([self._llc_target[0], self._llc_target[1]]))
         # else:
         #     out_llc.extend(np.array(self._llc_target) - pos)
@@ -345,22 +367,12 @@ class NavGameHRL2D(Environment):
         """
         self._hlc_timestep = self._hlc_timestep + 1
         if (self._hlc_timestep >= self._hlc_skip 
-            and (self._ran < 0.5)):
-            # print ("Updating llc target from HLC")
-            self._llc_target = clampValue([action[0][0], action[0][1], 0], self._vel_bounds)
-            ### Need to store this target in the sim as a gobal location to allow for computing local distance state.
-            pos = np.array(p.getBasePositionAndOrientation(self._agent)[0])
-            # self._llc_target = self._llc_target + action_
+            # and (self._ran < 0.5) 
+            # and  (( "use_MARL_HRL" in self._game_settings
+            #  and (self._game_settings["use_MARL_HRL"] == True)))
+            ):
             self._hlc_timestep = 0
-            ### Update llc action
-            llc_obs = self.getObservation()[1]
-            ### crazy hack to get proper state size...
-            if ("append_centralized_state_hack" in self._game_settings
-                and (self._game_settings["append_centralized_state_hack"] == True)):
-                llc_obs = np.concatenate([llc_obs,[0,0,0,0,0,0]])
-            action[1] = self._llc.predict([llc_obs])
-            # action[1] = [0.03, -0.023]
-            # print ("self._llc_target: ", self._llc_target)
+            self._update_goal = True
         ### apply delta position change.
         action_ = np.array([action[1][0], action[1][1], 0])
         agentVel = np.array(p.getBaseVelocity(self._agent)[0])
