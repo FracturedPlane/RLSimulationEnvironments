@@ -165,6 +165,9 @@ class NavGameHRL2D(Environment):
     def setLLC(self, llc):
         self._llc = llc
         
+    def setHLP(self, hlp):
+        self._hlp = hlp
+        
     def getObservation(self):
         import numpy as np
         out = []
