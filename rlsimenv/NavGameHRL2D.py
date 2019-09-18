@@ -135,6 +135,8 @@ class NavGameHRL2D(Environment):
     
     def initEpoch(self):
         import numpy as np
+        self._update_goal = True
+        self._hlc_timestep = 0
         x = (np.random.rand()-0.5) * self._map_area * 2.0
         y = (np.random.rand()-0.5) * self._map_area * 2.0
         p.resetBasePositionAndOrientation(self._agent, [x,y,0.5], p.getQuaternionFromEuler([0.,0,0]))
