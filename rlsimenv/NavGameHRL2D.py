@@ -375,6 +375,13 @@ class NavGameHRL2D(Environment):
             ):
             self._hlc_timestep = 0
             self._update_goal = True
+            # self.getObservation() ### to update the goal
+            llc_obs = self.getObservation()[1]
+            ### crazy hack to get proper state size...
+            if ("append_centralized_state_hack" in self._game_settings
+                and (self._game_settings["append_centralized_state_hack"] == True)):
+                llc_obs = np.concatenate([llc_obs,[0,0,0,0,0,0]])
+            action[1] = self._llc.predict([llc_obs])
         ### apply delta position change.
         action_ = np.array([action[1][0], action[1][1], 0])
         agentVel = np.array(p.getBaseVelocity(self._agent)[0])
