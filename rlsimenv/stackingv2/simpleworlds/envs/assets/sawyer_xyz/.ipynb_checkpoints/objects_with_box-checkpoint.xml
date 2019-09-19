@@ -1,0 +1,61 @@
+<top>
+    <worldbody>
+        
+<!--         <body name="object0" pos="0 0 0">
+            <joint armature="0" damping="0" limited="false" type="free"/>
+            <inertial diaginertia="100000 100000 100000" mass="0.1" pos="0 0 0"/>
+            <geom conaffinity="20" condim="3" contype="18" pos="0 0 0" rgba="1 0 0 1" size="0.01548277685357674 0.015509839978355196 0.015079673431389447" type="box"/>
+        </body>
+        <body name="object1" pos="0 0 0">
+            <joint armature="0" damping="0" limited="false" type="free"/>
+            <inertial diaginertia="100000 100000 100000" mass="0.1" pos="0 0 0"/>
+            <geom conaffinity="20" condim="3" contype="18" pos="0 0 0" rgba="0 1 0 1" size="0.01548277685357674 0.015509839978355196 0.015079673431389447" type="box"/>
+        </body> -->
+<!--         <body name="object1" pos="0 0 0">
+            <joint name="obj1" armature="0" damping="0.01" limited="false" type="free"/>
+            <geom conaffinity="2" condim="4" solref="0.02 0.99" contype="2" mass="0.2" pos="0 0 0" rgba="0 1 0 1" material="grid" friction="1 0.005 0.0001" size="0.01548277685357674" type="sphere"/>
+        </body>
+        
+            <body name="object0" pos="0 0 0">
+            <joint name="obj0" armature="0" damping="0.01" limited="false" type="free"/>
+            <geom conaffinity="2" condim="4" solref="0.02 0.99" contype="2" mass="0.2" pos="0 0 0" rgba="0 1 0 1" material="grid" friction="1 0.005 0.0001" size="0.01548277685357674" type="sphere"/>
+        </body> -->
+            <body name="object1" pos="0 0 0">
+            <joint name="obj1" armature="0" damping="0" limited="false" type="free"/>
+<!--                 <inertial diaginertia="100000 100000 100000" mass="1" pos="0 0 0"/> -->
+            <geom conaffinity="20" condim="4" contype="18" mass="0.5" pos="0 0 0" rgba="0 1 0 1" material="grid"  size="0.0154 0.01" type="cylinder" />
+        </body>
+        <body name="object0" pos="0 0 0">
+            <joint  name="obj0" armature="0" damping="0" limited="false" type="free" />
+<!--             <inertial diaginertia="100000 100000 100000" mass="1" pos="0 0 0"/> -->
+            <geom conaffinity="20" condim="4"  contype="18" pos="0 0 0" mass="0.5" material="grid" size="0.0154 0.01" type="cylinder" />
+        </body>
+        
+<!--             <body name="object2" pos="0 0 0">
+            <joint  name="obj2" armature="0" damping="0" limited="false" type="free" />
+            <geom conaffinity="20" condim="4"  contype="18" pos="0 0 0" rgba="0 0 1 1" mass="0.5" material="grid" size="0.0154 0.01" type="cylinder" />
+        </body>
+        <body name="object3" pos="0 0 0">
+            <joint  name="obj3" armature="0" damping="0" limited="false" type="free" />
+            <geom conaffinity="20" condim="4"  contype="18" pos="0 0 0" rgba="0.5 0 0.5 1" mass="0.5" material="grid" size="0.0154 0.01" type="cylinder" />
+        </body> -->
+        
+<!--         <body name="object2" pos="0 0 0">
+            <joint armature="0" damping="0" limited="false" type="free"/>
+            <inertial diaginertia="100000 100000 100000" mass="0.1" pos="0 0 0"/>
+            <geom conaffinity="20" condim="3" contype="18" pos="0 0 0" rgba="0 0 1 1" size="0.01548277685357674 0.015509839978355196 0.015079673431389447" type="box"/>
+        </body> -->
+<!--         <body name="object3" pos="0 0 0">
+            <joint armature="0" damping="0" limited="false" type="free"/>
+            <inertial diaginertia="100000 100000 100000" mass="0.1" pos="0 0 0"/>
+            <geom conaffinity="20" condim="3" contype="18" pos="0 0 0" rgba="1 1 1 1" size="0.01548277685357674 0.015509839978355196 0.015079673431389447" type="box"/>
+        </body> -->
+
+<!--         <body name="object5" pos="0 0 0">
+            <joint armature="0" damping="0" limited="false" type="free"/>
+            <inertial diaginertia="100000 100000 100000" mass="0.1" pos="0 0 0"/>
+            <geom conaffinity="20" condim="3" contype="18" pos="0 0 0" rgba="1 1 1 1" size="0.05 0.05 0.005" type="box"/>
+            <geom conaffinity="20" condim="3" contype="18" pos="0 0 0.025" rgba="1 1 1 1" size="0.02" type="sphere"/>
+        </body> -->
+    </worldbody>
+</top>

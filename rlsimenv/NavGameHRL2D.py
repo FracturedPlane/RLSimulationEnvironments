@@ -198,6 +198,7 @@ class NavGameHRL2D(Environment):
         # if (self._ran < 0.5):
         # out_llc.extend(np.array(self._llc_target) - np.array(data[0]))
         # if (self._hlc_timestep > self._hlc_skip):
+        """
         if (self._update_goal):
             if ("use_hardCoded_LLC_goals" in self._game_settings
              and (self._game_settings["use_hardCoded_LLC_goals"] == True)
@@ -216,7 +217,7 @@ class NavGameHRL2D(Environment):
                 # self._llc_target = clampValue(goal, self._llc_vel_bounds)
                 self._llc_target = goal
             self._update_goal = False
-
+        """
         out_llc.extend(np.array([self._llc_target[0], self._llc_target[1]]))
         # else:
         #     out_llc.extend(np.array(self._llc_target) - pos)
@@ -374,6 +375,7 @@ class NavGameHRL2D(Environment):
             #  and (self._game_settings["use_MARL_HRL"] == True)))
             ):
             self._hlc_timestep = 0
+            self._llc_target = clampValue([action[0][0], action[0][1], 0], self._vel_bounds)
             self._update_goal = True
             # self.getObservation() ### to update the goal
             llc_obs = self.getObservation()[1]
@@ -381,6 +383,7 @@ class NavGameHRL2D(Environment):
             if ("append_centralized_state_hack" in self._game_settings
                 and (self._game_settings["append_centralized_state_hack"] == True)):
                 llc_obs = np.concatenate([llc_obs,[0,0,0,0,0,0]])
+            ### This uses the mean and might be more stable...
             action[1] = self._llc.predict([llc_obs])
         ### apply delta position change.
         action_ = np.array([action[1][0], action[1][1], 0])

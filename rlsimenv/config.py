@@ -1588,6 +1588,28 @@ SIMULATION_ENVIRONMENTS = """
     "num_blocks": 3,
         "comment__": "The LLC action space is the velocity of the agent",
     "use_direct_llc_action": true
+},
+"ObjectCentric_Stacking_v0": 
+{
+    "config_file": "./args/genBiped2D/biped2dfull_incline_with_terrain_features.txt",
+    "time_limit": 256,
+    "sim_name": "ObjectCentricSawyer",
+        "comment__": "Possible state bounds to be used for scaling states for networks",
+    "state_bounds": [[[ -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, 
+                        -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0],
+                       [   10.0,  10.0,  10.0,  10.0,  10.0,  10.0,  10.0,  10.0,  10.0,  10.0, 
+                           10.0,  10.0,  10.0,  10.0,  10.0,  10.0,  10.0,  10.0,  10.0,  10.0 ]],
+                    [[ -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, 
+                        -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0],
+                       [   10.0,  10.0,  10.0,  10.0,  10.0,  10.0,  10.0,  10.0,  10.0,  10.0, 
+                           10.0,  10.0,  10.0,  10.0,  10.0,  10.0,  10.0,  10.0,  10.0,  10.0 ]]],
+        "comment__": "Action scaling values to be used to scale values for the network",
+    "action_bounds": [[[-2.0, -2.0,  0.0],
+                      [  2.0,  2.0,  1.0]],
+                      [[-0.2, -0.2, -0.2],
+                      [  0.2,  0.2,  2.0]]],
+        "comment__": "This is an openGym type environment with a bit of another wrapper...",
+    "openAIGym": true
 }
 }
 """

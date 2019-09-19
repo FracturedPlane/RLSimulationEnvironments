@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mujoco>
+	<include file="shared_config.xml"></include>
+	<worldbody>
+    <light diffuse=".2 .2 .2" pos="0 0 3" dir="0 0 -1"/>
+		<include file="sawyer_xyz_base.xml"></include>
+<!--         <body name="puck" pos="0 0 .1">
+            <joint name="puckjoint" type="free" limited='false' damping="1" armature="0" />
+            <inertial pos="0 0 0" mass=".1" diaginertia=".1 .1 .1"/>
+            <geom name="puckbox"
+                  type="cylinder"
+                  pos="0 0 0"
+                  size="0.02 0.02"
+                  rgba=".1 .1 .9 1"
+                  contype="2"
+                  conaffinity="2"
+                  friction="0.5 0.1, 0.02"
+            />
+            <site name="puck" pos="0 0 0" size="0.01" />
+        </body> -->
+        <geom name="ground plane" type="plane" size="0 0 1" rgba="0.1 0.1 0.6 0.5" pos="0 0 -2"/>
+        <body name="arena" pos="0 .6 0.">
+<!--             <joint name="binx" armature="0.1" damping="0.1" limited="true" type="slide" axis="1 0 0" frictionloss="0." range="-0.2 0.2"/>
+            <joint name="biny" armature="0.1" damping="0.1" limited="true" type="slide" axis="0 1 0" frictionloss="0." range="-0.2 0.2"/> -->
+<!--             <joint name="binz" armature="0.1" damping="0.1" limited="true" type="slide" axis="0 0 1" frictionloss="0." range="-0.02 0.02"/>
+ -->
+<!--             <joint name="binhinge1"  armature="0.1" damping="0.1" limited="true" type="hinge" axis="1 0 0" frictionloss="0." range="-0.01 0.01" />
+            <joint name="binhinge2"  armature="0.1" damping="0.1" limited="true" type="hinge" axis="0 1 0" frictionloss="0." range="-0.01 0.01" />
+ -->
+            <inertial diaginertia="1 1 1 " mass="0.1" pos="0 0 0"/>
+             <geom name="arena base" type="box" pos="0 0.0 0" size="0.4 0.4 0.01"  rgba=".6 .6 .5 1" contype="2" conaffinity="2" condim="3"  friction="1 .005 .001" />
+            
+            <geom name="arena side 1" type="box" pos="-.35 0.0 0.025" size="0.2 0.4 0.01" rgba=".6 .6 .5 1" contype="2" conaffinity="2"  euler="0 .707 0" condim="3"  friction="1 .005 .001"/>
+            <geom name="arena side 2" type="box" pos=".35 0.0 0.025" size="0.2 0.4 0.01" rgba=".6 .6 .5 1" contype="2" conaffinity="2"  euler="0 -.707 0"condim="3"  friction="1 .005 .001"/>
+            <geom name="arena side 3" type="box" pos=".0 0.35 0.025" size="0.4 0.2 0.01" rgba=".6 .6 .5 1" contype="2" conaffinity="2"  euler=".707 0 0" condim="3"  friction="1 .005 .001"/>
+            <geom name="arena side 4" type="box" pos=".0 -0.35 0.025" size="0.4 0.2 0.01"  rgba=".6 .6 .5 1" contype="2" conaffinity="2"  euler="-.707 0 0" condim="3"  friction="1 .005 .001"/> 
+            
+<!--             <geom name="arena base" type="box" pos="0 0.0 0" size="0.4 0.4 0.01"  rgba=".6 .6 .5 1" contype="2" conaffinity="2" condim="3" />
+            
+            <geom name="arena side 1" type="box" pos="-.35 0.0 0.025" size="0.01 0.4 0.1" rgba=".6 .6 .5 1" contype="2" conaffinity="2" condim="3"/>
+            <geom name="arena side 2" type="box" pos=".35 0.0 0.025" size="0.01 0.4 0.1" rgba=".6 .6 .5 1" contype="2" conaffinity="2"  condim="3"/>
+            <geom name="arena side 3" type="box" pos=".0 0.35 0.025" size="0.4 0.01 0.1" rgba=".6 .6 .5 1" contype="2" conaffinity="2"  condim="3"/>
+            <geom name="arena side 4" type="box" pos=".0 -0.35 0.025" size="0.4 0.01 0.1"  rgba=".6 .6 .5 1" contype="2" conaffinity="2" condim="3" />
+ -->
+             <body name="box" pos="-0.01204566  0.0792088  0.01598224">
+                <inertial diaginertia="100000 100000 100000" mass="0.1" pos="0 0 0"/>
+                <geom conaffinity="2" condim="3" contype="2" pos="0 0 0" rgba="1 1 1 1" size="0.05 0.05 0.005" type="box"/>
+                <geom conaffinity="2" condim="3" contype="2" pos="0.05 0 0.025" rgba="1 1 1 1" size="0.005 0.06 0.05" type="box"/>
+                <geom conaffinity="2" condim="3" contype="2" pos="-0.05 0 0.025" rgba="1 1 1 1" size="0.005 0.06 0.05" type="box"/>
+                <geom conaffinity="2" condim="3" contype="2" pos="0 0.05 0.025" rgba="1 1 1 1" size="0.06 0.005 0.05" type="box"/>
+                <geom conaffinity="2" condim="3" contype="2" pos="0 -0.05 0.025" rgba="1 1 1 1" size="0.06 0.005 0.05" type="box"/>
+            </body>
+             <body name="shelf" pos="0.3  0.3  0.04">
+                <inertial diaginertia="100000 100000 100000" mass="0.1" pos="0 0 0"/>
+                <geom conaffinity="2" condim="3" contype="2" pos="0 0 0" rgba="1 1 1 1" size="0.06 0.06 0.07" type="box"/>
+            </body>
+            
+            <body name="wall" pos="-0.25  0.25  0.0">
+                <inertial diaginertia="100000 100000 100000" mass="0.1" pos="0 0 0"/>
+                <geom conaffinity="2" condim="3" contype="2" pos="0.0 0 0.025" rgba="1 1 1 1" size="0.005 0.06 0.05" type="box"/>
+            </body>
+            <body name="spherefield" pos="0.2  -0.15  0.0">
+                <inertial diaginertia="100000 100000 100000" mass="0.1" pos="0 0 0"/>
+                <geom conaffinity="2" condim="3" contype="2" pos="0.0 0 0.025" rgba="1 1 1 1" size="0.01 0.02" type="cylinder"/>
+<!--                 <geom conaffinity="20" condim="3" contype="18" pos="0.05 0.05 0.025" rgba="1 1 1 1" size="0.01" type="sphere"/> -->
+                <geom conaffinity="2" condim="3" contype="2" pos="0.0 0.05 0.025" rgba="1 1 1 1" size="0.01 0.02" type="cylinder"/>
+                <geom conaffinity="2" condim="3" contype="2" pos="0.05 0 0.025" rgba="1 1 1 1" size="0.01 0.02" type="cylinder"/>
+                <geom conaffinity="2" condim="3" contype="2" pos="0.0 -0.05 0.025" rgba="1 1 1 1" size="0.01 0.02" type="cylinder"/>
+                <geom conaffinity="2" condim="3" contype="2" pos="-0.05 0.0 0.025" rgba="1 1 1 1" size="0.01 0.02" type="cylinder"/>
+
+            </body>
+        </body>
+
+        <site name="hand-goal-site" pos="0 0 0" size="0.01"
+              rgba="1 0.5 0.5 0.5"/>
+        <site name="puck-goal-site" pos="0 0 0" size="0.01"
+              rgba="0.5 0.5 1 0.5"/>
+	</worldbody>
+  <!--begin_auto_replace -->
+  <include file="objects_with_box.xml"/>
+  <!--end_auto_replace -->
+  <actuator>
+      <motor joint="right_j0" ctrlrange="-100.0 100.0" ctrllimited="false"/>
+      <motor joint="right_j1" ctrlrange="-100.0 100.0" ctrllimited="false"/>
+      <motor joint="right_j2" ctrlrange="-100.0 100.0" ctrllimited="false"/>
+      <motor joint="right_j3" ctrlrange="-100.0 100.0" ctrllimited="false"/>
+      <motor joint="right_j4" ctrlrange="-100.0 100.0" ctrllimited="false"/>
+      <motor joint="right_j5" ctrlrange="-100.0 100.0" ctrllimited="false"/>
+      <motor joint="right_j6" ctrlrange="-100.0 100.0" ctrllimited="false"/>
+      <motor gear="100" joint="rc_close"  />
+<!--       <motor joint="obj0"  gear="1 0 0 0 0 0"/>
+      <motor joint="obj0"  gear="0 1 0 0 0 0"/>
+      <motor joint="obj0"  gear="0 0 1 0 0 0"/>
+      <motor joint="obj1"  gear="1 0 0 0 0 0"/>
+      <motor joint="obj1"  gear="0 1 0 0 0 0"/>
+      <motor joint="obj1"  gear="0 0 1 0 0 0"/> -->
+<!--       <motor joint="binz" ctrlrange="-10.0 10.0" ctrllimited="false"/> -->
+</actuator>
+</mujoco>

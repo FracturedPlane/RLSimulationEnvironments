@@ -126,6 +126,11 @@ class EnvWrapper(object):
         # action = action[0]
         # print ("step action: ", action, " done: ", self._done)
         # action = np.array(action, dtype="float64")
+        if ("openAIGym" in self._config
+            and (self._config["openAIGym"] == True)):
+            ob, reward, self._done, _ = self._sim.step(action)
+            return ob, reward, self._done, None
+            
         self.updateAction(action)
         
         # for i in range(15):
@@ -317,9 +322,15 @@ def getEnv(env_name, render=False):
     elif ( env_data[env_name]['sim_name'] == 'ProjectileGame'):
         from rlsimenv.ProjectileGame import ProjectileGame
         sim = ProjectileGame(settings=env_data[env_name])
+    elif ( env_data[env_name]['sim_name'] == 'ObjectCentricSawyer'):
+        from rlsimenv.stackingv2.simpleworlds.envs.mujoco.sawyer_xyz.objectcentric_sawyer import ObjectCentricSawyer
+        sim = ObjectCentricSawyer()
+        sim.render_on = render
     else:
         from pydoc import locate
         from rlsimenv.Environment import Environment
+        sys.path.append("./stackingv2/")
+        sys.path.append("./rlsimenv/stackingv2/")
         modelClass = locate(env_data[env_name]['sim_name'])
         print ("modelClass: ", modelClass)
         if ( issubclass(modelClass, Environment)): ## Double check this load will work
