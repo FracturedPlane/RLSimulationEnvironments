@@ -237,7 +237,10 @@ class SawyerMultitaskXYZEnv(MultitaskEnv, SawyerXYZEnv):
         self.reset()
         
     def getState(self):
-        return self._get_obs()
+        return [self._get_obs()]
+    
+    def display(self):
+        pass
     
     def getNumAgents(self):
         return 1

@@ -12,13 +12,13 @@ sys.path.append("./rlsimenv/stackingv2")
 
 # Import library
 from rlsimenv.stackingv2 import simpleworlds
-from simpleworlds.utils.points import generate_points
-from simpleworlds.utils.task_enumerators import enumerate_tasks, enumerate_tasks_corners
-from simpleworlds.envs.env_util import get_stat_in_paths, \
+from rlsimenv.stackingv2.simpleworlds.utils.points import generate_points
+from rlsimenv.stackingv2.simpleworlds.utils.task_enumerators import enumerate_tasks, enumerate_tasks_corners
+from rlsimenv.stackingv2.simpleworlds.envs.env_util import get_stat_in_paths, \
     create_stats_ordered_dict, get_asset_full_path
-from simpleworlds.envs.mujoco.util.create_xml import create_object_xml
-from simpleworlds.core.multitask_env import MultitaskEnv
-from simpleworlds.envs.mujoco.sawyer_xyz.sawyer import SawyerMultitaskXYZEnv
+from rlsimenv.stackingv2.simpleworlds.envs.mujoco.util.create_xml import create_object_xml
+from rlsimenv.stackingv2.simpleworlds.core.multitask_env import MultitaskEnv
+from rlsimenv.stackingv2.simpleworlds.envs.mujoco.sawyer_xyz.sawyer import SawyerMultitaskXYZEnv
 
 import mujoco_py
 

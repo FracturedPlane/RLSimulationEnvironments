@@ -10,7 +10,7 @@ import numpy as np
 import numpy.random as npr
 import stl
 #from stl import mesh
-import simpleworlds as simpleworlds
+import rlsimenv.stackingv2.simpleworlds as simpleworlds
 
 def find_mins_maxs(obj):
     minx = maxx = miny = maxy = minz = maxz = None

@@ -2,8 +2,8 @@ import abc
 import numpy as np
 import mujoco_py
 
-from simpleworlds.core.serializable import Serializable
-from simpleworlds.envs.mujoco.mujoco_env import MujocoEnv
+from rlsimenv.stackingv2.simpleworlds.core.serializable import Serializable
+from rlsimenv.stackingv2.simpleworlds.envs.mujoco.mujoco_env import MujocoEnv
 
 import copy
 

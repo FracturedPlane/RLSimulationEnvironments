@@ -129,7 +129,7 @@ class EnvWrapper(object):
         if ("openAIGym" in self._config
             and (self._config["openAIGym"] == True)):
             ob, reward, self._done, _ = self._sim.step(action)
-            return ob, reward, self._done, None
+            return [ob], reward, self._done, None
             
         self.updateAction(action)
         
