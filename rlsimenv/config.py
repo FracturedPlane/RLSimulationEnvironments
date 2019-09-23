@@ -1610,6 +1610,38 @@ SIMULATION_ENVIRONMENTS = """
                       [  0.2,  0.2,  2.0]]],
         "comment__": "This is an openGym type environment with a bit of another wrapper...",
     "openAIGym": true
+},
+"HAC_Environment_UR5_10Step": 
+{
+    "model_name": "ur5.xml",
+    "goal_space_train": [
+        [-3.14159265,3.14159265],
+        [-0.7853981625,0],
+        [-0.7853981625,0.7853981625]],
+    "goal_space_test": [
+        [-3.14159265,3.14159265],
+        [-0.7853981625,0],
+        [-0.7853981625,0.7853981625]],
+    "end_goal_thresholds": [0.174533, 0.174533, 0.174533],
+    "initial_state_space": [
+        [-0.39269908125, 0.39269908125], 
+        [3.22757851e-03, 3.22757851e-03], 
+        [-1.27944547e-01, -1.27944547e-01],
+        [0, 0], 
+        [0, 0], 
+        [0, 0]
+    ],
+    "subgoal_bounds": [
+        [-6.2831853,6.2831853],
+        [-6.2831853,6.2831853],
+        [-6.2831853,6.2831853],
+        [-4,4],
+        [-4,4],
+        [-4,4]],
+    "subgoal_thresholds": [0.174533, 0.174533, 0.174533, 2, 2, 2],
+    "max_actions": 100,
+    "num_frames_skip": 10,
+    "show": true
 }
 }
 """
