@@ -6,10 +6,15 @@ import random
 import numpy as np
 from mujoco_py import load_model_from_path, MjSim, MjViewer
 
+from rlsimenv.EnvWrapper import ActionSpace
+from rlsimenv.Environment import Environment
 
-class HACEnvironment():
+
+class HACEnvironment(Environment):
 
     def __init__(self, settings):
+
+        Environment.__init__(self, settings)
 
         model_name = settings["model_name"]
         goal_space_train = settings["goal_space_train"]
@@ -65,7 +70,8 @@ class HACEnvironment():
         self.project_state_to_end_goal = project_state_to_end_goal
         self.project_state_to_subgoal = project_state_to_subgoal
 
-        # Convert subgoal bounds to symmetric bounds and offset.  Need these to properly configure subgoal actor networks
+        # Convert subgoal bounds to symmetric bounds and offset.
+        # Need these to properly configure subgoal actor networks
         self.subgoal_bounds_symmetric = np.zeros((len(self.subgoal_bounds)))
         self.subgoal_bounds_offset = np.zeros((len(self.subgoal_bounds)))
 
@@ -90,6 +96,11 @@ class HACEnvironment():
         if self.visualize:
             self.viewer = MjViewer(self.sim)
         self.num_frames_skip = num_frames_skip
+
+        self._action_space = ActionSpace(self._game_settings['action_bounds'])
+        self._observation_space = ActionSpace(self._game_settings['state_bounds'])
+
+        self.__reward = [[0.0], [0.0]]
 
     # Get state, which concatenates joint positions and velocities
     def get_state(self):
@@ -233,7 +244,6 @@ class HACEnvironment():
                 if np.absolute(end_goal[0]) > np.pi / 4 and forearm_pos[2] > 0.05 and wrist_1_pos[2] > 0.15:
                     goal_possible = True
 
-
         elif not test and self.goal_space_train is not None:
             for i in range(len(self.goal_space_train)):
                 end_goal[i] = np.random.uniform(self.goal_space_train[i][0], self.goal_space_train[i][1])
@@ -322,9 +332,6 @@ class HACEnvironment():
                 self.sim.model.site_rgba[i][3] = 1
                 subgoal_ind += 1
 
-
-
-
     def getActionSpaceSize(self):
         return self.action_dim
 
@@ -339,7 +346,11 @@ class HACEnvironment():
         return 1
 
     def updateAction(self, action):
+        action, sub_goal = action[:self.action_dim], action[self.action_dim:self.action_dim + self.state_dim]
+        self.llp_goal = sub_goal
         self.__action = action
+
+        self.execute_action(self.__action)
 
     def init(self):
         self.reset_sim()
@@ -382,7 +393,7 @@ class HACEnvironment():
     """
 
     def actContinuous(self, action, bootstrapping):
-        self.execute_action(action)
+        self.updateAction(action)
         self.__reward = self.reward()
         return self.__reward
 
@@ -405,26 +416,23 @@ class HACEnvironment():
         # WARNING: this is not exactly what the paper does, but as close as we can get
         # If the difference in any dimension is greater than threshold, goal not achieved
         state = self.get_state()
-        for i in range(len(self.end_goal)):
-            if np.absolute(self.end_goal[i] - state[i]) > self.end_goal_thresholds[i]:
-                return -1
+
+        distance_to_sub_goal = -np.linalg.norm(self.sub_goal - state, ord=2)
+        distance_to_goal = -np.linalg.norm(self.end_goal - state, ord=2)
 
         # Else goal is achieved
-        return 0
+        return [[distance_to_goal], [distance_to_sub_goal]]
 
     def calcReward(self):
         return self.__reward
 
     def computeReward(self, state, next_state=None):
 
-        # WARNING: this is not exactly what the paper does, but as close as we can get
-        # If the difference in any dimension is greater than threshold, goal not achieved
-        for i in range(len(self.end_goal)):
-            if np.absolute(self.end_goal[i] - state[i]) > self.end_goal_thresholds[i]:
-                return -1
+        distance_to_sub_goal = -np.linalg.norm(self.sub_goal - state, ord=2)
+        distance_to_goal = -np.linalg.norm(self.end_goal - state, ord=2)
 
         # Else goal is achieved
-        return 0
+        return [[distance_to_goal], [distance_to_sub_goal]]
 
     def getSimState(self):
         return self.get_state()
@@ -473,3 +481,9 @@ class HACEnvironment():
 
     def finish(self):
         pass
+
+    def setLLC(self, llc):
+        self._llc = llc
+
+    def setHLP(self, hlp):
+        self._hlp = hlp

@@ -1613,6 +1613,9 @@ SIMULATION_ENVIRONMENTS = """
 },
 "HAC_Environment_UR5_10Step": 
 {
+    "config_file": "./args/genBiped2D/biped2dfull_incline_with_terrain_features.txt",
+    "time_limit": 256,
+    "sim_name": "rlsimenv.HACEnvironment.HACEnvironment",
     "model_name": "ur5.xml",
     "goal_space_train": [
         [-3.14159265,3.14159265],
@@ -1641,7 +1644,21 @@ SIMULATION_ENVIRONMENTS = """
     "subgoal_thresholds": [0.174533, 0.174533, 0.174533, 2, 2, 2],
     "max_actions": 100,
     "num_frames_skip": 10,
-    "show": true
+    "show": true,
+        "comment__": "Possible state bounds to be used for scaling states for networks",
+    "state_bounds": [[[ -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, 
+                        -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0],
+                       [   10.0,  10.0,  10.0,  10.0,  10.0,  10.0,  10.0,  10.0,  10.0,  10.0, 
+                           10.0,  10.0,  10.0,  10.0,  10.0,  10.0,  10.0,  10.0,  10.0,  10.0 ]],
+                    [[ -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, 
+                        -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0],
+                       [   10.0,  10.0,  10.0,  10.0,  10.0,  10.0,  10.0,  10.0,  10.0,  10.0, 
+                           10.0,  10.0,  10.0,  10.0,  10.0,  10.0,  10.0,  10.0,  10.0,  10.0 ]]],
+        "comment__": "Action scaling values to be used to scale values for the network",
+    "action_bounds": [[[-2.0, -2.0,  0.0],
+                      [  2.0,  2.0,  1.0]],
+                      [[-0.2, -0.2, -0.2],
+                      [  0.2,  0.2,  2.0]]]
 }
 }
 """
