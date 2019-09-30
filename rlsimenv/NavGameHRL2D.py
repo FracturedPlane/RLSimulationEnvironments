@@ -344,6 +344,9 @@ class NavGameHRL2D(Environment):
             action[1] == llc action
         """
         self._hlc_timestep = self._hlc_timestep + 1
+        # The following commented section is no longer necessary
+        # Goals are automatically concatenated during sampling by the learning code.
+        """
         if (self._hlc_timestep >= self._hlc_skip 
             and (self._ran < 0.5)):
             # print ("Updating llc target from HLC")
@@ -361,6 +364,7 @@ class NavGameHRL2D(Environment):
             action[1] = self._llc.predict([llc_obs])
             # action[1] = [0.03, -0.023]
             # print ("self._llc_target: ", self._llc_target)
+        """
         ### apply delta position change.
         action_ = np.array([action[1][0], action[1][1], 0])
         agentVel = np.array(p.getBaseVelocity(self._agent)[0])
