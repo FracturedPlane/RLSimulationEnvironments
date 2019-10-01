@@ -40,6 +40,10 @@ class NavGameHRL2D(Environment):
                             [ self._map_area,  self._map_area,  0.50001]]
         
         self._ran = 0.0
+        if ("ran" in self._game_settings):
+            self._ran = self._game_settings["ran"]
+        
+        
         
     def getActionSpaceSize(self):
         return self._action_length
