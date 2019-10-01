@@ -338,6 +338,7 @@ class Obstacle(object):
     def getColour(self):
         return self._colour
     
+from rlsimenv.EnvWrapper import ActionSpace
 
 class GapGame1D(object):
     def __init__(self, settings):
@@ -351,10 +352,10 @@ class GapGame1D(object):
         self._terrainScale=self._game_settings["terrain_scale"]
         self._terrainParameters=self._game_settings['terrain_parameters']
         
-        self._action_bounds = self._game_settings['action_bounds']
-        self._state_bounds = self._game_settings['state_bounds']
-        self._state_length = len(self._state_bounds[0])
-        self._action_length = len(self._action_bounds[0])
+        self._state_length = len(self._game_settings['state_bounds'][0])
+        self._action_length = len(self._game_settings['action_bounds'][0])
+        self._action_bounds = ActionSpace(self._game_settings['action_bounds'])
+        self._state_bounds = ActionSpace(self._game_settings['state_bounds'])
         
         # create the program window
         if self._game_settings['render']:
@@ -462,6 +463,12 @@ class GapGame1D(object):
     
     def getObservationSpaceSize(self):
         return self._state_length
+    
+    def getActionSpace(self):
+        return self._action_bounds
+    
+    def getObservationSpace(self):
+        return self._state_bounds
     
     def getNumAgents(self):
         return 1
