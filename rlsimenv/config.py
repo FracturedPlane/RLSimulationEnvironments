@@ -993,7 +993,7 @@ SIMULATION_ENVIRONMENTS = """
         "comment__": "Flag to ignore LLC action and directly use HLC action.",
     "use_hlc_action_directly": false,
         "comment__": "If ran is > 0.5 non of the internal HRL logic will be used",
-    "ran": 1.0
+    "dont_do_hrl_logic": true
 },
 "NavGameHRL2D_NoVision_HLC_Centralized_v1": 
 {
