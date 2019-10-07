@@ -164,6 +164,9 @@ class NavGameAntHRL(PyBulletEnv):
             
     def setLLC(self, llc):
         self._llc = llc
+
+    def setHLP(self, hlp):
+        pass
         
     def getObservation(self):
         import numpy as np
