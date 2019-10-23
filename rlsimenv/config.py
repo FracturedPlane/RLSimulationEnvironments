@@ -1021,7 +1021,7 @@ SIMULATION_ENVIRONMENTS = """
         "comment__": "Flag to ignore LLC action and directly use HLC action.",
     "use_hlc_action_directly": false,
         "comment__": "If ran is > 0.5 non of the internal HRL logic will be used",
-    "dont_do_hrl_logic": true
+    "dont_do_hrl_logic": true,
         "comment__": "if this is set to true task reward is replaced with lower level reward",
     "llp_is_task_reward": true
 },
