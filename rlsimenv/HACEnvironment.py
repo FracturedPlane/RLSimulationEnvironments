@@ -441,10 +441,13 @@ class HACEnvironment(Environment):
         raise NotImplementedError
 
     def getState(self):
-        return [self.get_state()]
+        if "perform_multiagent_training" in self._game_settings:
+            return [self.get_state()] * self._game_settings["perform_multiagent_training"]
+        else:
+            return [self.get_state(), self.get_state()]
 
     def getStateForAgent(self, i):
-        return self.getState()
+        return self.get_state()
 
     def setState(self, st):
         raise NotImplementedError

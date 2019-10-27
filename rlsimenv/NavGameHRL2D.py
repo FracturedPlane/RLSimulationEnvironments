@@ -279,6 +279,9 @@ class NavGameHRL2D(Environment):
         llc_dir = np.array([self._llc_target[0], self._llc_target[1], 0])
         des_change = llc_dir - agentVel
         llc_reward = -(des_change*des_change).sum(axis=0)
+
+        if "llp_is_task_reward" in self._game_settings and self._game_settings["llp_is_task_reward"]:
+            hlc_reward = llc_reward
             
         rewards = [[hlc_reward], [llc_reward]]
         # print ("rewards: ", rewards)
