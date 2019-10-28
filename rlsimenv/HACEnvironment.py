@@ -343,14 +343,16 @@ class HACEnvironment(Environment):
         random.seed(seed)
 
     def getNumAgents(self):
-        return 1
+        return 2
 
     def updateAction(self, action):
+        action = np.concatenate(action, -1)
         action, sub_goal = action[:self.action_dim], action[self.action_dim:self.action_dim + self.state_dim]
-        self.llp_goal = sub_goal
+        self.sub_goal = sub_goal
         self.__action = action
 
         self.execute_action(self.__action)
+        self.__reward = self.reward()
 
     def init(self):
         self.reset_sim()
@@ -394,7 +396,6 @@ class HACEnvironment(Environment):
 
     def actContinuous(self, action, bootstrapping):
         self.updateAction(action)
-        self.__reward = self.reward()
         return self.__reward
 
     def fall(self, loc):
@@ -414,11 +415,10 @@ class HACEnvironment(Environment):
     def reward(self):
 
         # WARNING: this is not exactly what the paper does, but as close as we can get
-        # If the difference in any dimension is greater than threshold, goal not achieved
         state = self.get_state()
 
         distance_to_sub_goal = -np.linalg.norm(self.sub_goal - state, ord=2)
-        distance_to_goal = -np.linalg.norm(self.end_goal - state, ord=2)
+        distance_to_goal = -np.linalg.norm(self.end_goal - state[self.end_goal_dim:], ord=2)
 
         # Else goal is achieved
         return [[distance_to_goal], [distance_to_sub_goal]]

@@ -1702,7 +1702,7 @@ SIMULATION_ENVIRONMENTS = """
     "subgoal_thresholds": [0.174533, 0.174533, 0.174533, 2, 2, 2],
     "max_actions": 100,
     "num_frames_skip": 10,
-    "show": true,
+    "show": false,
         "comment__": "Possible state bounds to be used for scaling states for networks",
     "state_bounds": [[[ -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, 
                         -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0],
