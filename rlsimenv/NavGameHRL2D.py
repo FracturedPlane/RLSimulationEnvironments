@@ -358,23 +358,8 @@ class NavGameHRL2D(Environment):
             and (self._game_settings["dont_do_hrl_logic"] == True)):
             self._llc_target = clampValue([action[0][0], action[0][1], 0], self._vel_bounds)
         else:
-            if (self._hlc_timestep >= self._hlc_skip 
-                and (self._ran < 0.5)):
-                # print ("Updating llc target from HLC")
-                self._llc_target = clampValue([action[0][0], action[0][1], 0], self._vel_bounds)
-                ### Need to store this target in the sim as a gobal location to allow for computing local distance state.
-                pos = np.array(p.getBasePositionAndOrientation(self._agent)[0])
-                # self._llc_target = self._llc_target + action_
-                self._hlc_timestep = 0
-                ### Update llc action
-                llc_obs = self.getObservation()[1]
-                ### crazy hack to get proper state size...
-                if ("append_centralized_state_hack" in self._game_settings
-                    and (self._game_settings["append_centralized_state_hack"] == True)):
-                    llc_obs = np.concatenate([llc_obs,[0,0,0,0,0,0]])
-                action[1] = self._llc.predict([llc_obs])
-                # action[1] = [0.03, -0.023]
-                # print ("self._llc_target: ", self._llc_target)
+            self._llc_target = clampValue([action[0][0], action[0][1], 0], self._vel_bounds)
+
 
         ### apply delta position change.
         action_ = np.array([action[1][0], action[1][1], 0])
