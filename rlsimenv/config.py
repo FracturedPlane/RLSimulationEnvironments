@@ -1730,7 +1730,8 @@ SIMULATION_ENVIRONMENTS = """
     "subgoal_thresholds": [0.174533, 0.174533, 0.174533, 2, 2, 2],
     "max_actions": 100,
     "num_frames_skip": 10,
-    "show": true,
+    "perform_multiagent_training": 2,
+    "show": false,
         "comment__": "Possible state bounds to be used for scaling states for networks",
     "state_bounds": [[[ -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, 
                         -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0],
@@ -1745,6 +1746,50 @@ SIMULATION_ENVIRONMENTS = """
                       [  2.0,  2.0,  1.0]],
                       [[-0.2, -0.2, -0.2],
                       [  0.2,  0.2,  2.0]]]
+},
+"HAC_Environment_UR5_1Level": 
+{
+    "config_file": "./args/genBiped2D/biped2dfull_incline_with_terrain_features.txt",
+    "time_limit": 256,
+    "sim_name": "rlsimenv.HACEnvironment.HACEnvironment",
+    "model_name": "ur5.xml",
+    "goal_space_train": [
+        [-3.14159265,3.14159265],
+        [-0.7853981625,0],
+        [-0.7853981625,0.7853981625]],
+    "goal_space_test": [
+        [-3.14159265,3.14159265],
+        [-0.7853981625,0],
+        [-0.7853981625,0.7853981625]],
+    "end_goal_thresholds": [0.174533, 0.174533, 0.174533],
+    "initial_state_space": [
+        [-0.39269908125, 0.39269908125], 
+        [3.22757851e-03, 3.22757851e-03], 
+        [-1.27944547e-01, -1.27944547e-01],
+        [0, 0], 
+        [0, 0], 
+        [0, 0]
+    ],
+    "subgoal_bounds": [
+        [-6.2831853,6.2831853],
+        [-6.2831853,6.2831853],
+        [-6.2831853,6.2831853],
+        [-4,4],
+        [-4,4],
+        [-4,4]],
+    "subgoal_thresholds": [0.174533, 0.174533, 0.174533, 2, 2, 2],
+    "max_actions": 100,
+    "num_frames_skip": 10,
+    "perform_multiagent_training": 1,
+    "show": false,
+        "comment__": "Possible state bounds to be used for scaling states for networks",
+    "state_bounds": [[ -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, 
+                        -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0],
+                       [   10.0,  10.0,  10.0,  10.0,  10.0,  10.0,  10.0,  10.0,  10.0,  10.0, 
+                           10.0,  10.0,  10.0,  10.0,  10.0,  10.0,  10.0,  10.0,  10.0,  10.0 ]],
+        "comment__": "Action scaling values to be used to scale values for the network",
+    "action_bounds": [[-2.0, -2.0,  0.0],
+                      [  2.0,  2.0,  1.0]]
 }
 }
 """

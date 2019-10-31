@@ -100,7 +100,8 @@ class HACEnvironment(Environment):
         self._action_space = ActionSpace(self._game_settings['action_bounds'])
         self._observation_space = ActionSpace(self._game_settings['state_bounds'])
 
-        self.__reward = [[0.0], [0.0]]
+        self.number_of_agents = self._game_settings['perform_multiagent_training'] if "perform_multiagent_training" in self._game_settings else 1
+        self.__reward = [[0.0]] * self.number_of_agents
 
     # Get state, which concatenates joint positions and velocities
     def get_state(self):
@@ -343,14 +344,20 @@ class HACEnvironment(Environment):
         random.seed(seed)
 
     def getNumAgents(self):
-        return 1
+        return self.number_of_agents
 
     def updateAction(self, action):
-        action, sub_goal = action[:self.action_dim], action[self.action_dim:self.action_dim + self.state_dim]
-        self.llp_goal = sub_goal
+        if isinstance(action, list) or isinstance(action, tuple):
+            action = np.concatenate(action, -1)
+        action, rest = action[:self.action_dim], action[self.action_dim:]
+        if self.number_of_agents > 1:
+            self.sub_goals = np.split(rest, self.number_of_agents, axis=(-1))
+        else:
+            self.sub_goals = []
         self.__action = action
 
         self.execute_action(self.__action)
+        self.__reward = self.reward()
 
     def init(self):
         self.reset_sim()
@@ -394,7 +401,6 @@ class HACEnvironment(Environment):
 
     def actContinuous(self, action, bootstrapping):
         self.updateAction(action)
-        self.__reward = self.reward()
         return self.__reward
 
     def fall(self, loc):
@@ -414,25 +420,20 @@ class HACEnvironment(Environment):
     def reward(self):
 
         # WARNING: this is not exactly what the paper does, but as close as we can get
-        # If the difference in any dimension is greater than threshold, goal not achieved
         state = self.get_state()
 
-        distance_to_sub_goal = -np.linalg.norm(self.sub_goal - state, ord=2)
-        distance_to_goal = -np.linalg.norm(self.end_goal - state, ord=2)
-
-        # Else goal is achieved
-        return [[distance_to_goal], [distance_to_sub_goal]]
+        return self.computeReward(state)
 
     def calcReward(self):
         return self.__reward
 
     def computeReward(self, state, next_state=None):
 
-        distance_to_sub_goal = -np.linalg.norm(self.sub_goal - state, ord=2)
-        distance_to_goal = -np.linalg.norm(self.end_goal - state, ord=2)
+        distance_to_sub_goals = [-np.linalg.norm(g - state, ord=2) for g in self.sub_goals]
+        distance_to_goal = -np.linalg.norm(self.end_goal - state[:self.end_goal_dim], ord=2)
 
         # Else goal is achieved
-        return [[distance_to_goal], [distance_to_sub_goal]]
+        return [[distance_to_goal]] + [[g] for g in distance_to_sub_goals]
 
     def getSimState(self):
         return self.get_state()
@@ -441,10 +442,7 @@ class HACEnvironment(Environment):
         raise NotImplementedError
 
     def getState(self):
-        if "perform_multiagent_training" in self._game_settings:
-            return [self.get_state()] * self._game_settings["perform_multiagent_training"]
-        else:
-            return [self.get_state(), self.get_state()]
+        return [np.concatenate((self.get_state(), self.end_goal), 0)] + [self.get_state()] * (self.number_of_agents - 1)
 
     def getStateForAgent(self, i):
         return self.get_state()
