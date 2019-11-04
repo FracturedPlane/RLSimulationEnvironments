@@ -807,18 +807,6 @@ SIMULATION_ENVIRONMENTS = """
         "comment__": "Include a local egocentric vizual map around the agent as state observation",
     "include_egocentric_vision": false
 },
-"NavGame2D_Direct_v0": 
-{
-    "config_file": "./args/genBiped2D/biped2dfull_incline_with_terrain_features.txt",
-    "time_limit": 256,
-    "sim_name": "rlsimenv.NavGame2DDirect.NavGame2DDirect",
-        "comment__": "Possible state bounds to be used for scaling states for networks",
-    "state_bounds": [[ -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0],
-                       [   10.0,  10.0,  10.0,  10.0,  10.0,  10.0,  10.0,  10.0,  10.0,  10.0 ]],
-        "comment__": "Action scaling values to be used to scale values for the network",
-    "action_bounds": [[-2.0, -2.0],
-                      [ 2.0,  2.0]]
-},
 "MultiAgentChaseGame_v0": 
 {
     "config_file": "./args/genBiped2D/biped2dfull_incline_with_terrain_features.txt",

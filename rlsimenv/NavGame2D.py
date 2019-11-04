@@ -123,12 +123,14 @@ class NavGame2D(Environment):
             out.extend(localMap)
         data = p.getBaseVelocity(self._agent)
         ### linear vel
-        out.extend(data[0])
+        out.extend([data[0][0], data[0][1]])
         ### angular vel
         # out.extend(data[1])
         # print (out)
-        goalDir = self.getTargetDirection()
-        out.extend(goalDir)
+        pos = np.array(p.getBasePositionAndOrientation(self._agent)[0])
+        posT = np.array(p.getBasePositionAndOrientation(self._target)[0])
+        goalDirection = posT-pos
+        out.extend([goalDirection[0], goalDirection[1]])
         # out = [np.array([np.array(out)])]
         out = np.array([np.array(out)])
         # print ("obs: ", np.array(out))
