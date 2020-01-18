@@ -11,7 +11,7 @@ class MaxwellsDemon(Environment):
     def __init__(self, settings):
         super(MaxwellsDemon,self).__init__(settings)
         self._GRAVITY = -9.8
-        self._dt = 1/25.0
+        self._dt = 1/20.0
         self._iters=2000 
         
         self._state_bounds = self._game_settings['state_bounds']
@@ -23,7 +23,7 @@ class MaxwellsDemon(Environment):
         # observation_space = [ob_low, ob_high]
         # self._observation_space = ActionSpace(observation_space)
         self._action_space = ActionSpace(self._game_settings['action_bounds'])
-        self._map_area = 10
+        self._map_area = 6
         
         
         
@@ -58,17 +58,47 @@ class MaxwellsDemon(Environment):
         cubeStartOrientation = p.getQuaternionFromEuler([0.,0,0])
         self._agent = p.loadURDF("sphere2.urdf",
                 cubeStartPos,
-                cubeStartOrientation) 
+                cubeStartOrientation,
+                useFixedBase=1) 
         
         
         #### Add walls
         self._blocks = []
-        for i in range(0):
+        ### Right walls
+        cube_locations = [[self._map_area, y, 0.5] for y in range(-self._map_area, -2)]
+        cube_locations.extend([[self._map_area, y, 0.5] for y in range(2, self._map_area)])
+        
+        
+        ### Left wall
+        cube_locations.extend([[-self._map_area, y, 0.5] for y in range(-self._map_area, self._map_area)])
+        ### Top Wall
+        cube_locations.extend([[y, self._map_area, 0.5] for y in range(-self._map_area, self._map_area)])
+        ### Bottom Wall
+        cube_locations.extend([[y, -self._map_area, 0.5] for y in range(-self._map_area, self._map_area)])
+        ### Add small room
+        ### Add Right wall
+        cube_locations.extend([[self._map_area+(self._map_area//2), y, 0.5] for y in range(-self._map_area//2, self._map_area//2)])
+        ### Top wall 
+        cube_locations.extend([[y, self._map_area//2, 0.5] for y in range(self._map_area, self._map_area+(self._map_area//2))])
+        ### Bottom wall 
+        cube_locations.extend([[y, -self._map_area//2, 0.5] for y in range(self._map_area, self._map_area+(self._map_area//2))])
+        # print ("cube_locations: ", cube_locations)
+        for loc in cube_locations:
             blockId = p.loadURDF("cube2.urdf",
-                    [2.0,2.0,0.5],
+                    loc,
                     cubeStartOrientation,
                     useFixedBase=1) 
             self._blocks.append(blockId)
+            
+        self._doors = []
+        door_locations = [[self._map_area, y, 0] for y in range(-2, 2)]
+        for loc in door_locations:
+            blockId = p.loadURDF("cube2.urdf",
+                    loc,
+                    cubeStartOrientation,
+                    useFixedBase=1) 
+            self._doors.append(blockId)
+        
         
         
         self._target = p.loadURDF("sphere2red.urdf",
@@ -110,12 +140,13 @@ class MaxwellsDemon(Environment):
         p.resetBaseVelocity(self._target, [0,0,0], [0,0,0])
         
         ### Reset obstacles
+        """
         for i in range(len(self._blocks)):
             x = (np.random.rand()-0.5) * self._map_area * 2.0
             y = (np.random.rand()-0.5) * self._map_area * 2.0
             p.resetBasePositionAndOrientation(self._blocks[i], [x,y,0.5], p.getQuaternionFromEuler([0.,0,0]))
             p.resetBaseVelocity(self._blocks[i], [0,0,0], [0,0,0]) 
-        
+        """
     def getObservation(self):
         import numpy as np
         out = []
@@ -240,11 +271,16 @@ class MaxwellsDemon(Environment):
     
     def updateAction(self, action):
         import numpy as np
+        for door in self._doors:
+            pos_d = np.array(p.getBasePositionAndOrientation(door)[0])
+            pos_d[2] = action[2] - 0.5
+            p.resetBasePositionAndOrientation(door, pos_d, p.getQuaternionFromEuler([0.,0,0]))
         ### apply delta position change.
         action = np.array([action[0], action[1], 0])
         # print ("New action: ", action)
         p.resetBaseVelocity(self._agent, linearVelocity=action, angularVelocity=[0,0,0])
         vel = p.getBaseVelocity(self._agent)[0]
+        
         # print ("New vel: ", vel)
         
     def update(self):
@@ -253,14 +289,14 @@ class MaxwellsDemon(Environment):
         vel = np.array(p.getBaseVelocity(self._agent)[0])
         pos =  pos + (vel*self._dt)
         pos[2] = 0.5
-        ### Need to do this so the intersetions are 
+        ### Need to do this so the intersections are computed
         p.stepSimulation()
         p.resetBasePositionAndOrientation(self._agent, pos, p.getQuaternionFromEuler([0.,0,0]))
-        p.resetBaseVelocity(self._agent, linearVelocity=vel, angularVelocity=[0,0,0])
+        p.resetBaseVelocity(self._agent, linearVelocity=[0,0,0], angularVelocity=[0,0,0])
         
         pos_t = np.array(p.getBasePositionAndOrientation(self._target)[0])
-        x = ((np.random.rand()-0.5) * self._map_area * 0.1) + pos_t[0]
-        y = ((np.random.rand()-0.5) * self._map_area * 0.1) + pos_t[1]
+        x = ((np.random.rand()-0.5) * self._map_area * 0.05) + pos_t[0]
+        y = ((np.random.rand()-0.5) * self._map_area * 0.05) + pos_t[1]
         if (x > self._map_area):
             x = self._map_area
         if (x < -self._map_area):
@@ -273,7 +309,7 @@ class MaxwellsDemon(Environment):
         p.resetBasePositionAndOrientation(self._target, [x, y, 0.5], p.getQuaternionFromEuler([0.,0,0]))
         p.resetBaseVelocity(self._target, [0,0,0], [0,0,0])
         
-        
+        time.sleep(1)
         reward = self.computeReward(state=None)
         # print("reward: ", reward)
         self.__reward = reward
