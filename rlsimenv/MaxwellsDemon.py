@@ -3,6 +3,7 @@ import pybullet as p
 import pybullet_data
 import os
 import time
+import gym
 from rlsimenv.EnvWrapper import ActionSpace
 from rlsimenv.Environment import Environment
 
@@ -12,6 +13,7 @@ class MaxwellsDemon(Environment):
         super(MaxwellsDemon,self).__init__(settings)
         self._GRAVITY = -9.8
         self._dt = 1/20.0
+        self.dt = self._dt
         self._iters=2000 
         
         self._state_bounds = self._game_settings['state_bounds']
@@ -22,9 +24,9 @@ class MaxwellsDemon(Environment):
         # ob_high = [1] * self.getEnv().getObservationSpaceSize() 
         # observation_space = [ob_low, ob_high]
         # self._observation_space = ActionSpace(observation_space)
+        # self._action_space = gym.spaces.Box(low=[-1.2, -1.2, 0], high=[1.2,1.2,1])
         self._action_space = ActionSpace(self._game_settings['action_bounds'])
         self._map_area = 6
-        
         
         
     def getActionSpaceSize(self):
@@ -38,6 +40,11 @@ class MaxwellsDemon(Environment):
     
     def display(self):
         pass
+    
+    @property
+    def sim(self):
+        # Hack to match gym_wrapper interface.
+        return self
     
     def init(self):
         
@@ -126,6 +133,7 @@ class MaxwellsDemon(Environment):
         self._state_length = len(self._game_settings['state_bounds'][0])
         print ("self._state_length: ", self._state_length)
         self._observation_space = ActionSpace(self._game_settings['state_bounds'])
+        # self._action_space = gym.spaces.Box(low=[-1.2, -1.2, 0], high=[1.2,1.2,1])
         
     def initEpoch(self):
         import numpy as np
@@ -309,7 +317,7 @@ class MaxwellsDemon(Environment):
         p.resetBasePositionAndOrientation(self._target, [x, y, 0.5], p.getQuaternionFromEuler([0.,0,0]))
         p.resetBaseVelocity(self._target, [0,0,0], [0,0,0])
         
-        time.sleep(1)
+        # time.sleep(1)
         reward = self.computeReward(state=None)
         # print("reward: ", reward)
         self.__reward = reward
@@ -350,24 +358,14 @@ class MaxwellsDemon(Environment):
         # random.seed(seed)
         np.random.seed(seed)
         
-
-if __name__ == "__main__":
-    
-    sim = NavGame2D()
-    sim.init()
-
-    import time
-    for i in range(10000):
-        if (i % 100 == 0):
-            sim.reset()
-        # p.stepSimulation()
-        # p.setJointMotorControl2(botId, 1, p.TORQUE_CONTROL, force=1098.0)
-        # p.setGravity(0,0,sim._GRAVITY)
-        time.sleep(1/240.)
-        sim.updateAction([0.1,0.1])
-        ob = sim.getObservation()
-        reward = sim.computeReward()
-        print ("Reward: ", reward)
-        print ("od: ", ob)
-        
-    time.sleep(1000)
+from gym.envs.registration import register as gym_register
+# Use the gym_register because it allows us to set the max_episode_steps.
+try:
+    gym_register(
+        id='MiniGrid-MaxwellsDemon-v0',
+        entry_point='surprise.envs.minigrid.envs.maxwells_demon_room:MaxwellsDemonEnv',
+        reward_threshold=0.95,
+        max_episode_steps=500,
+    )
+except:
+    print ("gym not installed")
