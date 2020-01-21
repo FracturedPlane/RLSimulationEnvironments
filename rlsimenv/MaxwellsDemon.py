@@ -22,11 +22,11 @@ class MaxwellsDemonEnv(Environment):
         
         
         self.action_space = gym.spaces.Box(low=np.array([-1.2, -1.2, 0]), high=np.array([1.2,1.2,1]))
-        # if (self._game_settings['render']):
+        if (False):
             # self._object.setPosition([self._x[self._step], self._y[self._step], 0.0] )
-        self._physicsClient = p.connect(p.GUI)
-        # else:
-        # self._physicsClient = p.connect(p.DIRECT)
+            self._physicsClient = p.connect(p.GUI)
+        else:
+            self._physicsClient = p.connect(p.DIRECT)
             
         import os
         RLSIMENV_PATH = os.environ['RLSIMENV_PATH']
@@ -327,14 +327,3 @@ class MaxwellsDemonEnv(Environment):
         # random.seed(seed)
         np.random.seed(seed)
         
-from gym.envs.registration import register as gym_register
-# Use the gym_register because it allows us to set the max_episode_steps.
-try:
-    gym_register(
-        id='MiniGrid-MaxwellsDemon-v0',
-        entry_point='rlsimenv.MaxwellsDemon:MaxwellsDemonEnv',
-        reward_threshold=0.95,
-        max_episode_steps=500,
-    )
-except:
-    print ("gym not installed")

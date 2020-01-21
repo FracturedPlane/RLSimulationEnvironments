@@ -1,18 +1,12 @@
 
 import gym
 import numpy as np
-from rlsimenv.MaxwellsDemon import MaxwellsDemonEnv
-from rlsimenv.EnvWrapper import getEnv
+import rlsimenv
 
 if __name__ == '__main__':
     
-    "MiniGrid-MaxwellsDemon-v0"
-    # env = getEnv(env_name="ParticleGame_2D-v0", render=False)
-    # env = getEnv(env_name="CannonGameViz2-v0", render=True)
-    # env = getEnv(env_name="MaxwellsDemon_v0", render=True)
-    env = gym.make("MiniGrid-MaxwellsDemon-v0")
+    env = gym.make("ContinuousMaxwellsDemon-v0")
 
-    # actionSpace = env.getActionSpace()
     env.seed(1234)
     
     print("observation space min: ", env.observation_space.low)
