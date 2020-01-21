@@ -54,6 +54,8 @@ class MaxwellsDemon(Environment):
         else:
             self._physicsClient = p.connect(p.DIRECT)
             
+        import os
+        RLSIMENV_PATH = os.environ['RLSIMENV_PATH']
         p.setAdditionalSearchPath(pybullet_data.getDataPath())
         p.resetSimulation()
         #p.setRealTimeSimulation(True)
@@ -68,6 +70,12 @@ class MaxwellsDemon(Environment):
                 cubeStartOrientation,
                 useFixedBase=1) 
         
+        self._target = p.loadURDF("sphere2red.urdf",
+        cubeStartPos,
+        cubeStartOrientation,
+        useFixedBase=1)
+        
+        p.setAdditionalSearchPath(RLSIMENV_PATH + '/rlsimenv/data')
         
         #### Add walls
         self._blocks = []
@@ -107,13 +115,6 @@ class MaxwellsDemon(Environment):
             self._doors.append(blockId)
         
         
-        
-        self._target = p.loadURDF("sphere2red.urdf",
-                cubeStartPos,
-                cubeStartOrientation,
-                useFixedBase=1)
-        
-         
         #disable the default velocity motors 
         #and set some position control with small force to emulate joint friction/return to a rest pose
         jointFrictionForce=1
