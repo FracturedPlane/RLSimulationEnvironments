@@ -1,15 +1,19 @@
-from rlsimenv.EnvWrapper import getEnv
+
+import gym
 import numpy as np
+from rlsimenv.MaxwellsDemon import MaxwellsDemonEnv
+from rlsimenv.EnvWrapper import getEnv
 
 if __name__ == '__main__':
     
-    
+    "MiniGrid-MaxwellsDemon-v0"
     # env = getEnv(env_name="ParticleGame_2D-v0", render=False)
     # env = getEnv(env_name="CannonGameViz2-v0", render=True)
-    env = getEnv(env_name="MaxwellsDemon_v0", render=True)
+    # env = getEnv(env_name="MaxwellsDemon_v0", render=True)
+    env = gym.make("MiniGrid-MaxwellsDemon-v0")
 
-    actionSpace = env.getActionSpace()
-    env.setRandomSeed(1234)
+    # actionSpace = env.getActionSpace()
+    env.seed(1234)
     
     print("observation space min: ", env.observation_space.low)
     print("observation space max: ", env.observation_space.high)
@@ -24,10 +28,10 @@ if __name__ == '__main__':
         # while (True):
         for i in range(100):
             actions = []
-            for a in range(env.getNumberofAgents()):
-                action = ((actionSpace.high - actionSpace.low) * np.random.uniform(size=actionSpace.low.shape[0])  ) + actionSpace.low
+            for a in range(env.getNumAgents()):
+                action = ((env.action_space.high - env.action_space.low) * np.random.uniform(size=env.action_space.low.shape[0])  ) + env.action_space.low
                 actions.append(action)
-            if (env.getNumberofAgents() > 1):
+            if (env.getNumAgents() > 1):
                 observation, reward,  done, info = env.step(actions)
             else:
                 observation, reward,  done, info = env.step(actions[0])

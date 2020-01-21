@@ -6,53 +6,27 @@ import time
 import gym
 from rlsimenv.EnvWrapper import ActionSpace
 from rlsimenv.Environment import Environment
+import numpy as np
 
-class MaxwellsDemon(Environment):
+class MaxwellsDemonEnv(Environment):
     
-    def __init__(self, settings):
-        super(MaxwellsDemon,self).__init__(settings)
+    def __init__(self, max_steps=256, seed=1234):
+        super(MaxwellsDemonEnv,self).__init__()
         self._GRAVITY = -9.8
         self._dt = 1/20.0
         self.dt = self._dt
         self._iters=2000 
+        self._map_area=6
         
-        self._state_bounds = self._game_settings['state_bounds']
-        self._action_bounds = self._game_settings['action_bounds']
-        self._action_length = len(self._action_bounds[0])
-        
-        # ob_low = [0] * len(self.getEnv().getObservationSpaceSize()
-        # ob_high = [1] * self.getEnv().getObservationSpaceSize() 
-        # observation_space = [ob_low, ob_high]
-        # self._observation_space = ActionSpace(observation_space)
-        # self._action_space = gym.spaces.Box(low=[-1.2, -1.2, 0], high=[1.2,1.2,1])
-        self._action_space = ActionSpace(self._game_settings['action_bounds'])
-        self._map_area = 6
+        self._game_settings = {"include_egocentric_vision": True}
         
         
-    def getActionSpaceSize(self):
-        return self._action_length
-    
-    def getObservationSpaceSize(self):
-        return self._state_length
-
-    def getNumAgents(self):
-        return 1
-    
-    def display(self):
-        pass
-    
-    @property
-    def sim(self):
-        # Hack to match gym_wrapper interface.
-        return self
-    
-    def init(self):
-        
-        if (self._game_settings['render']):
+        self.action_space = gym.spaces.Box(low=np.array([-1.2, -1.2, 0]), high=np.array([1.2,1.2,1]))
+        # if (self._game_settings['render']):
             # self._object.setPosition([self._x[self._step], self._y[self._step], 0.0] )
-            self._physicsClient = p.connect(p.GUI)
-        else:
-            self._physicsClient = p.connect(p.DIRECT)
+        self._physicsClient = p.connect(p.GUI)
+        # else:
+        # self._physicsClient = p.connect(p.DIRECT)
             
         import os
         RLSIMENV_PATH = os.environ['RLSIMENV_PATH']
@@ -133,11 +107,26 @@ class MaxwellsDemon(Environment):
         self._game_settings['state_bounds'] = [lo, hi]
         self._state_length = len(self._game_settings['state_bounds'][0])
         print ("self._state_length: ", self._state_length)
-        self._observation_space = ActionSpace(self._game_settings['state_bounds'])
-        # self._action_space = gym.spaces.Box(low=[-1.2, -1.2, 0], high=[1.2,1.2,1])
+        # self._observation_space = ActionSpace(self._game_settings['state_bounds'])
+        self.observation_space = gym.spaces.Box(low=lo, high=hi)
         
-    def initEpoch(self):
+    def getNumAgents(self):
+        return 1
+    
+    def display(self):
+        pass
+    
+    @property
+    def sim(self):
+        # Hack to match gym_wrapper interface.
+        return self
+    
+    def init(self):
+        pass
+        
+    def reset(self):
         import numpy as np
+        self._done = False
         x = (np.random.rand()-0.5) * self._map_area * 2.0
         y = (np.random.rand()-0.5) * self._map_area * 2.0
         p.resetBasePositionAndOrientation(self._agent, [x,y,0.5], p.getQuaternionFromEuler([0.,0,0]))
@@ -167,15 +156,11 @@ class MaxwellsDemon(Environment):
         ### linear vel
         out.extend([data[0][0], data[0][1]])
         ### angular vel
-        # out.extend(data[1])
-        # print (out)
         pos = np.array(p.getBasePositionAndOrientation(self._agent)[0])
         posT = np.array(p.getBasePositionAndOrientation(self._target)[0])
         goalDirection = posT-pos
         out.extend([goalDirection[0], goalDirection[1]])
-        # out = [np.array([np.array(out)])]
         out = np.array([np.array(out)])
-        # print ("obs: ", np.array(out))
         return out
     
     def getState(self):
@@ -190,17 +175,10 @@ class MaxwellsDemon(Environment):
         goalDirection = posT-pos
         goalDistance = np.sqrt((goalDirection*goalDirection).sum(axis=0))
         goalDir = self.getTargetDirection()
-        # goalDir = goalDir / np.sqrt((goalDir*goalDir).sum(axis=0))
-        # print ("goalDir: ", goalDir)
         agentVel = np.array(p.getBaseVelocity(self._agent)[0])
-        # agentSpeed = np.sqrt((agentVel*agentVel).sum(axis=0))
         velDiff = goalDir - agentVel
         diffMag = np.sqrt((velDiff*velDiff).sum(axis=0))
-        # agentVel = agentVel / agentSpeed
-        # print ("agentVel: ", agentVel)
-        # agentSpeedDiff = (1 - agentSpeed)
         ### heading towards goal
-        # reward = np.dot(goalDir, agentVel) + np.exp(agentSpeedDiff*agentSpeedDiff * -2.0)
         reward = np.exp((diffMag*diffMag) * -2.0) + np.exp((goalDistance*goalDistance) * -2.0)
         """
         if (goalDistance < 1.5):
@@ -263,18 +241,11 @@ class MaxwellsDemon(Environment):
                 # print ("bad index: ", ray)
                 intersections[ray] = -1
         
-        # bad_indecies = np.where(intersections == self._target)[0]
-        # print ("bad_indecies: ", bad_indecies)
-        # bad_indecies = np.where(intersections == int(self._agent))
-        # print ("bad_indecies: ", bad_indecies)
-        # print ("self._agent: ", self._agent)
         """
         if ( len(bad_indecies) > 0):
             # print ("self._target: ", self._target)
             intersections[bad_indecies] = -1
         """
-        # intersections_ = np.reshape(intersections, (size, size))
-        # print ("intersections", intersections_)
         intersections = np.array(np.greater(intersections, 0), dtype="int")
         return intersections
     
@@ -286,11 +257,8 @@ class MaxwellsDemon(Environment):
             p.resetBasePositionAndOrientation(door, pos_d, p.getQuaternionFromEuler([0.,0,0]))
         ### apply delta position change.
         action = np.array([action[0], action[1], 0])
-        # print ("New action: ", action)
         p.resetBaseVelocity(self._agent, linearVelocity=action, angularVelocity=[0,0,0])
         vel = p.getBaseVelocity(self._agent)[0]
-        
-        # print ("New vel: ", vel)
         
     def update(self):
         import numpy as np
@@ -348,7 +316,7 @@ class MaxwellsDemon(Environment):
         else:
             return False
         
-    def setRandomSeed(self, seed):
+    def seed(self, seed):
         import numpy as np
         """
             Set the random seed for the simulator
@@ -364,7 +332,7 @@ from gym.envs.registration import register as gym_register
 try:
     gym_register(
         id='MiniGrid-MaxwellsDemon-v0',
-        entry_point='surprise.envs.minigrid.envs.maxwells_demon_room:MaxwellsDemonEnv',
+        entry_point='rlsimenv.MaxwellsDemon:MaxwellsDemonEnv',
         reward_threshold=0.95,
         max_episode_steps=500,
     )
