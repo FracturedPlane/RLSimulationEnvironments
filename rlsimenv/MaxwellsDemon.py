@@ -145,11 +145,12 @@ class MaxwellsDemonEnv(Environment):
             p.resetBasePositionAndOrientation(self._blocks[i], [x,y,0.5], p.getQuaternionFromEuler([0.,0,0]))
             p.resetBaseVelocity(self._blocks[i], [0,0,0], [0,0,0]) 
         """
+        return self.getObservation()
+    
     def getObservation(self):
         import numpy as np
         out = []
-        if ("include_egocentric_vision" in self._game_settings
-            and (self._game_settings["include_egocentric_vision"] == True)):
+        if self._game_settings.get("include_egocentric_vision", False):
             localMap = self.getlocalMapObservation()
             out.extend(localMap)
         data = p.getBaseVelocity(self._agent)
@@ -195,8 +196,6 @@ class MaxwellsDemonEnv(Environment):
                 break
         """
         return reward
-        
-        
         
     def getTargetDirection(self):
         ### raycast around the area of the agent
@@ -326,4 +325,9 @@ class MaxwellsDemonEnv(Environment):
         """
         # random.seed(seed)
         np.random.seed(seed)
-        
+
+    def render(self, mode='rgb_array'):
+        if mode == 'rgb_array':
+            pass
+        else:
+            raise ValueError("Unhandled rendering mode")
