@@ -1,16 +1,20 @@
 
+import gym
+import numpy as np
+import os
 import pybullet as p
 import pybullet_data
-import os
+
 import time
-import gym
+
 from rlsimenv.EnvWrapper import ActionSpace
 from rlsimenv.Environment import Environment
-import numpy as np
 
 class MaxwellsDemonEnv(Environment):
+    """Implements gym.Env"""
+    count = 0
     
-    def __init__(self, max_steps=256, seed=1234):
+    def __init__(self, max_steps=256, seed=1234, gui=False):
         super(MaxwellsDemonEnv,self).__init__()
         self._GRAVITY = -9.8
         self._dt = 1/20.0
@@ -19,16 +23,16 @@ class MaxwellsDemonEnv(Environment):
         self._map_area=6
         
         self._game_settings = {"include_egocentric_vision": True}
-        
-        
         self.action_space = gym.spaces.Box(low=np.array([-1.2, -1.2, 0]), high=np.array([1.2,1.2,1]))
-        if (False):
+
+        print("gui count", MaxwellsDemonEnv.count)        
+        if gui:
             # self._object.setPosition([self._x[self._step], self._y[self._step], 0.0] )
             self._physicsClient = p.connect(p.GUI)
+            MaxwellsDemonEnv.count += 1
         else:
             self._physicsClient = p.connect(p.DIRECT)
             
-        import os
         RLSIMENV_PATH = os.environ['RLSIMENV_PATH']
         p.setAdditionalSearchPath(pybullet_data.getDataPath())
         p.resetSimulation()
@@ -39,15 +43,9 @@ class MaxwellsDemonEnv(Environment):
         
         cubeStartPos = [0,0,0.5]
         cubeStartOrientation = p.getQuaternionFromEuler([0.,0,0])
-        self._agent = p.loadURDF("sphere2.urdf",
-                cubeStartPos,
-                cubeStartOrientation,
-                useFixedBase=1) 
+        self._agent = p.loadURDF("sphere2.urdf", cubeStartPos, cubeStartOrientation, useFixedBase=1) 
         
-        self._target = p.loadURDF("sphere2red.urdf",
-        cubeStartPos,
-        cubeStartOrientation,
-        useFixedBase=1)
+        self._target = p.loadURDF("sphere2red.urdf", cubeStartPos, cubeStartOrientation, useFixedBase=1)
         
         p.setAdditionalSearchPath(RLSIMENV_PATH + '/rlsimenv/data')
         
@@ -129,7 +127,6 @@ class MaxwellsDemonEnv(Environment):
         pass
         
     def reset(self):
-        import numpy as np
         self._done = False
         x = (np.random.rand()-0.5) * self._map_area * 2.0
         y = (np.random.rand()-0.5) * self._map_area * 2.0
@@ -330,8 +327,12 @@ class MaxwellsDemonEnv(Environment):
         # random.seed(seed)
         np.random.seed(seed)
 
-    def render(self, mode='rgb_array'):
+    def render(self, mode='rgb_array', **kwargs):
         if mode == 'rgb_array':
-            pass
+            return np.random.random((64, 64, 3))
         else:
             raise ValueError("Unhandled rendering mode")
+
+class MaxwellsDemonEnvWithGUI(MaxwellsDemonEnv):
+    def __init__(self, max_steps=256, seed=1234, gui=True):
+        super().__init__(max_steps=256, seed=1234, gui=True)
