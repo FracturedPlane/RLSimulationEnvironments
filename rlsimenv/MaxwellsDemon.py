@@ -22,7 +22,7 @@ class MaxwellsDemonEnv(Environment):
         
         
         self.action_space = gym.spaces.Box(low=np.array([-1.2, -1.2, 0]), high=np.array([1.2,1.2,1]))
-        if (True):
+        if (False):
             # self._object.setPosition([self._x[self._step], self._y[self._step], 0.0] )
             self._physicsClient = p.connect(p.GUI)
         else:
@@ -109,7 +109,7 @@ class MaxwellsDemonEnv(Environment):
         print ("self._state_length: ", self._state_length)
         # self._observation_space = ActionSpace(self._game_settings['state_bounds'])
         self.observation_space = gym.spaces.Box(low=lo, high=hi)
-        self._screen_size=[20,20,3]
+        self._screen_size=[200,200,3]
         
     def getNumAgents(self):
         return 1
@@ -117,8 +117,14 @@ class MaxwellsDemonEnv(Environment):
     def display(self):
         pass
     
-    def render(self):
-        return np.random.rand(*self._screen_size)
+    def render(self, **kwargs):
+        img = self.getViewData()
+        return img
+    
+    def getViewData(self):
+        (w,y,img,depth,segment) = p.getCameraImage(*self._screen_size)
+        # print (img)
+        return img
     
     @property
     def sim(self):
@@ -149,6 +155,7 @@ class MaxwellsDemonEnv(Environment):
             p.resetBasePositionAndOrientation(self._blocks[i], [x,y,0.5], p.getQuaternionFromEuler([0.,0,0]))
             p.resetBaseVelocity(self._blocks[i], [0,0,0], [0,0,0]) 
         """
+        
     def getObservation(self):
         import numpy as np
         out = []

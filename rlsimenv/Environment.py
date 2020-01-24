@@ -19,6 +19,7 @@ class Environment(gym.Env):
     def __init__(self,):
         self._config = {}
         self._done = False
+        super(Environment,self).__init__()
             
     def getActionSpace(self):
         return self.action_space
