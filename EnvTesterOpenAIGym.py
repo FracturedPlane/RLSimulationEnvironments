@@ -33,39 +33,23 @@ if __name__ == '__main__':
             # print ("Reward: ", reward, "Action: ", actions, " observation: ", observation)
             print ("observation size: ", np.array(observation).shape)
             print ("Done: ", done)
-            """
-            vizData = env.getVisualState()
-            # print("visual Data: " +  str(vizData))
-            vizImitateData = env.getImitationVisualState()
-            for vd in range(len(vizData)):
-                # print("viewData: ", viewData)
-                viewData = vizData[vd]
-                viewImitateData = vizImitateData[vd]
-                ## Get and vis terrain data
-                if (False):
-                    ## Don't use Xwindows backend for this
-                    import matplotlib
-                    # matplotlib.use('Agg')
-                    import matplotlib.pyplot as plt
-                    # img_ = np.reshape(viewData, (150,158,3))
-                    img_ = viewData
-                    print("img_ shape", img_.shape, " sum: ", np.sum(viewData))
-                    fig1 = plt.figure(1)
-                    plt.imshow(img_, origin='lower')
-                    plt.title("agent visual Data: " +  str(vd))
-                    fig1.savefig("viz_state_"+str(i)+".svg")
-
-                    if (True):                    
-                        img_ = viewImitateData
-                        fig2 = plt.figure(2)
-                        plt.imshow(img_, origin='lower')
-                        plt.title("imitation visual Data: " +  str(vd))
-                        fig2.savefig("viz_imitation_state_"+str(i)+".svg")
-                        
-                    plt.show()
+            
+            viewData = env.render("true")
+            ## Get and vis terrain data
+            if (True):
+                ## Don't use Xwindows backend for this
+                import matplotlib
+                # matplotlib.use('Agg')
+                import matplotlib.pyplot as plt
+                # img_ = np.reshape(viewData, (150,158,3))
+                img_ = viewData
+                print("img_ shape", img_.shape, " sum: ", np.sum(viewData))
+                fig1 = plt.figure(1)
+                plt.imshow(img_, origin='lower')
+                plt.title("agent visual Data: ")
+                fig1.savefig("viz_state_"+str(i)+".png")
                     
-            img = env.getEnv().getVisualState()
-            """
+            
             if ( done ):
                 break
             
