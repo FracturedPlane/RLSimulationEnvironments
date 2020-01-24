@@ -22,7 +22,7 @@ class MaxwellsDemonEnv(Environment):
         
         
         self.action_space = gym.spaces.Box(low=np.array([-1.2, -1.2, 0]), high=np.array([1.2,1.2,1]))
-        if (False):
+        if (True):
             # self._object.setPosition([self._x[self._step], self._y[self._step], 0.0] )
             self._physicsClient = p.connect(p.GUI)
         else:
