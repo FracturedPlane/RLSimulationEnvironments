@@ -109,12 +109,16 @@ class MaxwellsDemonEnv(Environment):
         print ("self._state_length: ", self._state_length)
         # self._observation_space = ActionSpace(self._game_settings['state_bounds'])
         self.observation_space = gym.spaces.Box(low=lo, high=hi)
+        self._screen_size=[20,20,3]
         
     def getNumAgents(self):
         return 1
     
     def display(self):
         pass
+    
+    def render(self):
+        return np.random.rand(*self._screen_size)
     
     @property
     def sim(self):
