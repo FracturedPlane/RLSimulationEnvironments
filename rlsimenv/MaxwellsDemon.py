@@ -115,10 +115,6 @@ class MaxwellsDemonEnv(Environment):
     def display(self):
         pass
     
-    def render(self, **kwargs):
-        img = self.getViewData()
-        return img
-    
     def getViewData(self):
         (w,y,img,depth,segment) = p.getCameraImage(*self._screen_size)
         # print (img)
@@ -335,7 +331,8 @@ class MaxwellsDemonEnv(Environment):
 
     def render(self, mode='rgb_array', **kwargs):
         if mode == 'rgb_array':
-            return np.random.random((64, 64, 3))
+            img = self.getViewData()
+            return img
         else:
             raise ValueError("Unhandled rendering mode")
 

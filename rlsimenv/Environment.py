@@ -27,6 +27,9 @@ class Environment(gym.Env):
     def getObservationSpace(self):
         return self.observation_space
     
+    def getNumAgents(self):
+        return 1
+    
     def step(self, action):
         """
             Adding multi character support

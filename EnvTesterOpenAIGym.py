@@ -21,20 +21,13 @@ if __name__ == '__main__':
         print ("New episode")
         # while (True):
         for i in range(100):
-            actions = []
-            for a in range(env.getNumAgents()):
-                action = ((env.action_space.high - env.action_space.low) * np.random.uniform(size=env.action_space.low.shape[0])  ) + env.action_space.low
-                actions.append(action)
-            if (env.getNumAgents() > 1):
-                observation, reward,  done, info = env.step(actions)
-            else:
-                observation, reward,  done, info = env.step(actions[0])
-                # observation, reward,  done, info = env.step([0,0])
+            actions = env.action_space.sample()
+            observation, reward,  done, info = env.step(actions)
             # print ("Reward: ", reward, "Action: ", actions, " observation: ", observation)
             print ("observation size: ", np.array(observation).shape)
             print ("Done: ", done)
             
-            viewData = env.render("true")
+            viewData = env.render("rgb_array")
             ## Get and vis terrain data
             if (True):
                 ## Don't use Xwindows backend for this
