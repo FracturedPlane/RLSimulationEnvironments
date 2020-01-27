@@ -353,6 +353,6 @@ class MaxwellsDemonEnv(Environment):
         else:
             raise ValueError("Unhandled rendering mode")
 
-class MaxwellsDemonEnvWithGUI(MaxwellsDemonEnv):
-    def __init__(self, max_steps=256, seed=1234, gui=True):
-        super().__init__(max_steps=256, seed=1234, gui=True)
+# class MaxwellsDemonEnvWithGUI(MaxwellsDemonEnv):
+#     def __init__(self, max_steps=256, seed=1234, gui=True):
+#         super().__init__(max_steps=256, seed=1234, gui=True)
