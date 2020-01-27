@@ -1,5 +1,9 @@
-import rlsimenv.EnvWrapper
+
+import matplotlib.pyplot as plt
 import numpy as np
+import pdb
+
+import rlsimenv.EnvWrapper
 
 def main():
     # env = getEnv(env_name="ParticleGame_2D-v0", render=False)
@@ -14,6 +18,10 @@ def main():
     print("Actions space max: ", len(env.action_space.high))
     print("Actions space min: ", env.action_space.low)
     print("Actions space max: ", env.action_space.high)
+
+    # plt.axis([0, 128, 128, 0])
+    plt.ion()
+    plt.show()
     
     env.reset()
     for epoch in range(10):
@@ -33,39 +41,17 @@ def main():
             # print ("Reward: ", reward, "Action: ", actions, " observation: ", observation)
             print ("observation size: ", np.array(observation).shape)
             print ("Done: ", done)
-            """
-            vizData = env.getVisualState()
-            # print("visual Data: " +  str(vizData))
-            vizImitateData = env.getImitationVisualState()
-            for vd in range(len(vizData)):
-                # print("viewData: ", viewData)
-                viewData = vizData[vd]
-                viewImitateData = vizImitateData[vd]
-                ## Get and vis terrain data
-                if (False):
-                    ## Don't use Xwindows backend for this
-                    import matplotlib
-                    # matplotlib.use('Agg')
-                    import matplotlib.pyplot as plt
-                    # img_ = np.reshape(viewData, (150,158,3))
-                    img_ = viewData
-                    print("img_ shape", img_.shape, " sum: ", np.sum(viewData))
-                    fig1 = plt.figure(1)
-                    plt.imshow(img_, origin='lower')
-                    plt.title("agent visual Data: " +  str(vd))
-                    fig1.savefig("viz_state_"+str(i)+".svg")
+            # """
 
-                    if (True):                    
-                        img_ = viewImitateData
-                        fig2 = plt.figure(2)
-                        plt.imshow(img_, origin='lower')
-                        plt.title("imitation visual Data: " +  str(vd))
-                        fig2.savefig("viz_imitation_state_"+str(i)+".svg")
-                        
-                    plt.show()
+            rendering = env.getVisualState()
+            vizImitateData = env.getImitationVisualState()
+            
+            plt.imshow(rendering, origin='lower')
+            plt.draw()
+            plt.pause(0.0001)
                     
             img = env.getEnv().getVisualState()
-            """
+            # """
             if ( done ):
                 break
             

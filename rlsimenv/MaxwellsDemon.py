@@ -21,7 +21,8 @@ class MaxwellsDemonEnv(Environment):
         self.dt = self._dt
         self._iters = 2000 
         self._map_area = 6
-        self._render_shape = [128, 128, 3]
+        # self._render_shape = [128, 128, 3]
+        self._render_shape = [256, 256, 3]        
         self._observation_shape = [64, 64, 3]
         
         self._game_settings = {"include_egocentric_vision": True}
@@ -354,6 +355,18 @@ class MaxwellsDemonEnv(Environment):
             return img
         else:
             raise ValueError("Unhandled rendering mode")
+
+    def getVisualState(self):
+        return self.render()
+
+    def getImitationVisualState(self):
+        """TODO ????
+
+        :returns: 
+        :rtype: 
+
+        """
+        return self.render()
 
 class MaxwellsDemonEnvWithGUI(MaxwellsDemonEnv):
     def __init__(self, max_steps=256, seed=1234, gui=True):
