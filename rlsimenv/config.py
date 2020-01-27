@@ -1783,7 +1783,7 @@ SIMULATION_ENVIRONMENTS = """
 {
     "config_file": "./args/genBiped2D/biped2dfull_incline_with_terrain_features.txt",
     "time_limit": 256,
-    "sim_name": "rlsimenv.MaxwellsDemon.MaxwellsDemon",
+    "sim_name": "rlsimenv.MaxwellsDemon.MaxwellsDemonEnv",
         "comment__": "Possible state bounds to be used for scaling states for networks",
     "state_bounds": [[ -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, 
                         -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0, -10.0],

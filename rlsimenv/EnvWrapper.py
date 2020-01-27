@@ -1,5 +1,11 @@
 
+import json
+import os
+import sys
 import numpy as np
+
+from pydoc import locate
+from rlsimenv.config import SIMULATION_ENVIRONMENTS
 
 class ActionSpace(object):
     """
@@ -278,15 +284,10 @@ class EnvWrapper(object):
     
     
 def getEnvsList():
-    import os, sys, json
-    from rlsimenv.config import SIMULATION_ENVIRONMENTS
-    
     env_data = json.loads(SIMULATION_ENVIRONMENTS)
-    
     return env_data
 
 def getEnv(env_name, render=False):
-    import os, sys, json
     
     env_data = getEnvsList()
     # print("Envs: ", json.dumps(env_data, indent=2))
@@ -327,14 +328,15 @@ def getEnv(env_name, render=False):
         sim = ObjectCentricSawyer()
         sim.render_on = render
     else:
-        from pydoc import locate
         from rlsimenv.Environment import Environment
         sys.path.append("./stackingv2/")
         sys.path.append("./rlsimenv/stackingv2/")
         modelClass = locate(env_data[env_name]['sim_name'])
         print ("modelClass: ", modelClass)
-        if ( issubclass(modelClass, Environment)): ## Double check this load will work
-            sim = modelClass(settings=env_data[env_name])
+        if modelClass is None:
+            raise ValueError("Model class was None! Is the 'sim_name' correct?")
+        elif (issubclass(modelClass, Environment)): ## Double check this load will work
+            sim = modelClass() #settings=env_data[env_name])
             print("Created sim: ", sim)
         else:
             # sys.exit(2)

@@ -1,12 +1,10 @@
-from rlsimenv.EnvWrapper import getEnv
+import rlsimenv.EnvWrapper
 import numpy as np
 
-if __name__ == '__main__':
-    
-    
+def main():
     # env = getEnv(env_name="ParticleGame_2D-v0", render=False)
     # env = getEnv(env_name="CannonGameViz2-v0", render=True)
-    env = getEnv(env_name="MaxwellsDemon_v0", render=True)
+    env = rlsimenv.EnvWrapper.getEnv(env_name="MaxwellsDemon_v0", render=True)
 
     actionSpace = env.getActionSpace()
     env.setRandomSeed(1234)
@@ -74,4 +72,7 @@ if __name__ == '__main__':
             
     env.finish()
     
+    
+if __name__ == '__main__':
+    main()
     
