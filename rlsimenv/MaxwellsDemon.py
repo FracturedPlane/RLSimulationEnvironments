@@ -21,6 +21,7 @@ class MaxwellsDemonEnv(Environment):
         self.dt = self._dt
         self._iters=2000 
         self._map_area=6
+        self._screen_size=[200,200,3]
         
         self._game_settings = {"include_egocentric_vision": True}
         self.action_space = gym.spaces.Box(low=np.array([-1.2, -1.2, 0]), high=np.array([1.2,1.2,1]))
@@ -39,7 +40,7 @@ class MaxwellsDemonEnv(Environment):
         #p.setRealTimeSimulation(True)
         p.setGravity(0,0,self._GRAVITY)
         p.setTimeStep(self._dt)
-        planeId = p.loadURDF("plane.urdf")
+        planeId = p.loadURDF("plane.urdf", )
         
         cubeStartPos = [0,0,0.5]
         cubeStartOrientation = p.getQuaternionFromEuler([0.,0,0])
@@ -100,14 +101,13 @@ class MaxwellsDemonEnv(Environment):
         #ipdb.set_trace()
         p.setRealTimeSimulation(1)
         
-        lo = self.getObservation()[0] * 0.0
+        lo = self.getObservation()["pixels"] * 0.0
         hi = lo + 1.0
         self._game_settings['state_bounds'] = [lo, hi]
         self._state_length = len(self._game_settings['state_bounds'][0])
         print ("self._state_length: ", self._state_length)
         # self._observation_space = ActionSpace(self._game_settings['state_bounds'])
         self.observation_space = gym.spaces.Box(low=lo, high=hi)
-        self._screen_size=[200,200,3]
         
     def getNumAgents(self):
         return 1
@@ -116,7 +116,27 @@ class MaxwellsDemonEnv(Environment):
         pass
     
     def getViewData(self):
-        (w,y,img,depth,segment) = p.getCameraImage(*self._screen_size)
+        com_p, com_o = p.getBasePositionAndOrientation(self._agent)
+        rot_matrix = p.getMatrixFromQuaternion(com_o)
+        rot_matrix = np.array(rot_matrix).reshape(3, 3)
+        # Initial vectors
+        init_camera_vector = (0, 0, -1) # z-axis
+        init_up_vector = (0, 1, 0) # y-axis
+        # Rotated vectors
+        camera_vector = rot_matrix.dot(init_camera_vector)
+        up_vector = rot_matrix.dot(init_up_vector)
+        # view_matrix = p.computeViewMatrix(com_p, com_p + 0.1 * camera_vector, up_vector)
+        view_matrix = p.computeViewMatrix(
+                                cameraEyePosition=[0, 0, 15],
+                                cameraTargetPosition=[0, 0, 0],
+                                cameraUpVector=[0, 1, 0])
+        fov, aspect, nearplane, farplane = 60, 1.0, 0.01, 100
+        projection_matrix = p.computeProjectionMatrixFOV(fov, aspect, nearplane, farplane)
+        # img = p.getCameraImage(1000, 1000, view_matrix)
+        (w,y,img,depth,segment) = p.getCameraImage(width=self._screen_size[0],
+                                                   height=self._screen_size[1], 
+                                                   viewMatrix=view_matrix,
+                                                   projectionMatrix=projection_matrix)
         # print (img)
         return img
     
@@ -152,10 +172,9 @@ class MaxwellsDemonEnv(Environment):
     
     def getObservation(self):
         import numpy as np
-        out = []
-        if self._game_settings.get("include_egocentric_vision", False):
-            localMap = self.getlocalMapObservation()
-            out.extend(localMap)
+        out = {}
+        out["pixels"] = np.array(self.getlocalMapObservation()).flatten()
+        """
         data = p.getBaseVelocity(self._agent)
         ### linear vel
         out.extend([data[0][0], data[0][1]])
@@ -165,6 +184,7 @@ class MaxwellsDemonEnv(Environment):
         goalDirection = posT-pos
         out.extend([goalDirection[0], goalDirection[1]])
         out = np.array([np.array(out)])
+        """
         return out
     
     def getState(self):
@@ -217,39 +237,31 @@ class MaxwellsDemonEnv(Environment):
         """
         import numpy as np
         
-        pos = p.getBasePositionAndOrientation(self._agent)[0]
-        ### number of samples
-        size = 16
-        ### width of box
-        dimensions = 8.0
-        toRays = []
-        for i in range(0,size):
-            for j in range(0,size):
-                toRays.append([(1.0/(size * 1.0))*i*dimensions,(1.0/(size * 1.0))*j*dimensions,0])
-        assert (len(toRays) == (size*size))
-        toRays = np.array(toRays)
-        ### Adjust to put agent in middle of map
-        toRays = toRays + pos - np.array([dimensions/2.0, dimensions/2.0, 0])
-        # print ("toRays:", toRays )
-        
-        fromRays = toRays + np.array([0,0,5])
-        rayResults = p.rayTestBatch(fromRays, toRays)
-        intersections = [ray[0] for ray in rayResults]
-        # print (intersections)
-        ### fix intersections that could be goal
-        
-        for ray in range(len(intersections)):
-            if (intersections[ray] in [self._target, self._agent]):
-                # print ("bad index: ", ray)
-                intersections[ray] = -1
-        
-        """
-        if ( len(bad_indecies) > 0):
-            # print ("self._target: ", self._target)
-            intersections[bad_indecies] = -1
-        """
-        intersections = np.array(np.greater(intersections, 0), dtype="int")
-        return intersections
+        com_p, com_o = p.getBasePositionAndOrientation(self._agent)
+        rot_matrix = p.getMatrixFromQuaternion(com_o)
+        rot_matrix = np.array(rot_matrix).reshape(3, 3)
+        # Initial vectors
+        init_camera_vector = (0, 0, -1) # z-axis
+        init_up_vector = (0, 1, 0) # y-axis
+        # Rotated vectors
+        camera_vector = rot_matrix.dot(init_camera_vector)
+        up_vector = rot_matrix.dot(init_up_vector)
+        # view_matrix = p.computeViewMatrix(com_p, com_p + 0.1 * camera_vector, up_vector)
+        view_matrix = p.computeViewMatrix(
+                                cameraEyePosition=[com_p[0], com_p[1], 5],
+                                cameraTargetPosition=[com_p[0], com_p[1], 0],
+                                cameraUpVector=[0, 1, 0])
+        fov, aspect, nearplane, farplane = 60, 1.0, 0.01, 100
+        projection_matrix = p.computeProjectionMatrixFOV(fov, aspect, nearplane, farplane)
+        # img = p.getCameraImage(1000, 1000, view_matrix)
+        (w,y,img,depth,segment) = p.getCameraImage(width=self._screen_size[0],
+                                                   height=self._screen_size[1], 
+                                                   viewMatrix=view_matrix,
+                                                   projectionMatrix=projection_matrix)
+        # print (img)
+        ### Don't want alpha channel
+        img = img[:,:,:3]
+        return img
     
     def updateAction(self, action):
         import numpy as np

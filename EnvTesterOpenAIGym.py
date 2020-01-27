@@ -20,7 +20,7 @@ if __name__ == '__main__':
         env.reset()
         print ("New episode")
         # while (True):
-        for i in range(100):
+        for i in range(10):
             actions = env.action_space.sample()
             observation, reward,  done, info = env.step(actions)
             # print ("Reward: ", reward, "Action: ", actions, " observation: ", observation)
@@ -28,6 +28,7 @@ if __name__ == '__main__':
             print ("Done: ", done)
             
             viewData = env.render("rgb_array")
+            viewData = env.getlocalMapObservation()
             ## Get and vis terrain data
             if (True):
                 ## Don't use Xwindows backend for this
