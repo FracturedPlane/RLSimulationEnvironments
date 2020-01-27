@@ -101,13 +101,16 @@ class MaxwellsDemonEnv(Environment):
         #ipdb.set_trace()
         p.setRealTimeSimulation(1)
         
-        lo = self.getObservation()["pixels"] * 0.0
-        hi = lo + 1.0
+        # lo = self.getObservation()["pixels"] * 0.0
+        # hi = lo + 1.0
+        lo = 0.
+        hi = 1.
+
         self._game_settings['state_bounds'] = [lo, hi]
-        self._state_length = len(self._game_settings['state_bounds'][0])
-        print ("self._state_length: ", self._state_length)
+        
         # self._observation_space = ActionSpace(self._game_settings['state_bounds'])
-        self.observation_space = gym.spaces.Box(low=lo, high=hi)
+        # self.observation_space = gym.spaces.Box(low=lo, high=hi, shape=(64,64,3))
+        self.observation_space = gym.spaces.Box(low=lo, high=hi, shape=(64,64,3))
         
     def getNumAgents(self):
         return 1
@@ -138,7 +141,7 @@ class MaxwellsDemonEnv(Environment):
                                                    viewMatrix=view_matrix,
                                                    projectionMatrix=projection_matrix)
         # print (img)
-        return img
+        return img[..., :3]
     
     @property
     def sim(self):
@@ -171,21 +174,23 @@ class MaxwellsDemonEnv(Environment):
         return self.getObservation()
     
     def getObservation(self):
-        import numpy as np
-        out = {}
-        out["pixels"] = np.array(self.getlocalMapObservation()).flatten()
-        """
-        data = p.getBaseVelocity(self._agent)
-        ### linear vel
-        out.extend([data[0][0], data[0][1]])
-        ### angular vel
-        pos = np.array(p.getBasePositionAndOrientation(self._agent)[0])
-        posT = np.array(p.getBasePositionAndOrientation(self._target)[0])
-        goalDirection = posT-pos
-        out.extend([goalDirection[0], goalDirection[1]])
-        out = np.array([np.array(out)])
-        """
-        return out
+        return np.array(self.getlocalMapObservation())
+        # import numpy as np
+        # out = {}
+        # # out["pixels"] = np.array(self.getlocalMapObservation()).flatten()
+        # out["pixels"] = np.array(self.getlocalMapObservation())
+        # """
+        # data = p.getBaseVelocity(self._agent)
+        # ### linear vel
+        # out.extend([data[0][0], data[0][1]])
+        # ### angular vel
+        # pos = np.array(p.getBasePositionAndOrientation(self._agent)[0])
+        # posT = np.array(p.getBasePositionAndOrientation(self._target)[0])
+        # goalDirection = posT-pos
+        # out.extend([goalDirection[0], goalDirection[1]])
+        # out = np.array([np.array(out)])
+        # """
+        # return out
     
     def getState(self):
         return self.getObservation()
@@ -235,7 +240,6 @@ class MaxwellsDemonEnv(Environment):
         """
             For now this includes the agent in the center of the computation
         """
-        import numpy as np
         
         com_p, com_o = p.getBasePositionAndOrientation(self._agent)
         rot_matrix = p.getMatrixFromQuaternion(com_o)
@@ -261,7 +265,8 @@ class MaxwellsDemonEnv(Environment):
         # print (img)
         ### Don't want alpha channel
         img = img[:,:,:3]
-        return img
+        return np.random.random((64,64,3))
+        # return img
     
     def updateAction(self, action):
         import numpy as np
