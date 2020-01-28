@@ -18,7 +18,11 @@ class MaxwellsDemonEnv(Environment):
     def __init__(self, max_steps=256, seed=1234, gui=False):
         super(MaxwellsDemonEnv,self).__init__()
         self._GRAVITY = -9.8
-        self._dt = 1/20.0
+        # self._dt = 1/20.0
+        self._dt = 1/100.0
+
+        self.sim_steps = 5
+        
         self.dt = self._dt
         self._iters = 2000 
         self._map_area = 6
@@ -302,35 +306,12 @@ class MaxwellsDemonEnv(Environment):
         target_base_vel = pybullet.getBaseVelocity(self._target)[0]
         updated_vel = target_base_vel + np.random.normal(size=(3,), scale=2.)
         updated_vel[-1] = 0.
-        # pdb.set_trace()
+   
         pybullet.resetBaseVelocity(self._target, linearVelocity=updated_vel)
-        # pybullet.resetBaseVelocity(self._target, linearVelocity=updated_vel)
 
         # Need to do this so the intersections are computed
-        pybullet.stepSimulation()
-        # pybullet.resetBasePositionAndOrientation(self._agent, pos, pybullet.getQuaternionFromEuler([0.,0,0]))
-        # pybullet.resetBaseVelocity(self._agent, linearVelocity=[0,0,0], angularVelocity=[0,0,0])
-        
-        # pos_t = np.array(pybullet.getBasePositionAndOrientation(self._target)[0])
-        # x = ((np.random.rand()-0.5) * self._map_area * 0.05) + pos_t[0]
-        # y = ((np.random.rand()-0.5) * self._map_area * 0.05) + pos_t[1]
-        # if (x > self._map_area):
-        #     x = self._map_area
-        # if (x < -self._map_area):
-        #     x = -self._map_area
-        # if (y > self._map_area):
-        #     y = self._map_area
-        # if (y < -self._map_area):
-        #     y = self._map_area
-
-        # self.put_on_ground(self._agent)
-        # self.put_on_ground(self._target)
-        
-        # pybullet.resetBaseVelocity(self._target, [0,0,0], [0,0,0])
-        
-        # time.sleep(1)
+        for i in range(self.sim_steps): pybullet.stepSimulation()
         reward = self.computeReward(state=None)
-        # print("reward: ", reward)
         self.__reward = reward
 
     def put_on_ground(self, agent):

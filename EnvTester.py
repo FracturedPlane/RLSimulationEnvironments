@@ -9,8 +9,6 @@ def main():
     # env = getEnv(env_name="ParticleGame_2D-v0", render=False)
     # env = getEnv(env_name="CannonGameViz2-v0", render=True)
     env = rlsimenv.EnvWrapper.getEnv(env_name="MaxwellsDemon_v0", render=True)
-
-    actionSpace = env.getActionSpace()
     env.setRandomSeed(1234)
     
     print("observation space min: ", env.observation_space.low)
@@ -27,7 +25,7 @@ def main():
     env.reset()
     for epoch in range(10):
         env.reset()
-        print ("New episode")
+        print("New episode")
         # while (True):
         ims = None
         for i in range(100):
@@ -41,8 +39,8 @@ def main():
                 observation, reward,  done, info = env.step(actions[0])
                 # observation, reward,  done, info = env.step([0,0])
             # print ("Reward: ", reward, "Action: ", actions, " observation: ", observation)
-            print ("observation size: ", np.array(observation).shape)
-            print ("Done: ", done)
+            print("observation size: ", np.array(observation).shape)
+            print("Done: ", done)
             # """
 
             rendering = env.getVisualState()
@@ -59,7 +57,5 @@ def main():
             
     env.finish()
     
-    
 if __name__ == '__main__':
     main()
-    
