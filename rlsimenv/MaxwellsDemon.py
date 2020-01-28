@@ -51,7 +51,7 @@ class MaxwellsDemonEnv(Environment):
         cubeStartPos = [0,0,0.5]
         cubeStartOrientation = pybullet.getQuaternionFromEuler([0.,0,0])
         # These exist as part of the pybullet installation.
-        self._agent = pybullet.loadURDF("sphere2.urdf", cubeStartPos, cubeStartOrientation, useFixedBase=0)
+        self._agent = pybullet.loadURDF(DATA_DIR + "/sphere2_yellow.urdf", cubeStartPos, cubeStartOrientation, useFixedBase=0)
         
         self._target = pybullet.loadURDF("sphere2red.urdf", cubeStartPos, cubeStartOrientation, useFixedBase=0)
         
