@@ -22,8 +22,8 @@ class MaxwellsDemonEnv(Environment):
         self.dt = self._dt
         self._iters = 2000 
         self._map_area = 6
-        # self._render_shape = [128, 128, 3]
-        self._render_shape = [256, 256, 3]        
+        self._render_shape = [128, 128, 3]
+        # self._render_shape = [256, 256, 3]        
         self._observation_shape = [64, 64, 3]
         
         self._game_settings = {"include_egocentric_vision": True}
@@ -278,10 +278,13 @@ class MaxwellsDemonEnv(Environment):
     
     def updateAction(self, action):
         action[-1] = min(max(action[-1], -0.01), 1.)
+
+        # Door update.
         for door in self._doors:
             pos_d = np.array(pybullet.getBasePositionAndOrientation(door)[0])
             pos_d[2] = action[2] - 0.5
             pybullet.resetBasePositionAndOrientation(door, pos_d, pybullet.getQuaternionFromEuler([0.,0,0]))
+            
         # apply delta position change.
         action = np.array([action[0], action[1], 0])
         base_vel = pybullet.getBaseVelocity(self._agent)[0]
