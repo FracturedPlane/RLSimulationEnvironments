@@ -21,17 +21,19 @@ def main():
 
     # plt.axis([0, 128, 128, 0])
     plt.ion()
-    plt.show()
+    fig, axes = plt.subplots(1,2)
+    fig.show()
     
     env.reset()
     for epoch in range(10):
         env.reset()
         print ("New episode")
         # while (True):
+        ims = None
         for i in range(100):
             actions = []
             for a in range(env.getNumberofAgents()):
-                action = ((actionSpace.high - actionSpace.low) * np.random.uniform(size=actionSpace.low.shape[0])  ) + actionSpace.low
+                action = np.random.normal(size=(3,), scale=1.)
                 actions.append(action)
             if (env.getNumberofAgents() > 1):
                 observation, reward,  done, info = env.step(actions)
@@ -44,17 +46,16 @@ def main():
             # """
 
             rendering = env.getVisualState()
-            vizImitateData = env.getImitationVisualState()
-            
-            plt.imshow(rendering, origin='lower')
+            observation = env.getObservation()
+
+            if ims is not None:
+                for im in ims: im.remove()
+            im0 = axes[0].imshow(rendering, origin='lower')
+            im1 = axes[1].imshow(observation, origin='lower')
+            ims = [im0, im1]
+
             plt.draw()
             plt.pause(0.0001)
-                    
-            img = env.getEnv().getVisualState()
-            # """
-            if ( done ):
-                break
-            
             
     env.finish()
     

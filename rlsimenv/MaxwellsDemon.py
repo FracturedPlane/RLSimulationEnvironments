@@ -2,6 +2,7 @@
 import gym
 import numpy as np
 import os
+import pdb
 import pybullet
 import pybullet_data
 
@@ -26,8 +27,10 @@ class MaxwellsDemonEnv(Environment):
         self._observation_shape = [64, 64, 3]
         
         self._game_settings = {"include_egocentric_vision": True}
-        self.action_space = gym.spaces.Box(low=np.array([-1.2, -1.2, 0]), high=np.array([1.2,1.2,1]))
+        # self.action_space = gym.spaces.Box(low=np.array([-1.2, -1.2, 0]), high=np.array([1.2,1.2,1]))
 
+        self.action_space = gym.spaces.Box(low=np.array([-5, -5, 0]), high=np.array([5, 5, 1]))
+        
         print("gui count", MaxwellsDemonEnv.count)        
         if gui:
             # self._object.setPosition([self._x[self._step], self._y[self._step], 0.0] )
@@ -47,44 +50,48 @@ class MaxwellsDemonEnv(Environment):
         
         cubeStartPos = [0,0,0.5]
         cubeStartOrientation = pybullet.getQuaternionFromEuler([0.,0,0])
-        # TODO where do these URDFs exist?
-        self._agent = pybullet.loadURDF("sphere2.urdf", cubeStartPos, cubeStartOrientation, useFixedBase=1) 
+        # These exist as part of the pybullet installation.
+        self._agent = pybullet.loadURDF("sphere2.urdf", cubeStartPos, cubeStartOrientation, useFixedBase=0)
         
-        self._target = pybullet.loadURDF("sphere2red.urdf", cubeStartPos, cubeStartOrientation, useFixedBase=1)
+        self._target = pybullet.loadURDF("sphere2red.urdf", cubeStartPos, cubeStartOrientation, useFixedBase=0)
         
         pybullet.setAdditionalSearchPath(RLSIMENV_PATH + '/rlsimenv/data')
+
+        # pybullet.changeDynamics(self._agent, -1, rollingFriction=0.)
         
         # Add walls
         self._blocks = []
-        # Right walls
-        cube_locations = [[self._map_area, y, 0.5] for y in range(-self._map_area, -2)]
-        cube_locations.extend([[self._map_area, y, 0.5] for y in range(2, self._map_area)])
-        
-        # Left wall
-        cube_locations.extend([[-self._map_area, y, 0.5] for y in range(-self._map_area, self._map_area)])
-        # Top Wall
-        cube_locations.extend([[y, self._map_area, 0.5] for y in range(-self._map_area, self._map_area)])
-        # Bottom Wall
-        cube_locations.extend([[y, -self._map_area, 0.5] for y in range(-self._map_area, self._map_area)])
-        # Add small room
-        # Add Right wall
-        cube_locations.extend([[self._map_area+(self._map_area//2), y, 0.5] for y in range(-self._map_area//2, self._map_area//2)])
-        # Top wall 
-        cube_locations.extend([[y, self._map_area//2, 0.5] for y in range(self._map_area, self._map_area+(self._map_area//2))])
-        # Bottom wall 
-        cube_locations.extend([[y, -self._map_area//2, 0.5] for y in range(self._map_area, self._map_area+(self._map_area//2))])
-        # print ("cube_locations: ", cube_locations)
-        for loc in cube_locations:
-            blockId = pybullet.loadURDF(DATA_DIR + "/cube2.urdf",
-                                        loc,
-                                        cubeStartOrientation,
-                                        useFixedBase=1) 
-            self._blocks.append(blockId)
+
+        for z in [0.5, 1.5, 2.5]:
+            # Right walls
+            cube_locations = [[self._map_area, y, z] for y in range(-self._map_area, -2)]
+            cube_locations.extend([[self._map_area, y, z] for y in range(2, self._map_area)])
+
+            # Left wall
+            cube_locations.extend([[-self._map_area, y, z] for y in range(-self._map_area, self._map_area)])
+            # Top Wall
+            cube_locations.extend([[y, self._map_area, z] for y in range(-self._map_area, self._map_area)])
+            # Bottom Wall
+            cube_locations.extend([[y, -self._map_area, z] for y in range(-self._map_area, self._map_area)])
+            # Add small room
+            # Add Right wall
+            cube_locations.extend([[self._map_area+(self._map_area//2), y, z] for y in range(-self._map_area//2, self._map_area//2)])
+            # Top wall 
+            cube_locations.extend([[y, self._map_area//2, z] for y in range(self._map_area, self._map_area+(self._map_area//2))])
+            # Bottom wall 
+            cube_locations.extend([[y, -self._map_area//2, z] for y in range(self._map_area, self._map_area+(self._map_area//2))])
+            # print ("cube_locations: ", cube_locations)
+            for loc in cube_locations:
+                blockId = pybullet.loadURDF(DATA_DIR + "/cube2.urdf",
+                                            loc,
+                                            cubeStartOrientation,
+                                            useFixedBase=1) 
+                self._blocks.append(blockId)
             
         self._doors = []
         door_locations = [[self._map_area, y, 0] for y in range(-2, 2)]
         for loc in door_locations:
-            blockId = pybullet.loadURDF(DATA_DIR + "/cube2.urdf",
+            blockId = pybullet.loadURDF(DATA_DIR + "/door_cube.urdf",
                                         loc,
                                         cubeStartOrientation,
                                         useFixedBase=1) 
@@ -158,13 +165,13 @@ class MaxwellsDemonEnv(Environment):
         
     def reset(self):
         self._done = False
-        x = (np.random.rand()-0.5) * self._map_area * 2.0
-        y = (np.random.rand()-0.5) * self._map_area * 2.0
+        x = (np.random.rand()-0.5) * (self._map_area - 1) * 2.0
+        y = (np.random.rand()-0.5) * (self._map_area - 1) * 2.0
         pybullet.resetBasePositionAndOrientation(self._agent, [x,y,0.5], pybullet.getQuaternionFromEuler([0.,0,0]))
         pybullet.resetBaseVelocity(self._agent, [0,0,0], [0,0,0])
         
-        x = (np.random.rand()-0.5) * self._map_area * 2.0
-        y = (np.random.rand()-0.5) * self._map_area * 2.0
+        x = (np.random.rand()-0.5) * (self._map_area - 1) * 2.0
+        y = (np.random.rand()-0.5) * (self._map_area - 1) * 2.0
         pybullet.resetBasePositionAndOrientation(self._target, [x,y,0.5], pybullet.getQuaternionFromEuler([0.,0,0]))
         pybullet.resetBaseVelocity(self._target, [0,0,0], [0,0,0])
         
@@ -270,14 +277,16 @@ class MaxwellsDemonEnv(Environment):
         return img
     
     def updateAction(self, action):
-        
+        action[-1] = min(max(action[-1], -0.01), 1.)
         for door in self._doors:
             pos_d = np.array(pybullet.getBasePositionAndOrientation(door)[0])
             pos_d[2] = action[2] - 0.5
             pybullet.resetBasePositionAndOrientation(door, pos_d, pybullet.getQuaternionFromEuler([0.,0,0]))
         # apply delta position change.
         action = np.array([action[0], action[1], 0])
-        pybullet.resetBaseVelocity(self._agent, linearVelocity=action, angularVelocity=[0,0,0])
+        base_vel = pybullet.getBaseVelocity(self._agent)[0]
+        updated_vel = base_vel + action
+        pybullet.resetBaseVelocity(self._agent, linearVelocity=updated_vel)
         # vel = pybullet.getBaseVelocity(self._agent)[0]
         
     def update(self):
@@ -287,30 +296,44 @@ class MaxwellsDemonEnv(Environment):
         pos = pos + (vel*self._dt)
         pos[2] = 0.5
 
+        target_base_vel = pybullet.getBaseVelocity(self._target)[0]
+        updated_vel = target_base_vel + np.random.normal(size=(3,), scale=2.)
+        updated_vel[-1] = 0.
+        # pdb.set_trace()
+        pybullet.resetBaseVelocity(self._target, linearVelocity=updated_vel)
+        # pybullet.resetBaseVelocity(self._target, linearVelocity=updated_vel)
+
         # Need to do this so the intersections are computed
         pybullet.stepSimulation()
-        pybullet.resetBasePositionAndOrientation(self._agent, pos, pybullet.getQuaternionFromEuler([0.,0,0]))
-        pybullet.resetBaseVelocity(self._agent, linearVelocity=[0,0,0], angularVelocity=[0,0,0])
+        # pybullet.resetBasePositionAndOrientation(self._agent, pos, pybullet.getQuaternionFromEuler([0.,0,0]))
+        # pybullet.resetBaseVelocity(self._agent, linearVelocity=[0,0,0], angularVelocity=[0,0,0])
         
-        pos_t = np.array(pybullet.getBasePositionAndOrientation(self._target)[0])
-        x = ((np.random.rand()-0.5) * self._map_area * 0.05) + pos_t[0]
-        y = ((np.random.rand()-0.5) * self._map_area * 0.05) + pos_t[1]
-        if (x > self._map_area):
-            x = self._map_area
-        if (x < -self._map_area):
-            x = -self._map_area
-        if (y > self._map_area):
-            y = self._map_area
-        if (y < -self._map_area):
-            y = self._map_area
-            
-        pybullet.resetBasePositionAndOrientation(self._target, [x, y, 0.5], pybullet.getQuaternionFromEuler([0.,0,0]))
-        pybullet.resetBaseVelocity(self._target, [0,0,0], [0,0,0])
+        # pos_t = np.array(pybullet.getBasePositionAndOrientation(self._target)[0])
+        # x = ((np.random.rand()-0.5) * self._map_area * 0.05) + pos_t[0]
+        # y = ((np.random.rand()-0.5) * self._map_area * 0.05) + pos_t[1]
+        # if (x > self._map_area):
+        #     x = self._map_area
+        # if (x < -self._map_area):
+        #     x = -self._map_area
+        # if (y > self._map_area):
+        #     y = self._map_area
+        # if (y < -self._map_area):
+        #     y = self._map_area
+
+        # self.put_on_ground(self._agent)
+        # self.put_on_ground(self._target)
+        
+        # pybullet.resetBaseVelocity(self._target, [0,0,0], [0,0,0])
         
         # time.sleep(1)
         reward = self.computeReward(state=None)
         # print("reward: ", reward)
         self.__reward = reward
+
+    def put_on_ground(self, agent):
+        agent_pos, agent_ori = map(np.array, pybullet.getBasePositionAndOrientation(agent))
+        agent_pos[-1] = 0.6
+        pybullet.resetBasePositionAndOrientation(agent, agent_pos, agent_ori)
         
     def finish(self):
         pass
