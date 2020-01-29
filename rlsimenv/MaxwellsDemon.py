@@ -29,6 +29,9 @@ class MaxwellsDemonEnv(Environment):
         self._render_shape = [128, 128, 3]
         # self._render_shape = [256, 256, 3]        
         self._observation_shape = [64, 64, 3]
+        # Controls how much the observation can see around the agent.        
+        # self._observation_height = 5
+        self._observation_height = 10
         
         self._game_settings = {"include_egocentric_vision": True}
         # self.action_space = gym.spaces.Box(low=np.array([-1.2, -1.2, 0]), high=np.array([1.2,1.2,1]))
@@ -264,7 +267,7 @@ class MaxwellsDemonEnv(Environment):
         # camera_vector = rot_matrix.dot(init_camera_vector)
         # up_vector = rot_matrix.dot(init_up_vector)
         # view_matrix = p.computeViewMatrix(com_p, com_p + 0.1 * camera_vector, up_vector)
-        view_matrix = pybullet.computeViewMatrix(cameraEyePosition=[com_p[0], com_p[1], 5],
+        view_matrix = pybullet.computeViewMatrix(cameraEyePosition=[com_p[0], com_p[1], self._observation_height],
                                                  cameraTargetPosition=[com_p[0], com_p[1], 0],
                                                  cameraUpVector=[0, 1, 0])
         fov, aspect, nearplane, farplane = 60, 1.0, 0.01, 100
