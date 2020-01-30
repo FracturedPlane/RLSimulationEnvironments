@@ -7,7 +7,7 @@ import numpy as np
 from pydoc import locate
 from rlsimenv.config import SIMULATION_ENVIRONMENTS
 
-class ActionSpace(object):
+class ActionSpace:
     """
         Wrapper for the action space of an env
     """
@@ -30,7 +30,7 @@ class ActionSpace(object):
     def high(self):
         return self._maximum
 
-class EnvWrapper(object):
+class EnvWrapper:
     """
         Wrapper for the RLSimEnv to make function calls simple
     """

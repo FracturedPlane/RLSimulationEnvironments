@@ -1,5 +1,6 @@
 
 import gym
+import math
 import numpy as np
 import os
 import pdb
@@ -8,6 +9,7 @@ import pybullet_data
 
 from rlsimenv.Environment import Environment
 import rlsimenv.class_util as classu
+import rlsimenv.math_util as mathu
 
 THIS_DIR = os.path.dirname(__file__)
 DATA_DIR = os.path.join(THIS_DIR, "data")
@@ -18,7 +20,7 @@ class MaxwellsDemonEnv(Environment):
 
     @classu.hidden_member_initialize
     def __init__(self,
-                 max_steps=256,
+                 max_steps=500,
                  seed=1234,
                  gui=False,
                  map_width=4,
@@ -83,7 +85,7 @@ class MaxwellsDemonEnv(Environment):
         self._blocks = []
 
         self._wall_heights = [0.5, 1.5]
-        self.action_space = gym.spaces.Box(low=np.array([-5, -5, 0]), high=np.array([5, 5, self._wall_heights[-1]]))
+        self.action_space = gym.spaces.Box(low=np.array([-5, -5, -10]), high=np.array([5, 5, 10])) #self._wall_heights[-1]]))
         # self._wall_heights = (0.5, 1.5)
 
         x_full_right = (1+self._chamber_fraction) * self._map_width + self._cube_width
@@ -344,12 +346,18 @@ class MaxwellsDemonEnv(Environment):
         return img
     
     def updateAction(self, action):
-        action[-1] = min(max(action[-1], -0.01), self._wall_heights[-1] - (self._wall_heights[-1] - self._wall_heights[-2])/2.)
+        # action[-1] = min(max(action[-1], -0.01), self._wall_heights[-1] - (self._wall_heights[-1] - self._wall_heights[-2])/2.)
+        # pdb.set_trace()
+        action = np.asarray(action)
+        action = np.minimum(np.maximum(action, self.action_space.low), self.action_space.high).tolist()
 
         # Door update.
         for door in self._doors:
             pos_d = np.array(pybullet.getBasePositionAndOrientation(door)[0])
-            pos_d[2] = action[2] - 0.5
+            # Fast growth rate
+            sig_action = mathu.genlogistic_function(action[2], b=5, a=-1.0, k=0.0)
+            pos_d[2] = sig_action
+            
             pybullet.resetBasePositionAndOrientation(door, pos_d, pybullet.getQuaternionFromEuler([0.,0,0]))
             
         # apply delta position change.

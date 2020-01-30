@@ -23,21 +23,22 @@ def main():
     fig.show()
     
     env.reset()
-    repeat = 20
+    repeat = 1
     for epoch in range(10):
         env.reset()
         print("New episode")
         # while (True):
         ims = None
         r = repeat
-        for i in range(100):
+        for i in range(env._sim._max_steps):
             if r == repeat:
                 r = 0
                 actions = []
                 # actions.append(np.random.choice([0, 2.5]))
                 for a in range(env.getNumberofAgents()):
                     action = np.random.normal(size=(3,), scale=1.)
-                    action[-1] = np.random.choice([-0.01, 2.5])
+                    action[-1] = (np.random.random() - 0.5) * 10
+                    # action[-1] = np.random.choice([-9, -1, 0., 1., 9])
                     actions.append(action)
             else:
                 r += 1
