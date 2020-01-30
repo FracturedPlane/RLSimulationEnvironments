@@ -397,3 +397,20 @@ class MaxwellsDemonEnv(Environment):
 class MaxwellsDemonEnvWithGUI(MaxwellsDemonEnv):
     def __init__(self, max_steps=256, seed=1234, gui=True):
         super().__init__(max_steps=256, seed=1234, gui=True)
+
+
+class MaxwellsDemonPartiallyObserved(MaxwellsDemonEnv):
+    def __init__(self, **kwargs):
+        kwargs.update({'render_shape':(128, 128, 3),
+                       'observation_shape':(64, 64, 3),
+                       'map_area':6,
+                       'observation_height':10})
+        super().__init__(**kwargs)
+
+class MaxwellsDemonFullyObserved(MaxwellsDemonEnv):
+    def __init__(self, **kwargs):
+        kwargs.update({'render_shape':(128, 128, 3),
+                       'observation_shape':(64, 64, 3),
+                       'map_area':4,
+                       'observation_height':15})
+        super().__init__(**kwargs)
