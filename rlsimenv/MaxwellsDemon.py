@@ -29,7 +29,8 @@ class MaxwellsDemonEnv(Environment):
                  obs_fov=60,
                  obs_aspect=1.0,
                  obs_nearplane=0.01,
-                 obs_farplane=100
+                 obs_farplane=100,
+                 reset_upon_touch=False
                  ):
         super(MaxwellsDemonEnv, self).__init__()
         
@@ -345,10 +346,10 @@ class MaxwellsDemonEnv(Environment):
         return self.__reward
         
     def agentHasFallen(self):
-        return self.endOfEpoch()
+        if self.reset_upon_touch: return self.endOfEpoch()
+        else: return False
     
     def endOfEpoch(self):
-        
         pos = np.array(pybullet.getBasePositionAndOrientation(self._agent)[0])
         posT = np.array(pybullet.getBasePositionAndOrientation(self._target)[0])
         goalDirection = posT-pos
@@ -394,17 +395,13 @@ class MaxwellsDemonEnv(Environment):
         """
         return self.render()
 
-class MaxwellsDemonEnvWithGUI(MaxwellsDemonEnv):
-    def __init__(self, max_steps=256, seed=1234, gui=True):
-        super().__init__(max_steps=256, seed=1234, gui=True)
-
-
 class MaxwellsDemonPartiallyObserved(MaxwellsDemonEnv):
     def __init__(self, **kwargs):
         kwargs.update({'render_shape':(128, 128, 3),
                        'observation_shape':(64, 64, 3),
                        'map_area':6,
-                       'observation_height':10})
+                       'observation_height':10,
+                       'reset_upon_touch': False})
         super().__init__(**kwargs)
 
 class MaxwellsDemonFullyObserved(MaxwellsDemonEnv):
@@ -412,5 +409,6 @@ class MaxwellsDemonFullyObserved(MaxwellsDemonEnv):
         kwargs.update({'render_shape':(128, 128, 3),
                        'observation_shape':(64, 64, 3),
                        'map_area':4,
-                       'observation_height':15})
+                       'observation_height':15,
+                    'reset_upon_touch': False})
         super().__init__(**kwargs)

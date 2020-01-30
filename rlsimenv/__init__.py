@@ -14,12 +14,6 @@ gym_register(
     max_episode_steps=500,
 )
 gym_register(
-    id='ContinuousMaxwellsDemonWithGUI-v0',
-    entry_point='rlsimenv.MaxwellsDemon:MaxwellsDemonEnvWithGUI',
-    reward_threshold=0.95,
-    max_episode_steps=500,
-)
-gym_register(
     id='ContinuousMaxwellsDemonFullyObserved-v0',
     entry_point='rlsimenv.MaxwellsDemon:MaxwellsDemonFullyObserved',
     reward_threshold=0.95,
