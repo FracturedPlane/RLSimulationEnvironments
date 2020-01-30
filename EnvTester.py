@@ -19,7 +19,7 @@ def main():
 
     # plt.axis([0, 128, 128, 0])
     plt.ion()
-    fig, axes = plt.subplots(1,2)
+    fig, axes = plt.subplots(1,2, figsize=(10,5))
     fig.show()
     
     env.reset()

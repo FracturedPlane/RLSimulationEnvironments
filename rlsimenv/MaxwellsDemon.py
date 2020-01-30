@@ -16,21 +16,28 @@ class MaxwellsDemonEnv(Environment):
     """Implements gym.Env"""
     count = 0
 
-    @classu.member_initialize
+    @classu.hidden_member_initialize
     def __init__(self,
                  max_steps=256,
                  seed=1234,
                  gui=False,
-                 map_area=6,
-                 observation_height=10,
+                 map_area=4,
+                 observation_height=15,
                  iters=2000,
-                 render_shape=[128, 128, 3],
-                 observation_shape=(64, 64, 3)):
+                 render_shape=(128, 128, 3),
+                 observation_shape=(64, 64, 3),
+                 obs_fov=60,
+                 obs_aspect=1.0,
+                 obs_nearplane=0.01,
+                 obs_farplane=100
+                 ):
         super(MaxwellsDemonEnv, self).__init__()
         
         self._GRAVITY = -9.8
         self._dt = 1/100.0
         self.sim_steps = 5
+        # Temp. Doesn't currently make sense if smaller.
+        assert(map_area >= 4)
         
         self.dt = self._dt
         # self._iters = 2000 
@@ -75,7 +82,10 @@ class MaxwellsDemonEnv(Environment):
         # Add walls
         self._blocks = []
 
-        for z in [0.5, 1.5, 2.5]:
+        # wall_heights = [0.5, 1.5, 2.5]
+        wall_heights = (0.5, 1.5)
+        
+        for z in wall_heights:
             # Right walls
             cube_locations = [[self._map_area, y, z] for y in range(-self._map_area, -2)]
             cube_locations.extend([[self._map_area, y, z] for y in range(2, self._map_area)])
@@ -155,7 +165,7 @@ class MaxwellsDemonEnv(Environment):
             cameraEyePosition=[0, 0, 15],
             cameraTargetPosition=[0, 0, 0],
             cameraUpVector=[0, 1, 0])
-        fov, aspect, nearplane, farplane = 60, 1.0, 0.01, 100
+        fov, aspect, nearplane, farplane = 60, 1.0, 0.01, 100        
         projection_matrix = pybullet.computeProjectionMatrixFOV(fov, aspect, nearplane, farplane)
         # img = p.getCameraImage(1000, 1000, view_matrix)
         (w,y,img,depth,segment) = pybullet.getCameraImage(width=self._render_shape[0],
@@ -276,8 +286,8 @@ class MaxwellsDemonEnv(Environment):
         view_matrix = pybullet.computeViewMatrix(cameraEyePosition=[com_p[0], com_p[1], self._observation_height],
                                                  cameraTargetPosition=[com_p[0], com_p[1], 0],
                                                  cameraUpVector=[0, 1, 0])
-        fov, aspect, nearplane, farplane = 60, 1.0, 0.01, 100
-        projection_matrix = pybullet.computeProjectionMatrixFOV(fov, aspect, nearplane, farplane)
+        projection_matrix = pybullet.computeProjectionMatrixFOV(
+            self._obs_fov, self._obs_aspect, self._obs_nearplane, self._obs_farplane)
         # img = pybullet.getCameraImage(1000, 1000, view_matrix)
         (w,y,img,depth,segment) = pybullet.getCameraImage(
             width=self._observation_shape[0],

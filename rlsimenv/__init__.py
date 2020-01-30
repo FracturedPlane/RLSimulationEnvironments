@@ -17,12 +17,20 @@ try:
         entry_point='rlsimenv.MaxwellsDemon:MaxwellsDemonEnvWithGUI',
         reward_threshold=0.95,
         max_episode_steps=500,
+        obs_fov=60,
+        observation_height=10,
+        map_area=6,
+        observation_shape=(64,64,3)
     )
     gym_register(
-        id='ContinuousMaxwellsDemonTiny-v0',
+        id='ContinuousMaxwellsDemonFullyObserved-v0',
         entry_point='rlsimenv.MaxwellsDemon:MaxwellsDemonEnv',
         reward_threshold=0.95,
         max_episode_steps=500,
+        render_shape=(128, 128, 3),
+        observation_shape=(64, 64, 3),
+        map_area=4,
+        observation_height=15,        
     )
 except:
     print ("gym not installed")
