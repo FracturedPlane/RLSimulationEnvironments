@@ -463,5 +463,5 @@ class MaxwellsDemonFullyObserved(MaxwellsDemonEnv):
                        'observation_shape':(64, 64, 3),
                        'map_width':4,
                        'observation_height':15,
-                    'reset_upon_touch': False})
+                       'reset_upon_touch': False})
         super().__init__(**kwargs)
