@@ -7,6 +7,7 @@ import pybullet
 import pybullet_data
 
 from rlsimenv.Environment import Environment
+import rlsimenv.class_util as classu
 
 THIS_DIR = os.path.dirname(__file__)
 DATA_DIR = os.path.join(THIS_DIR, "data")
@@ -14,31 +15,36 @@ DATA_DIR = os.path.join(THIS_DIR, "data")
 class MaxwellsDemonEnv(Environment):
     """Implements gym.Env"""
     count = 0
-    
-    def __init__(self, max_steps=256, seed=1234, gui=False):
-        super(MaxwellsDemonEnv,self).__init__()
-        self._GRAVITY = -9.8
-        # self._dt = 1/20.0
-        self._dt = 1/100.0
 
+    @classu.member_initialize
+    def __init__(self,
+                 max_steps=256,
+                 seed=1234,
+                 gui=False,
+                 map_area=6,
+                 observation_height=10,
+                 iters=2000,
+                 render_shape=[128, 128, 3],
+                 observation_shape=(64, 64, 3)):
+        super(MaxwellsDemonEnv, self).__init__()
+        
+        self._GRAVITY = -9.8
+        self._dt = 1/100.0
         self.sim_steps = 5
         
         self.dt = self._dt
-        self._iters = 2000 
-        self._map_area = 6
-        self._render_shape = [128, 128, 3]
-        # self._render_shape = [256, 256, 3]        
-        self._observation_shape = [64, 64, 3]
+        # self._iters = 2000 
+        # self._map_area = map_area
+        # self._render_shape = render_shape
+        # self._observation_shape = observation_shape
         # Controls how much the observation can see around the agent.        
-        # self._observation_height = 5
-        self._observation_height = 10
+        # self._observation_height = observation_height
         
         self._game_settings = {"include_egocentric_vision": True}
         # self.action_space = gym.spaces.Box(low=np.array([-1.2, -1.2, 0]), high=np.array([1.2,1.2,1]))
 
         self.action_space = gym.spaces.Box(low=np.array([-5, -5, 0]), high=np.array([5, 5, 1]))
         
-        print("gui count", MaxwellsDemonEnv.count)        
         if gui:
             # self._object.setPosition([self._x[self._step], self._y[self._step], 0.0] )
             self._physicsClient = pybullet.connect(pybullet.GUI)
@@ -55,7 +61,7 @@ class MaxwellsDemonEnv(Environment):
         # _planeId = pybullet.loadURDF("plane.urdf", )
         pybullet.loadURDF("plane.urdf")
         
-        cubeStartPos = [0,0,0.5]
+        cubeStartPos = [0, 0, 0.5]
         cubeStartOrientation = pybullet.getQuaternionFromEuler([0.,0,0])
         # These exist as part of the pybullet installation.
         self._agent = pybullet.loadURDF(DATA_DIR + "/sphere2_yellow.urdf", cubeStartPos, cubeStartOrientation, useFixedBase=0)
