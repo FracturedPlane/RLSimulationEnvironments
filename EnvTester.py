@@ -23,16 +23,24 @@ def main():
     fig.show()
     
     env.reset()
+    repeat = 20
     for epoch in range(10):
         env.reset()
         print("New episode")
         # while (True):
         ims = None
+        r = repeat
         for i in range(100):
-            actions = []
-            for a in range(env.getNumberofAgents()):
-                action = np.random.normal(size=(3,), scale=1.)
-                actions.append(action)
+            if r == repeat:
+                r = 0
+                actions = []
+                # actions.append(np.random.choice([0, 2.5]))
+                for a in range(env.getNumberofAgents()):
+                    action = np.random.normal(size=(3,), scale=1.)
+                    action[-1] = np.random.choice([-0.01, 2.5])
+                    actions.append(action)
+            else:
+                r += 1
             if (env.getNumberofAgents() > 1):
                 observation, reward,  done, info = env.step(actions)
             else:
@@ -54,6 +62,7 @@ def main():
 
             plt.draw()
             plt.pause(0.0001)
+            if done: break
             
     env.finish()
     
