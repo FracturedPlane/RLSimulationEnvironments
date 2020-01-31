@@ -19,5 +19,20 @@ gym_register(
     reward_threshold=0.95,
     max_episode_steps=500,
 )
+
+gym_register(
+    id='MiniCraftBoxesFullyObserved-v0',
+    entry_point='rlsimenv.MiniCraftBoxes:MiniCraftBoxesFullyObserved',
+    reward_threshold=0.95,
+    max_episode_steps=500,
+)
+
+gym_register(
+    id='MiniCraftBoxesFullyObservedGUI-v0',
+    entry_point='rlsimenv.MiniCraftBoxes:MiniCraftBoxesFullyObserved',
+    reward_threshold=0.95,
+    max_episode_steps=500,
+    kwargs={'gui': True}
+)
 # except:
 #     print ("gym not installed")
