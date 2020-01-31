@@ -74,14 +74,14 @@ class MiniCraftBoxes(Environment):
 
         self._particles = []
         for _ in range(self._n_particles):
-            self._particles.append(pybullet.loadURDF("sphere2red.urdf", cubeStartPos, cubeStartOrientation, useFixedBase=0))
+            self._particles.append(pybullet.loadURDF(DATA_DIR + "/sphere2_red2.urdf", cubeStartPos, cubeStartOrientation, useFixedBase=0))
 
             # pybullet.setCollisionFilterPair(self._demon, self._particles[-1], -1, -1, enableCollision=0)
             
         self._boxes = []
-        for _ in range(self._n_particles):
+        for _ in range(self._n_particles + 1):
             self._boxes.append(pybullet.loadURDF(DATA_DIR + "/cube2.urdf", cubeStartPos, cubeStartOrientation, useFixedBase=0))
-            # pybullet.setCollisionFilterPair(self._demon, self._particles[-1], -1, -1, enableCollision=0)
+            pybullet.setCollisionFilterPair(self._demon, self._boxes[-1], -1, -1, enableCollision=0)
             pybullet.changeVisualShape(self._boxes[-1], -1, rgbaColor=[0.2, 0.2, 0.8, 1.0])
             
         pybullet.setAdditionalSearchPath(RLSIMENV_PATH + '/rlsimenv/data')
@@ -140,7 +140,7 @@ class MiniCraftBoxes(Environment):
                                             globalScaling=10))
         pybullet.changeVisualShape(self._roof[-1], -1, rgbaColor=[.4, .4, .4, 0.0])
 
-        for body in self._particles + [self._demon] + self._boxes + self._blocks + self._roof:
+        for body in self._particles + [self._demon] + self._blocks + self._roof:
             pybullet.changeDynamics(body,
                                     -1,
                                     rollingFriction=0.,
@@ -149,8 +149,7 @@ class MiniCraftBoxes(Environment):
                                     linearDamping=0.0,
                                     angularDamping=0.0,
                                     restitution=1.0,
-                                    maxJointVelocity=10)
-            
+                                    maxJointVelocity=5)
         
         # disable the default velocity motors 
         #and set some position control with small force to emulate joint friction/return to a rest pose
@@ -354,19 +353,29 @@ class MiniCraftBoxes(Environment):
         action = np.asarray(action)
         action = np.minimum(np.maximum(action, self.action_space.low), self.action_space.high).tolist()
         pos = np.array(pybullet.getBasePositionAndOrientation(self._demon)[0])
+        vel = np.array(pybullet.getBaseVelocity(self._demon)[0])
         
         # Box update if agent is close enough.
+        # Moving the closest box
+        dist_ = 1000000
         for box in self._boxes:
             pos_d = np.array(pybullet.getBasePositionAndOrientation(box)[0])
             # Fast growth rate
-            dist = np.array(pos_d)
-            # np.sqrt((velDiff*velDiff).sum(axis=0))
-            # if ()
-            sig_action = mathu.genlogistic_function(action[2], b=5, a=-1.0, k=0.0)
+            diff = pos - pos_d
+            dist = np.sqrt((diff*diff).sum(axis=0))
+            if (dist < dist_):
+                dist_ = dist
+                box_ = box
+            
+        if (dist_ < 2.0):
+            sig_action = mathu.genlogistic_function(action[2], b=5, a=-1.0, k=0.0) + 1
             print ("sig_action: ", sig_action)
             pos_d[2] = sig_action
             
-            pybullet.resetBasePositionAndOrientation(box, pos_d, pybullet.getQuaternionFromEuler([0.,0,0]))
+            # pybullet.resetBasePositionAndOrientation(box, pos_d, pybullet.getQuaternionFromEuler([0.,0,0]))
+            ## Only move the box proportional to how strongly the agent grabs it.
+            print ("vel*sig_action: ", vel*sig_action)
+            pybullet.resetBaseVelocity(box_, linearVelocity=vel*sig_action)
             
         # apply delta position change.
         action = np.array([action[0], action[1], 0])
@@ -389,12 +398,13 @@ class MiniCraftBoxes(Environment):
                 lin_vel, ang_vel = pybullet.getBaseVelocity(particle)
                 pos[-1] = self._wall_heights[0]
                 pybullet.resetBasePositionAndOrientation(particle, posObj=pos, ornObj=ori)
+                # noise = np.random.normal(loc=0,scale=0.1,size=3)
                 pybullet.resetBaseVelocity(particle, lin_vel, ang_vel)
             pybullet.stepSimulation()
 
         for particle in self._particles:
             target_base_vel = pybullet.getBaseVelocity(particle)[0]
-            updated_vel = target_base_vel + np.random.normal(loc=0., size=(3,), scale=1e-1)
+            updated_vel = target_base_vel + np.random.normal(loc=0., size=(3,), scale=0.75)
             updated_vel[-1] = 0.
             pybullet.resetBaseVelocity(particle, linearVelocity=updated_vel)
         
