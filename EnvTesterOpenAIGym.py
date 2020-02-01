@@ -5,7 +5,7 @@ import rlsimenv
 
 if __name__ == '__main__':
     
-    env = gym.make("MiniCraftBoxesFullyObservedGUI-v0")
+    env = gym.make("TagEnvFullyObservedGUI-v0")
 
     env.seed(1234)
     

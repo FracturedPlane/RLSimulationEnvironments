@@ -25,11 +25,28 @@ gym_register(
     entry_point='rlsimenv.MiniCraftBoxes:MiniCraftBoxesFullyObserved',
     reward_threshold=0.95,
     max_episode_steps=500,
+    kwargs={'gui': False}
 )
 
 gym_register(
     id='MiniCraftBoxesFullyObservedGUI-v0',
     entry_point='rlsimenv.MiniCraftBoxes:MiniCraftBoxesFullyObserved',
+    reward_threshold=0.95,
+    max_episode_steps=500,
+    kwargs={'gui': True}
+)
+
+gym_register(
+    id='TagEnvFullyObserved-v0',
+    entry_point='rlsimenv.TagEnv:TagEnv',
+    reward_threshold=0.95,
+    max_episode_steps=500,
+    kwargs={'gui': False}
+)
+
+gym_register(
+    id='TagEnvFullyObservedGUI-v0',
+    entry_point='rlsimenv.TagEnv:TagEnv',
     reward_threshold=0.95,
     max_episode_steps=500,
     kwargs={'gui': True}
