@@ -171,14 +171,14 @@ class TagEnv(Environment):
         self._obs_stack = [[0],[1]]
         # lo = self.getObservation()["pixels"] * 0.0
         # hi = lo + 1.0
-        lo = np.zeros((np.prod(observation_shape)))
-        hi = np.ones((np.prod(observation_shape)))
+        lo = np.zeros((np.prod(observation_shape)* self._observation_stack))
+        hi = np.ones((np.prod(observation_shape) * self._observation_stack))
 
         self._game_settings['state_bounds'] = [lo, hi]
         
         self._obs_stack = deque() 
         for _ in range(self._observation_stack):
-            self._obs_stack.append(lo) 
+            self._obs_stack.append(np.zeros(np.prod(observation_shape))) 
         # self._obs_stack = [lo] * self._observation_stack
         
         # self._observation_space = ActionSpace(self._game_settings['state_bounds'])
@@ -266,7 +266,7 @@ class TagEnv(Environment):
         # obs = np.array(self.getlocalMapObservation()).flatten()
         # obs = np.array(self.getlocalMapObservation()).flatten()
         # print ("obs 2: ", obs)
-        print ("self._obs_stack: ", self._obs_stack)
+        # print ("self._obs_stack: ", self._obs_stack)
         return obs
         # out = {}
         # # out["pixels"] = np.array(self.getlocalMapObservation()).flatten()
