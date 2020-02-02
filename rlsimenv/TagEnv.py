@@ -36,7 +36,9 @@ class TagEnv(Environment):
                  reset_upon_touch=False,
                  touch_thresh=1.,
                  n_particles=2,
-                 observation_stack=2
+                 observation_stack=2,
+                 flat_obs=True,
+                 grayscale=True
                  ):
         super(TagEnv, self).__init__()
         
@@ -172,19 +174,21 @@ class TagEnv(Environment):
         self._obs_stack = [[0],[1]]
         # lo = self.getObservation()["pixels"] * 0.0
         # hi = lo + 1.0
-        lo = np.zeros((np.prod(observation_shape)* self._observation_stack))
-        hi = np.ones((np.prod(observation_shape) * self._observation_stack))
+        lo = np.zeros((np.prod(self._observation_shape)* self._observation_stack))
+        hi = np.ones((np.prod(self._observation_shape) * self._observation_stack))
 
         self._game_settings['state_bounds'] = [lo, hi]
         
         self._obs_stack = deque() 
         for _ in range(self._observation_stack):
-            self._obs_stack.append(np.zeros(np.prod(observation_shape))) 
+            self._obs_stack.append(np.zeros(np.prod(self._observation_shape))) 
         # self._obs_stack = [lo] * self._observation_stack
         
         # self._observation_space = ActionSpace(self._game_settings['state_bounds'])
-        # self.observation_space = gym.spaces.Box(low=lo, high=hi, shape=(64,64,3))
-        self.observation_space = gym.spaces.Box(low=lo, high=hi)
+        if (self._flat_obs):
+            self.observation_space = gym.spaces.Box(low=lo, high=hi)
+        else:
+            self.observation_space = gym.spaces.Box(low=0, high=1, shape=self._observation_shape)
 
     def getNumAgents(self):
         return 1
@@ -264,28 +268,17 @@ class TagEnv(Environment):
         return self.getObservation()
     
     def getObservation(self):
-        obs = np.array([np.array(self._obs_stack).flatten()]) / 255.0 ## Normalize to [0,1]
+        
+        if (self._flat_obs):
+            obs = np.array([np.array(self._obs_stack).flatten()]) / 255.0 ## Normalize to [0,1]
+        else:
+            obs = np.array(self.getlocalMapObservation()) / 255.0 ## Normalize to [0,1]
         # print ("obs 1: ", obs)
         # obs = np.array(self.getlocalMapObservation()).flatten()
         # obs = np.array(self.getlocalMapObservation()).flatten()
         # print ("obs 2: ", obs)
         # print ("self._obs_stack: ", self._obs_stack)
         return obs
-        # out = {}
-        # # out["pixels"] = np.array(self.getlocalMapObservation()).flatten()
-        # out["pixels"] = np.array(self.getlocalMapObservation())
-        # """
-        # data = p.getBaseVelocity(self._demon)
-        # # linear vel
-        # out.extend([data[0][0], data[0][1]])
-        # # angular vel
-        # pos = np.array(p.getBasePositionAndOrientation(self._demon)[0])
-        # posT = np.array(p.getBasePositionAndOrientation(particle)[0])
-        # goalDirection = posT-pos
-        # out.extend([goalDirection[0], goalDirection[1]])
-        # out = np.array([np.array(out)])
-        # """
-        # return out
     
     def getState(self):
         return self.getObservation()
@@ -365,7 +358,7 @@ class TagEnv(Environment):
         # Don't want alpha channel
         img = img[..., :3]
         
-        if (True): ### Convert to Gray scale
+        if (self._grayscale): ### Convert to Gray scale
             img = np.mean(img, axis=-1)
         return img
     

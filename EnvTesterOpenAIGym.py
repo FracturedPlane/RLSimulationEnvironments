@@ -5,7 +5,7 @@ import rlsimenv
 
 if __name__ == '__main__':
     
-    env = gym.make("TagEnvFullyObservedGUI-v0")
+    env = gym.make("TagEnvFullyObserved-64x64-v0")
 
     env.seed(1234)
     
