@@ -28,7 +28,7 @@ class TagEnv(Environment):
                  observation_height=15,
                  iters=2000,
                  render_shape=(128*2, 128*2, 3),
-                 observation_shape=(64, 64, 3),
+                 observation_shape=(8, 8, 3),
                  obs_fov=60,
                  obs_aspect=1.0,
                  obs_nearplane=0.01,
@@ -166,14 +166,14 @@ class TagEnv(Environment):
         
         # lo = self.getObservation()["pixels"] * 0.0
         # hi = lo + 1.0
-        lo = 0.
-        hi = 1.
+        lo = np.zeros((np.prod(observation_shape)))
+        hi = np.ones((np.prod(observation_shape)))
 
         self._game_settings['state_bounds'] = [lo, hi]
         
         # self._observation_space = ActionSpace(self._game_settings['state_bounds'])
         # self.observation_space = gym.spaces.Box(low=lo, high=hi, shape=(64,64,3))
-        self.observation_space = gym.spaces.Box(low=lo, high=hi, shape=(64,64,3))
+        self.observation_space = gym.spaces.Box(low=lo, high=hi)
 
     def getNumAgents(self):
         return 1
@@ -251,7 +251,8 @@ class TagEnv(Environment):
         return self.getObservation()
     
     def getObservation(self):
-        return np.array(self.getlocalMapObservation())
+        return np.array([np.array(self.getlocalMapObservation()).flatten()])
+        # return np.array(self.getlocalMapObservation()).flatten()
         # out = {}
         # # out["pixels"] = np.array(self.getlocalMapObservation()).flatten()
         # out["pixels"] = np.array(self.getlocalMapObservation())
@@ -358,7 +359,6 @@ class TagEnv(Environment):
         
         # Box update if agent is close enough.
         # Moving the closest box
-        dist_ = 1000000
         for particle in self._particles:
             pos_d = np.array(pybullet.getBasePositionAndOrientation(particle)[0])
             vel_d = np.array(pybullet.getBaseVelocity(particle)[0])
@@ -368,12 +368,8 @@ class TagEnv(Environment):
             if (dist < 1.0):
             
                 sig_action = mathu.genlogistic_function(action[2], b=1, a=-1.0, k=0.0) + 1
-                print ("sig_action: ", sig_action)
-                # pos_d[2] = sig_action
-                
                 # pybullet.resetBasePositionAndOrientation(box, pos_d, pybullet.getQuaternionFromEuler([0.,0,0]))
                 ## Only move the box proportional to how strongly the agent grabs it.
-                print ("vel*sig_action: ", vel_d*sig_action)
                 pybullet.resetBaseVelocity(particle, linearVelocity=vel_d*sig_action)
             
         # apply delta position change.

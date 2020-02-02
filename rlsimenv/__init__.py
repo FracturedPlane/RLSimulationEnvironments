@@ -7,6 +7,8 @@ from gym.envs.registration import register as gym_register
 # Use the gym_register because it allows us to set the max_episode_steps.
 # try:
 
+print ("Registering rlsimenv environments")
+
 gym_register(
     id='ContinuousMaxwellsDemon-v0',
     entry_point='rlsimenv.MaxwellsDemon:MaxwellsDemonPartiallyObserved',
