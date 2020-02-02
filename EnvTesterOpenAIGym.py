@@ -40,7 +40,7 @@ if __name__ == '__main__':
                 fig1 = plt.figure(1)
                 plt.imshow(img_, origin='lower')
                 plt.title("agent visual Data: ")
-                fig1.savefig("viz_state_"+str(i)+".png")
+                # fig1.savefig("viz_state_"+str(i)+".png")
                     
             
             if ( done ):

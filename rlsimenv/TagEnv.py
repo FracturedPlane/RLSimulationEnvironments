@@ -35,7 +35,7 @@ class TagEnv(Environment):
                  obs_farplane=100,
                  reset_upon_touch=False,
                  touch_thresh=1.,
-                 n_particles=1,
+                 n_particles=2,
                  observation_stack=2
                  ):
         super(TagEnv, self).__init__()
@@ -76,9 +76,10 @@ class TagEnv(Environment):
         self._demon = pybullet.loadURDF(DATA_DIR + "/sphere2_yellow.urdf", cubeStartPos, cubeStartOrientation, useFixedBase=0)
 
         self._particles = []
+        self._particle_states = []
         for _ in range(self._n_particles):
             self._particles.append(pybullet.loadURDF(DATA_DIR + "/sphere2_red2.urdf", cubeStartPos, cubeStartOrientation, useFixedBase=0))
-
+            self._particle_states.append({"fixed": False, "drag": 1.0})
             pybullet.setCollisionFilterPair(self._demon, self._particles[-1], -1, -1, enableCollision=0)
             
         self._boxes = []
@@ -143,7 +144,7 @@ class TagEnv(Environment):
                                             globalScaling=10))
         pybullet.changeVisualShape(self._roof[-1], -1, rgbaColor=[.4, .4, .4, 0.0])
 
-        for body in self._particles + [self._demon] + self._blocks + self._roof:
+        for body in self._particles + self._blocks + self._roof:
             pybullet.changeDynamics(body,
                                     -1,
                                     rollingFriction=0.,
@@ -237,13 +238,15 @@ class TagEnv(Environment):
         x = (np.random.rand()-0.5) * (self._map_width - 1) * 2.0
         y = (np.random.rand()-0.5) * (self._map_width - 1) * 2.0
 
-        for particle in self._particles:
+        for particle, particle_state in zip(self._particles, self._particle_states):
             x = (np.random.rand()-0.5) * (self._map_width - 1) * 2.0
             y = (np.random.rand()-0.5) * (self._map_width - 1) * 2.0
             pybullet.resetBasePositionAndOrientation(particle, [x,y,0.5], pybullet.getQuaternionFromEuler([0.,0,0]))
             initial_vel = np.random.normal(loc=0.5, size=(3,), scale=1.)
             initial_vel[-1] = 0.
             pybullet.resetBaseVelocity(particle, linearVelocity=initial_vel)
+            particle_state["fixed"] = False
+            particle_state["drag"] = 1.0
         for particle in self._boxes:
             x = (np.random.rand()-0.5) * (self._map_width - 1) * 2.0
             y = (np.random.rand()-0.5) * (self._map_width - 1) * 2.0
@@ -376,7 +379,7 @@ class TagEnv(Environment):
         
         # Box update if agent is close enough.
         # Moving the closest box
-        for particle in self._particles:
+        for particle, particle_state in zip(self._particles, self._particle_states):
             pos_d = np.array(pybullet.getBasePositionAndOrientation(particle)[0])
             vel_d = np.array(pybullet.getBaseVelocity(particle)[0])
             # Fast growth rate
@@ -386,9 +389,14 @@ class TagEnv(Environment):
             if (dist < (1.0*1.0)):
                 ## [0,1]
                 sig_action = mathu.genlogistic_function(action[2], b=1, a=-1.0, k=0.0) + 1
-                # pybullet.resetBasePositionAndOrientation(box, pos_d, pybullet.getQuaternionFromEuler([0.,0,0]))
+                # pybullet.resetBasePositionAndOrientation(particle, pos_d, pybullet.getQuaternionFromEuler([0.,0,0]))
                 ## Only move the box proportional to how strongly the agent grabs it.
-                pybullet.resetBaseVelocity(particle, linearVelocity=vel_d*sig_action)
+                particle_state["drag"] = sig_action
+                if (sig_action < 0.2):
+                    print ("Agent fixed")
+                    particle_state["fixed"] = True
+                pybullet.resetBaseVelocity(particle, linearVelocity=vel_d*particle_state["drag"])
+                    
             
         # apply delta position change.
         action = np.array([action[0], action[1], 0])
@@ -405,21 +413,21 @@ class TagEnv(Environment):
         pos[2] = 0.5
 
         # Need to do this so the intersections are computed
-        for i in range(self.sim_steps):
-            for particle in self._particles:
+        for _ in range(self.sim_steps):
+            for particle, particle_state in zip(self._particles, self._particle_states):
                 pos, ori = [np.array(_) for _ in pybullet.getBasePositionAndOrientation(particle)]
                 lin_vel, ang_vel = pybullet.getBaseVelocity(particle)
                 pos[-1] = self._wall_heights[0]
                 pybullet.resetBasePositionAndOrientation(particle, posObj=pos, ornObj=ori)
                 # noise = np.random.normal(loc=0,scale=0.1,size=3)
-                pybullet.resetBaseVelocity(particle, lin_vel, ang_vel)
+                pybullet.resetBaseVelocity(particle, np.array(lin_vel)*particle_state["drag"], np.array(ang_vel)*particle_state["drag"])
             pybullet.stepSimulation()
 
-        for particle in self._particles:
+        for particle, particle_state in zip(self._particles, self._particle_states):
             target_base_vel = pybullet.getBaseVelocity(particle)[0]
-            updated_vel = target_base_vel + np.random.normal(loc=0., size=(3,), scale=0.75)
+            updated_vel = target_base_vel + np.random.normal(loc=0., size=(3,), scale=1.0)
             updated_vel[-1] = 0.
-            pybullet.resetBaseVelocity(particle, linearVelocity=updated_vel)
+            pybullet.resetBaseVelocity(particle, linearVelocity=updated_vel*particle_state["drag"])
         
         reward = self.computeReward(state=None)
         
@@ -471,6 +479,9 @@ class TagEnv(Environment):
         np.random.seed(seed)
 
     def setRandomSeed(self, seed): return self.seed(seed)
+    
+    def getFullViewData(self): 
+        return self.render(mode="rgb_array")
 
     def render(self, mode='rgb_array', **kwargs):
         if mode == 'rgb_array':
