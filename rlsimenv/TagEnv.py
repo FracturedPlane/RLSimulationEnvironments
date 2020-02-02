@@ -36,11 +36,14 @@ class TagEnv(Environment):
                  reset_upon_touch=False,
                  touch_thresh=1.,
                  n_particles=1,
+                 observation_stack=2
                  ):
         super(TagEnv, self).__init__()
         
+        from collections import deque 
+        
         self._GRAVITY = -9.8
-        self._dt = 1/100.0
+        self._dt = 1/200.0
         self.sim_steps = 5
         # Temp. Doesn't currently make sense if smaller.
         assert(map_width >= 2.)
@@ -90,7 +93,7 @@ class TagEnv(Environment):
         self._blocks = []
 
         self._wall_heights = [0.5, 1.5]
-        self.action_space = gym.spaces.Box(low=np.array([-5, -5, -10]), high=np.array([5, 5, 10])) #self._wall_heights[-1]]))
+        self.action_space = gym.spaces.Box(low=np.array([-2.5, -2.5, -5]), high=np.array([2.5, 2.5, 5])) #self._wall_heights[-1]]))
         # self._wall_heights = (0.5, 1.5)
 
         x_full_right = (1+self._chamber_fraction) * self._map_width + self._cube_width
@@ -164,12 +167,19 @@ class TagEnv(Environment):
         #ipdb.set_trace()
         pybullet.setRealTimeSimulation(1)
         
+        observation_stack
+        self._obs_stack = [[0],[1]]
         # lo = self.getObservation()["pixels"] * 0.0
         # hi = lo + 1.0
         lo = np.zeros((np.prod(observation_shape)))
         hi = np.ones((np.prod(observation_shape)))
 
         self._game_settings['state_bounds'] = [lo, hi]
+        
+        self._obs_stack = deque() 
+        for _ in range(self._observation_stack):
+            self._obs_stack.append(lo) 
+        # self._obs_stack = [lo] * self._observation_stack
         
         # self._observation_space = ActionSpace(self._game_settings['state_bounds'])
         # self.observation_space = gym.spaces.Box(low=lo, high=hi, shape=(64,64,3))
@@ -251,11 +261,12 @@ class TagEnv(Environment):
         return self.getObservation()
     
     def getObservation(self):
-        obs = np.array([np.array(self.getlocalMapObservation()).flatten()]) / 255.0 ## Normalize to [0,1]
+        obs = np.array([np.array(self._obs_stack).flatten()]) / 255.0 ## Normalize to [0,1]
         # print ("obs 1: ", obs)
         # obs = np.array(self.getlocalMapObservation()).flatten()
         # obs = np.array(self.getlocalMapObservation()).flatten()
         # print ("obs 2: ", obs)
+        print ("self._obs_stack: ", self._obs_stack)
         return obs
         # out = {}
         # # out["pixels"] = np.array(self.getlocalMapObservation()).flatten()
@@ -370,9 +381,10 @@ class TagEnv(Environment):
             vel_d = np.array(pybullet.getBaseVelocity(particle)[0])
             # Fast growth rate
             diff = pos - pos_d
-            dist = np.sqrt((diff*diff).sum(axis=0))
-            if (dist < 1.0):
-            
+            ### Don't need the square root if you just square the threshold
+            dist = (diff*diff).sum(axis=0)
+            if (dist < (1.0*1.0)):
+                ## [0,1]
                 sig_action = mathu.genlogistic_function(action[2], b=1, a=-1.0, k=0.0) + 1
                 # pybullet.resetBasePositionAndOrientation(box, pos_d, pybullet.getQuaternionFromEuler([0.,0,0]))
                 ## Only move the box proportional to how strongly the agent grabs it.
@@ -410,6 +422,10 @@ class TagEnv(Environment):
             pybullet.resetBaseVelocity(particle, linearVelocity=updated_vel)
         
         reward = self.computeReward(state=None)
+        
+        ### Update observation Stack
+        self._obs_stack.popleft()
+        self._obs_stack.append(np.array(self.getlocalMapObservation()).flatten())
         self.__reward = reward
 
     def put_on_ground(self, agent):
