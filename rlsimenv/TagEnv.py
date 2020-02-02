@@ -23,13 +23,13 @@ class TagEnv(Environment):
                  max_steps=500,
                  seed=1234,
                  gui=False,
-                 map_width=4,
+                 map_width=3,
                  chamber_fraction=1/3,
-                 observation_height=15,
+                 observation_height=7,
                  iters=2000,
                  render_shape=(128*2, 128*2, 3),
-                 observation_shape=(8, 8, 3),
-                 obs_fov=60,
+                 observation_shape=(10, 10, 1),
+                 obs_fov=45,
                  obs_aspect=1.0,
                  obs_nearplane=0.01,
                  obs_farplane=100,
@@ -43,7 +43,7 @@ class TagEnv(Environment):
         self._dt = 1/100.0
         self.sim_steps = 5
         # Temp. Doesn't currently make sense if smaller.
-        assert(map_width >= 4.)
+        assert(map_width >= 2.)
         self._map_area = self._map_width ** 2
         # This constant doesn't affect the created width.
         self._cube_width = 1.
@@ -105,13 +105,13 @@ class TagEnv(Environment):
             # cube_locations.extend([[self._map_width, y, z] for y in range(2, self._map_width)])
 
             # Right wall
-            cube_locations.extend([[x_full_right, y, z] for y in np.arange(-self._map_width, self._map_width)])
+            cube_locations.extend([[self._map_width, y, z] for y in np.arange(-self._map_width, self._map_width)])
             # Left wall
             cube_locations.extend([[-self._map_width, y, z] for y in range(-self._map_width, self._map_width)])
             # Top Wall
-            cube_locations.extend([[x, self._map_width, z] for x in np.arange(-self._map_width, x_full_right + self._cube_width)])
+            cube_locations.extend([[x, self._map_width, z] for x in np.arange(-self._map_width, self._map_width)])
             # Bottom Wall
-            cube_locations.extend([[x, -self._map_width, z] for x in np.arange(-self._map_width, x_full_right + self._cube_width)])
+            cube_locations.extend([[x, -self._map_width, z] for x in np.arange(-self._map_width, self._map_width)])
             
             # Add small room
             # Add Right wall
@@ -193,11 +193,11 @@ class TagEnv(Environment):
         # up_vector = rot_matrix.dot(init_up_vector)
         # view_matrix = p.computeViewMatrix(com_p, com_p + 0.1 * camera_vector, up_vector)
         view_matrix = pybullet.computeViewMatrix(
-            cameraEyePosition=[0, 0, 15],
+            cameraEyePosition=[1.5, 0, self._observation_height],
             cameraTargetPosition=[0, 0, 0],
             cameraUpVector=[0, 1, 0])
-        fov, aspect, nearplane, farplane = 60, 1.0, 0.01, 100        
-        projection_matrix = pybullet.computeProjectionMatrixFOV(fov, aspect, nearplane, farplane)
+        projection_matrix = pybullet.computeProjectionMatrixFOV(
+            self._obs_fov, self._obs_aspect, self._obs_nearplane, self._obs_farplane)
         # img = p.getCameraImage(1000, 1000, view_matrix)
         (w,y,img,depth,segment) = pybullet.getCameraImage(width=self._render_shape[0],
                                                           height=self._render_shape[1], 
@@ -251,8 +251,12 @@ class TagEnv(Environment):
         return self.getObservation()
     
     def getObservation(self):
-        return np.array([np.array(self.getlocalMapObservation()).flatten()])
-        # return np.array(self.getlocalMapObservation()).flatten()
+        obs = np.array([np.array(self.getlocalMapObservation()).flatten()]) / 255.0 ## Normalize to [0,1]
+        # print ("obs 1: ", obs)
+        # obs = np.array(self.getlocalMapObservation()).flatten()
+        # obs = np.array(self.getlocalMapObservation()).flatten()
+        # print ("obs 2: ", obs)
+        return obs
         # out = {}
         # # out["pixels"] = np.array(self.getlocalMapObservation()).flatten()
         # out["pixels"] = np.array(self.getlocalMapObservation())
@@ -332,8 +336,8 @@ class TagEnv(Environment):
         # camera_vector = rot_matrix.dot(init_camera_vector)
         # up_vector = rot_matrix.dot(init_up_vector)
         # view_matrix = p.computeViewMatrix(com_p, com_p + 0.1 * camera_vector, up_vector)
-        view_matrix = pybullet.computeViewMatrix(cameraEyePosition=[com_p[0], com_p[1], self._observation_height],
-                                                 cameraTargetPosition=[com_p[0], com_p[1], 0],
+        view_matrix = pybullet.computeViewMatrix(cameraEyePosition=[1.5, 0, self._observation_height],
+                                                 cameraTargetPosition=[0, 0, 0],
                                                  cameraUpVector=[0, 1, 0])
         projection_matrix = pybullet.computeProjectionMatrixFOV(
             self._obs_fov, self._obs_aspect, self._obs_nearplane, self._obs_farplane)
@@ -346,12 +350,14 @@ class TagEnv(Environment):
         # print (img)
         # Don't want alpha channel
         img = img[..., :3]
+        
+        if (True): ### Convert to Gray scale
+            img = np.mean(img, axis=-1)
         return img
     
     def updateAction(self, action):
         # action[-1] = min(max(action[-1], -0.01), self._wall_heights[-1] - (self._wall_heights[-1] - self._wall_heights[-2])/2.)
         # pdb.set_trace()
-        print("Action: ", action)
         action = np.asarray(action)
         action = np.minimum(np.maximum(action, self.action_space.low), self.action_space.high).tolist()
         pos = np.array(pybullet.getBasePositionAndOrientation(self._demon)[0])
