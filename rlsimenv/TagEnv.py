@@ -393,7 +393,7 @@ class TagEnv(Environment):
                 ## Only move the box proportional to how strongly the agent grabs it.
                 particle_state["drag"] = sig_action
                 if (sig_action < 0.2):
-                    print ("Agent fixed")
+                    # print ("Agent fixed")
                     particle_state["fixed"] = True
                 pybullet.resetBaseVelocity(particle, linearVelocity=vel_d*particle_state["drag"])
                     
