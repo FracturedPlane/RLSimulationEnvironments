@@ -38,7 +38,8 @@ class TagEnv(Environment):
                  n_particles=2,
                  observation_stack=2,
                  flat_obs=True,
-                 grayscale=True
+                 grayscale=True,
+                 fixed_view=True
                  ):
         super(TagEnv, self).__init__()
         
@@ -343,8 +344,12 @@ class TagEnv(Environment):
         # camera_vector = rot_matrix.dot(init_camera_vector)
         # up_vector = rot_matrix.dot(init_up_vector)
         # view_matrix = p.computeViewMatrix(com_p, com_p + 0.1 * camera_vector, up_vector)
-        view_matrix = pybullet.computeViewMatrix(cameraEyePosition=[1.5, 0, self._observation_height],
-                                                 cameraTargetPosition=[0, 0, 0],
+        if (self._fixed_view):
+            x = 1.5; y = 0
+        else:
+            x = com_p[0]; y = com_p[1]
+        view_matrix = pybullet.computeViewMatrix(cameraEyePosition=[x, y, self._observation_height],
+                                                 cameraTargetPosition=[x, y, 0],
                                                  cameraUpVector=[0, 1, 0])
         projection_matrix = pybullet.computeProjectionMatrixFOV(
             self._obs_fov, self._obs_aspect, self._obs_nearplane, self._obs_farplane)
