@@ -5,7 +5,7 @@ import rlsimenv
 
 if __name__ == '__main__':
     
-    env = gym.make("ContinuousMaxwellsDemon-v0")
+    env = gym.make("TagEnvPartiallyObserved-v0")
 
     env.seed(1234)
     
@@ -20,7 +20,7 @@ if __name__ == '__main__':
         env.reset()
         print ("New episode")
         # while (True):
-        for i in range(10):
+        for i in range(100):
             actions = env.action_space.sample()
             observation, reward,  done, info = env.step(actions)
             # print ("Reward: ", reward, "Action: ", actions, " observation: ", observation)
