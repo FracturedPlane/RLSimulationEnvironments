@@ -329,9 +329,17 @@ class MaxwellsDemonEnv(Environment):
         # camera_vector = rot_matrix.dot(init_camera_vector)
         # up_vector = rot_matrix.dot(init_up_vector)
         # view_matrix = p.computeViewMatrix(com_p, com_p + 0.1 * camera_vector, up_vector)
+
+        # Make the observation track the agent.
         view_matrix = pybullet.computeViewMatrix(cameraEyePosition=[com_p[0], com_p[1], self._observation_height],
                                                  cameraTargetPosition=[com_p[0], com_p[1], 0],
                                                  cameraUpVector=[0, 1, 0])
+        # This will make it look similar to the rendering.
+        # view_matrix = pybullet.computeViewMatrix(
+        #     cameraEyePosition=[0, 0, 15],
+        #     cameraTargetPosition=[0, 0, 0],
+        #     cameraUpVector=[0, 1, 0])
+        
         projection_matrix = pybullet.computeProjectionMatrixFOV(
             self._obs_fov, self._obs_aspect, self._obs_nearplane, self._obs_farplane)
         # img = pybullet.getCameraImage(1000, 1000, view_matrix)
@@ -386,7 +394,7 @@ class MaxwellsDemonEnv(Environment):
 
         for particle in self._particles:
             target_base_vel = pybullet.getBaseVelocity(particle)[0]
-            updated_vel = target_base_vel + np.random.normal(loc=0., size=(3,), scale=1e-1)
+            updated_vel = target_base_vel + np.random.normal(loc=0., size=(3,), scale=5e-1)
             updated_vel[-1] = 0.
             pybullet.resetBaseVelocity(particle, linearVelocity=updated_vel)
         
