@@ -65,6 +65,9 @@ gym_register(
     max_episode_steps=500,
     kwargs={'gui': False,
             "observation_height": 3.5,
+            "observation_shape": (64, 64, 3),
+            "observation_stack": 1,
+            "flat_obs": False,
             "grayscale": False,
             "fixed_view": False
             }
