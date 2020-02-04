@@ -433,6 +433,20 @@ class TagEnv(Environment):
         self._obs_stack.popleft()
         self._obs_stack.append(np.array(self.getlocalMapObservation()).flatten())
         self.__reward = reward
+        
+    def step(self, action):
+        ob, reward, done, info = super(TagEnv,self).step(action)
+        if info is None:
+            info = {}
+        
+        ### Compute avg vel of particles
+        avg_vel = np.zeros((3))
+        for particle, particle_state in zip(self._particles, self._particle_states):
+            target_base_vel = pybullet.getBaseVelocity(particle)[0]
+            avg_vel = avg_vel + target_base_vel
+            info["particle_vel_"+str(particle)] = np.linalg.norm(target_base_vel)
+        info["particle_vel"] = np.linalg.norm(avg_vel/len(self._particles))
+        return ob, reward, done, info
 
     def put_on_ground(self, agent):
         agent_pos, agent_ori = map(np.array, pybullet.getBasePositionAndOrientation(agent))
