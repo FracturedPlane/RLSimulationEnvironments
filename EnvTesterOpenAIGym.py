@@ -5,7 +5,7 @@ import rlsimenv
 
 if __name__ == '__main__':
     
-    env = gym.make("TagEnvPartiallyObserved-64x64-v0")
+    env = gym.make("TagEnvPartiallyObserved-1particle-64x64-v0")
 
     env.seed(1234)
     
@@ -27,8 +27,8 @@ if __name__ == '__main__':
             print ("observation size: ", np.array(observation).shape)
             print ("Done: ", done)
             
-            viewData = env.render("rgb_array")
-            # viewData = env.getlocalMapObservation()
+            # viewData = env.render("rgb_array")
+            viewData = observation
             ## Get and vis terrain data
             if (True):
                 ## Don't use Xwindows backend for this
