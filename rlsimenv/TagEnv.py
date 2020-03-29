@@ -290,33 +290,10 @@ class TagEnv(Environment):
     
     def computeReward(self, state=None):
         
-        pos = np.array(pybullet.getBasePositionAndOrientation(self._demon)[0])
-
-        particle = self._get_target()
-        posT = np.array(pybullet.getBasePositionAndOrientation(particle)[0])
-        
-        goalDirection = posT-pos
-        goalDistance = np.sqrt((goalDirection*goalDirection).sum(axis=0))
-        goalDir = self.getTargetDirection()
-        agentVel = np.array(pybullet.getBaseVelocity(self._demon)[0])
-        velDiff = goalDir - agentVel
-        diffMag = np.sqrt((velDiff*velDiff).sum(axis=0))
-        # heading towards goal
-        reward = np.exp((diffMag*diffMag) * -2.0) + np.exp((goalDistance*goalDistance) * -2.0)
-        """
-        if (goalDistance < 1.5):
-            # Reached goal
-            reward = reward + self._map_width
-        """
-        # Check contacts with obstacles
-        """
-        for box_id in self._blocks:
-            contacts = p.getContactPoints(self._agent, box_id)
-            # print ("contacts: ", contacts)
-            if len(contacts) > 0:
-                reward = reward + -self._map_width
-                break
-        """
+        reward = 0
+        for particle, particle_state in zip(self._particles, self._particle_states):
+            target_base_vel = pybullet.getBaseVelocity(particle)[0]
+            reward = reward + - np.sum(np.fabs(target_base_vel))
         return reward
         
     def getTargetDirection(self):

@@ -89,6 +89,22 @@ gym_register(
 )
 
 gym_register(
+    id='TagEnvPartiallyObserved-1particle-16x16-v0',
+    entry_point='rlsimenv.TagEnv:TagEnv',
+    reward_threshold=0.95,
+    max_episode_steps=500,
+    kwargs={'gui': False,
+            "observation_height": 6.5,
+            "observation_shape": (16, 16, 3),
+            "observation_stack": 1,
+            "flat_obs": False,
+            "grayscale": False,
+            "fixed_view": False,
+            "n_particles": 1
+            }
+)
+
+gym_register(
     id='TagEnvFullyObserved-64x64-v0',
     entry_point='rlsimenv.TagEnv:TagEnv',
     reward_threshold=0.95,

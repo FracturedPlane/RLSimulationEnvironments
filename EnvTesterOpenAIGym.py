@@ -5,7 +5,7 @@ import rlsimenv
 
 if __name__ == '__main__':
     
-    env = gym.make("TagEnvPartiallyObserved-1particle-64x64-v0")
+    env = gym.make("TagEnvPartiallyObserved-1particle-16x16-v0")
 
     env.seed(1234)
     
@@ -23,7 +23,7 @@ if __name__ == '__main__':
         for i in range(100):
             actions = env.action_space.sample()
             observation, reward,  done, info = env.step(actions)
-            # print ("Reward: ", reward, "Action: ", actions, " observation: ", observation)
+            print ("Reward: ", reward, "Action: ", actions)
             print ("observation size: ", np.array(observation).shape)
             print ("Done: ", done)
             
