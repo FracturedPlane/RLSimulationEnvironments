@@ -98,7 +98,7 @@ class TagEnv(Environment):
         self._blocks = []
 
         self._wall_heights = [0.5, 1.5]
-        self.action_space = gym.spaces.Box(low=np.array([-2.5, -2.5, -5]), high=np.array([2.5, 2.5, 5])) #self._wall_heights[-1]]))
+        self.action_space = gym.spaces.Box(low=np.array([-2.5, -2.5, 0]), high=np.array([2.5, 2.5, 1])) #self._wall_heights[-1]]))
         # self._wall_heights = (0.5, 1.5)
 
         x_full_right = (1+self._chamber_fraction) * self._map_width + self._cube_width
@@ -348,6 +348,7 @@ class TagEnv(Environment):
     def updateAction(self, action):
         # action[-1] = min(max(action[-1], -0.01), self._wall_heights[-1] - (self._wall_heights[-1] - self._wall_heights[-2])/2.)
         # pdb.set_trace()
+#         print ("action: ", action)
         action = np.asarray(action)
         action = np.minimum(np.maximum(action, self.action_space.low), self.action_space.high).tolist()
         pos = np.array(pybullet.getBasePositionAndOrientation(self._demon)[0])
@@ -364,12 +365,14 @@ class TagEnv(Environment):
             dist = (diff*diff).sum(axis=0)
             if (dist < (1.0*1.0)):
                 ## [0,1]
-                sig_action = mathu.genlogistic_function(action[2], b=1, a=-1.0, k=0.0) + 1
+#                 sig_action = mathu.genlogistic_function(action[2], b=1, a=-1.0, k=0.0) + 1
+                sig_action = action[2]
+#                 print ("sig_action: ", sig_action)
                 # pybullet.resetBasePositionAndOrientation(particle, pos_d, pybullet.getQuaternionFromEuler([0.,0,0]))
                 ## Only move the box proportional to how strongly the agent grabs it.
                 particle_state["drag"] = sig_action
                 if (sig_action < 0.2):
-                    # print ("Agent fixed")
+#                     print ("Agent fixed")
                     particle_state["fixed"] = True
                 pybullet.resetBaseVelocity(particle, linearVelocity=vel_d*particle_state["drag"])
                     
