@@ -272,7 +272,7 @@ class TagEnv(Environment):
     def getObservation(self):
         
         if (self._flat_obs):
-            obs = np.array([np.array(self._obs_stack).flatten()]) / 255.0 ## Normalize to [0,1]
+            obs = np.array(self._obs_stack).flatten() / 255.0 ## Normalize to [0,1]
         else:
             obs = np.array(self.getlocalMapObservation()) / 255.0 ## Normalize to [0,1]
         # print ("obs 1: ", obs)
@@ -480,6 +480,8 @@ class TagEnv(Environment):
         if mode == 'rgb_array':
             img = self.getViewData()
             return img
+        elif mode == 'human':
+            pass
         else:
             raise ValueError("Unhandled rendering mode")
 
