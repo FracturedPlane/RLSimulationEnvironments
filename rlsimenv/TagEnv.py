@@ -40,7 +40,8 @@ class TagEnv(Environment):
                  observation_stack=2,
                  flat_obs=True,
                  grayscale=True,
-                 fixed_view=True
+                 fixed_view=True,
+                 agent_scaling=0.5
                  ):
         super(TagEnv, self).__init__()
         
@@ -77,7 +78,7 @@ class TagEnv(Environment):
         cubeStartPos = [0, 0, 0.5]
         cubeStartOrientation = pybullet.getQuaternionFromEuler([0.,0,0])
         # These exist as part of the pybullet installation.
-        self._demon = pybullet.loadURDF(DATA_DIR + "/sphere2_yellow.urdf", cubeStartPos, cubeStartOrientation, useFixedBase=0, globalScaling=0.5)
+        self._demon = pybullet.loadURDF(DATA_DIR + "/sphere2_yellow.urdf", cubeStartPos, cubeStartOrientation, useFixedBase=0, globalScaling=agent_scaling)
 
         self._particles = []
         self._particle_states = []

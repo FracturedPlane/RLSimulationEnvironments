@@ -5,7 +5,7 @@ import rlsimenv
 
 if __name__ == '__main__':
     
-    env = gym.make("TagEnvPartiallyObserved-1particle-16x16-v0")
+    env = gym.make("TagEnvFullyObserved-1particle-flatobs-16x16-v0")
 
     env.seed(1234)
     
@@ -35,8 +35,8 @@ if __name__ == '__main__':
                 import matplotlib
                 # matplotlib.use('Agg')
                 import matplotlib.pyplot as plt
-                # img_ = np.reshape(viewData, (150,158,3))
                 img_ = viewData
+                img_ = np.reshape(img_, (16,16,3))
                 print("img_ shape", img_.shape, " sum: ", np.sum(viewData))
                 fig1 = plt.figure(1)
                 plt.imshow(img_, origin='lower')
