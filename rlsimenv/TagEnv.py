@@ -41,14 +41,16 @@ class TagEnv(Environment):
                  flat_obs=True,
                  grayscale=True,
                  fixed_view=True,
-                 agent_scaling=0.5
+                 agent_scaling=0.5, 
+                 dt = 1/50.0,
+                 include_true_state=False
                  ):
         super(TagEnv, self).__init__()
         
         from collections import deque 
-        
+        self._include_true_state = include_true_state
         self._GRAVITY = -9.8
-        self._dt = 1/200.0
+        self._dt = dt
         self.sim_steps = 5
         # Temp. Doesn't currently make sense if smaller.
         assert(map_width >= 2.)
@@ -281,6 +283,15 @@ class TagEnv(Environment):
         # obs = np.array(self.getlocalMapObservation()).flatten()
         # print ("obs 2: ", obs)
         # print ("self._obs_stack: ", self._obs_stack)
+        if (self._include_true_state):
+            pos = np.array(pybullet.getBasePositionAndOrientation(self._demon)[0])
+            particle = self._get_target()
+            posT = np.array(pybullet.getBasePositionAndOrientation(particle)[0])
+            goalDirection = posT-pos
+            vel_d = np.array(pybullet.getBaseVelocity(particle)[0])
+            base_vel = pybullet.getBaseVelocity(self._demon)[0]
+            obs_ = np.array([pos, base_vel, goalDirection, vel_d]).flatten()
+            obs = [obs_, obs]
         return obs
     
     def getState(self):

@@ -43,7 +43,8 @@ gym_register(
     entry_point='rlsimenv.TagEnv:TagEnv',
     reward_threshold=0.95,
     max_episode_steps=500,
-    kwargs={'gui': False}
+    kwargs={'gui': False,
+            "dt": 1/50.0}
 )
 
 gym_register(
@@ -54,7 +55,8 @@ gym_register(
     kwargs={'gui': False,
             "observation_height": 3.5,
             "grayscale": True,
-            "fixed_view": False
+            "fixed_view": False,
+            "dt": 1/50.0
             }
 )
 
@@ -69,7 +71,8 @@ gym_register(
             "observation_stack": 1,
             "flat_obs": False,
             "grayscale": False,
-            "fixed_view": False
+            "fixed_view": False,
+            "dt": 1/50.0
             }
 )
 gym_register(
@@ -84,7 +87,8 @@ gym_register(
             "flat_obs": False,
             "grayscale": False,
             "fixed_view": False,
-            "n_particles": 1
+            "n_particles": 1,
+            "dt": 1/50.0
             }
 )
 
@@ -100,7 +104,8 @@ gym_register(
             "flat_obs": True,
             "grayscale": False,
             "fixed_view": False,
-            "n_particles": 1
+            "n_particles": 1,
+            "dt": 1/50.0
             }
 )
 
@@ -116,7 +121,8 @@ gym_register(
             "flat_obs": True,
             "grayscale": False,
             "fixed_view": False,
-            "n_particles": 1
+            "n_particles": 1,
+            "dt": 1/50.0
             }
 )
 
@@ -133,7 +139,27 @@ gym_register(
             "grayscale": False,
             "fixed_view": True,
             "n_particles": 1,
-            "agent_scaling": 1.0
+            "agent_scaling": 1.0,
+            "dt": 1/50.0
+            }
+)
+
+gym_register(
+    id='TagEnvFullyObserved-1particle-flatobs-dualstate-16x16-v0',
+    entry_point='rlsimenv.TagEnv:TagEnv',
+    reward_threshold=0.95,
+    max_episode_steps=500,
+    kwargs={'gui': False,
+            "observation_height": 8.0,
+            "observation_shape": (16, 16, 3),
+            "observation_stack": 1,
+            "flat_obs": True,
+            "grayscale": False,
+            "fixed_view": True,
+            "n_particles": 1,
+            "agent_scaling": 1.0,
+            "dt": 1/50.0,
+            "include_true_state": True
             }
 )
 
