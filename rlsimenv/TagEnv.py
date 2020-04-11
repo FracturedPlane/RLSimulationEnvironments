@@ -309,7 +309,7 @@ class TagEnv(Environment):
         for particle, particle_state in zip(self._particles, self._particle_states):
             target_base_vel = pybullet.getBaseVelocity(particle)[0]
             diff = np.sum(np.fabs(target_base_vel))
-            reward = reward + np.exp((diff * diff) * -0.5)
+            reward = reward + np.exp((diff * diff) * -1.0)
         return reward
         
     def getTargetDirection(self):
