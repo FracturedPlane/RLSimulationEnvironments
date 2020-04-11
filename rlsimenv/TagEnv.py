@@ -73,6 +73,7 @@ class TagEnv(Environment):
         pybullet.resetSimulation()
         #pybullet.setRealTimeSimulation(True)
         pybullet.setGravity(0,0,self._GRAVITY)
+        pybullet.setPhysicsEngineParameter(fixedTimeStep=self._dt)
         pybullet.setTimeStep(self._dt)
         # _planeId = pybullet.loadURDF("plane.urdf", )
         pybullet.loadURDF("plane.urdf")
@@ -290,7 +291,9 @@ class TagEnv(Environment):
             goalDirection = posT-pos
             vel_d = np.array(pybullet.getBaseVelocity(particle)[0])
             base_vel = pybullet.getBaseVelocity(self._demon)[0]
-            obs_ = np.array([pos, base_vel, goalDirection, vel_d]).flatten()
+            obs_ = np.array([pos[0], pos[1], base_vel[0], base_vel[1], 
+                             goalDirection[0], goalDirection[1], vel_d[0], vel_d[1]]).flatten()
+#             print ("obs_ :", obs_)
             obs = [obs_, obs]
         return obs
     
@@ -305,7 +308,8 @@ class TagEnv(Environment):
         reward = 0
         for particle, particle_state in zip(self._particles, self._particle_states):
             target_base_vel = pybullet.getBaseVelocity(particle)[0]
-            reward = reward + - np.sum(np.fabs(target_base_vel))
+            diff = np.sum(np.fabs(target_base_vel))
+            reward = reward + np.exp((diff * diff) * -0.5)
         return reward
         
     def getTargetDirection(self):
@@ -439,6 +443,7 @@ class TagEnv(Environment):
             avg_vel = avg_vel + target_base_vel
             info["particle_vel_"+str(particle)] = np.linalg.norm(target_base_vel)
         info["particle_vel"] = np.linalg.norm(avg_vel/len(self._particles))
+#         print ("reward: ", reward)
         return ob, reward, done, info
 
     def put_on_ground(self, agent):
@@ -447,7 +452,8 @@ class TagEnv(Environment):
         pybullet.resetBasePositionAndOrientation(agent, agent_pos, agent_ori)
         
     def finish(self):
-        pass
+        print ("Disconnecting sim")
+        pybullet.disconnect()
         
     def calcReward(self):
         return self.__reward
