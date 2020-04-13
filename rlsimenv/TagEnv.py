@@ -495,10 +495,10 @@ class TagEnv(Environment):
         return self.render(mode="rgb_array")
 
     def render(self, mode='rgb_array', **kwargs):
-        if mode == 'rgb_array':
-            img = self.getViewData()
-            return img
-        elif mode == 'human':
+#         if mode == 'rgb_array':
+        img = self.getViewData()
+        return img
+        if mode == 'human':
             pass
         else:
             raise ValueError("Unhandled rendering mode")
