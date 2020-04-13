@@ -164,6 +164,25 @@ gym_register(
 )
 
 gym_register(
+    id='TagEnvPartiallyObserved-1particle-flatobs-dualstate-16x16-v0',
+    entry_point='rlsimenv.TagEnv:TagEnv',
+    reward_threshold=0.95,
+    max_episode_steps=500,
+    kwargs={'gui': False,
+            "observation_height": 6.5,
+            "observation_shape": (16, 16, 3),
+            "observation_stack": 1,
+            "flat_obs": True,
+            "grayscale": False,
+            "fixed_view": False,
+            "n_particles": 1,
+            "agent_scaling": 1.0,
+            "dt": 1/50.0,
+            "include_true_state": True
+            }
+)
+
+gym_register(
     id='TagEnvFullyObserved-1particle-flatobs-dualstate-16x16-render-v0',
     entry_point='rlsimenv.TagEnv:TagEnv',
     reward_threshold=0.95,
