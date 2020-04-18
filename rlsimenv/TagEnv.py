@@ -442,7 +442,17 @@ class TagEnv(Environment):
             target_base_vel = pybullet.getBaseVelocity(particle)[0]
             avg_vel = avg_vel + target_base_vel
             info["particle_vel_"+str(particle)] = np.linalg.norm(target_base_vel)
+            pos = np.array(pybullet.getBasePositionAndOrientation(self._demon)[0])
+            pos_p = np.array(pybullet.getBasePositionAndOrientation(particle)[0])
+            diff = np.fabs(pos - pos_p)
+            view_dist = 2.55 ### Experimentally/Empirically figured out... Which is not great.
+            ### If the particle is in the view bounding box
+            if ( (diff[0] < (view_dist)) and (diff[1] < view_dist) and (diff[2] < view_dist)):
+                info["particle_in_view_"+str(particle)] = 1
+            else:
+                info["particle_in_view_"+str(particle)] = 0
         info["particle_vel"] = np.linalg.norm(avg_vel/len(self._particles))
+        
 #         print ("reward: ", reward)
         return ob, reward, done, info
 

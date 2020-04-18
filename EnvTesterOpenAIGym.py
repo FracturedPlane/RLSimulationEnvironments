@@ -5,7 +5,9 @@ import rlsimenv
 
 if __name__ == '__main__':
     
-    env = gym.make("ContinuousMaxwellsDemonFullyObserved-v0")
+#     env = gym.make("ContinuousMaxwellsDemonFullyObserved-v0")
+    env = gym.make("TagEnvPartiallyObserved-1particle-flatobs-dualstate-16x16-v0")
+
 
     env.seed(1234)
     
@@ -24,6 +26,7 @@ if __name__ == '__main__':
             actions = env.action_space.sample()
             observation, reward,  done, info = env.step(actions)
             print ("Reward: ", reward, "Action: ", actions)
+            print (info)
             print ("observation size: ", np.array(observation).shape)
             print ("Done: ", done)
             
@@ -35,9 +38,9 @@ if __name__ == '__main__':
                 import matplotlib
                 # matplotlib.use('Agg')
                 import matplotlib.pyplot as plt
-                img_ = viewData
-                img_ = np.reshape(img_, (64,64,3))
-                print("img_ shape", img_.shape, " sum: ", np.sum(viewData))
+                img_ = viewData[1]
+                img_ = np.reshape(img_, (16,16,3))
+                print("img_ shape", img_.shape, " sum: ", np.sum(img_))
                 fig1 = plt.figure(1)
                 plt.imshow(img_, origin='lower')
                 plt.title("agent visual Data: ")
