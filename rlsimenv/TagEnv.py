@@ -197,7 +197,7 @@ class TagEnv(Environment):
         else:
             self.observation_space = gym.spaces.Box(low=0, high=1, shape=self._observation_shape)
             
-        self._vel_bounds = [[-5, -5, -5], [5,5,5]]
+        self._vel_bounds = [[-2.5, -2.5, -2.5], [2.5, 2.5, 2.5]]
 
     def getNumAgents(self):
         return 1
@@ -387,14 +387,14 @@ class TagEnv(Environment):
 #                 sig_action = mathu.genlogistic_function(action[2], b=1, a=-1.0, k=0.0) + 1
                 sig_action = action[2]
 #                 print ("sig_action: ", sig_action)
-                # pybullet.resetBasePositionAndOrientation(particle, pos_d, pybullet.getQuaternionFromEuler([0.,0,0]))
                 ## Only move the box proportional to how strongly the agent grabs it.
                 particle_state["drag"] = sig_action
                 if (sig_action < 0.2):
-#                     print ("Agent fixed")
                     particle_state["fixed"] = True
                 pybullet.resetBaseVelocity(particle, linearVelocity=vel_d*particle_state["drag"])
-                    
+            else:
+                particle_state["drag"] = 1.0
+                particle_state["fixed"] = False
             
         # apply delta position change.
         action = np.array([action[0], action[1], 0])
@@ -410,7 +410,6 @@ class TagEnv(Environment):
         pos = pos + (vel*self._dt)
         pos[2] = 0.5
 
-        # Need to do this so the intersections are computed
         for _ in range(self.sim_steps):
             for particle, particle_state in zip(self._particles, self._particle_states):
                 pos, ori = [np.array(_) for _ in pybullet.getBasePositionAndOrientation(particle)]
