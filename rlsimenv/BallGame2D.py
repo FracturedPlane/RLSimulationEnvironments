@@ -16,20 +16,8 @@ import ode
 import copy
 import math
 
-# from ..model.ModelUtil import clampAction
-def clampAction(actionV, bounds):
-    """
-    bounds[0] is lower bounds
-    bounds[1] is upper bounds
-    """
-    for i in range(len(actionV)):
-        if actionV[i] < bounds[0][i]:
-            actionV[i] = bounds[0][i]
-        elif actionV[i] > bounds[1][i]:
-            actionV[i] = bounds[1][i]
-    return actionV 
-
 from .BallGame1D import *
+from rlsimenv import clamp as clampAction
 
 class BallGame2D(BallGame1D):
     def __init__(self, settings):

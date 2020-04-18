@@ -1,5 +1,20 @@
 
 
+### Utility functions
+
+# from ..model.ModelUtil import clampAction
+def clamp(actionV, bounds):
+    """
+    bounds[0] is lower bounds
+    bounds[1] is upper bounds
+    """
+    for i in range(len(actionV)):
+        if actionV[i] < bounds[0][i]:
+            actionV[i] = bounds[0][i]
+        elif actionV[i] > bounds[1][i]:
+            actionV[i] = bounds[1][i]
+    return actionV 
+
 from rlsimenv.config import SIMULATION_ENVIRONMENTS
 
 

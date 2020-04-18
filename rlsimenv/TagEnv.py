@@ -10,6 +10,7 @@ import pybullet_data
 from rlsimenv.Environment import Environment
 import rlsimenv.class_util as classu
 import rlsimenv.math_util as mathu
+from rlsimenv import clamp 
 
 THIS_DIR = os.path.dirname(__file__)
 DATA_DIR = os.path.join(THIS_DIR, "data")
@@ -195,6 +196,8 @@ class TagEnv(Environment):
             self.observation_space = gym.spaces.Box(low=lo, high=hi)
         else:
             self.observation_space = gym.spaces.Box(low=0, high=1, shape=self._observation_shape)
+            
+        self._vel_bounds = [[-5, -5, -5], [5,5,5]]
 
     def getNumAgents(self):
         return 1
@@ -419,10 +422,12 @@ class TagEnv(Environment):
             pybullet.stepSimulation()
 
         for particle, particle_state in zip(self._particles, self._particle_states):
-            target_base_vel = pybullet.getBaseVelocity(particle)[0]
-            updated_vel = target_base_vel + np.random.normal(loc=0., size=(3,), scale=1.0)
-            updated_vel[-1] = 0.
-            pybullet.resetBaseVelocity(particle, linearVelocity=updated_vel*particle_state["drag"])
+            if (np.random.rand() > 0.5):
+                target_base_vel = pybullet.getBaseVelocity(particle)[0]
+                updated_vel = target_base_vel + np.random.normal(loc=0., size=(3,), scale=1.0)
+                updated_vel[-1] = 0.
+                updated_vel = clamp(updated_vel, self._vel_bounds)
+                pybullet.resetBaseVelocity(particle, linearVelocity=updated_vel*particle_state["drag"])
         
         reward = self.computeReward(state=None)
         

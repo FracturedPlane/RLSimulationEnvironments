@@ -6,7 +6,7 @@ import rlsimenv
 if __name__ == '__main__':
     
 #     env = gym.make("ContinuousMaxwellsDemonFullyObserved-v0")
-    env = gym.make("TagEnvPartiallyObserved-1particle-flatobs-dualstate-16x16-v0")
+    env = gym.make("TagEnvFullyObserved-1particle-flatobs-dualstate-16x16-render-v0")
 
 
     env.seed(1234)
@@ -33,7 +33,7 @@ if __name__ == '__main__':
             # viewData = env.render("rgb_array")
             viewData = observation
             ## Get and vis terrain data
-            if (True):
+            if (False):
                 ## Don't use Xwindows backend for this
                 import matplotlib
                 # matplotlib.use('Agg')
