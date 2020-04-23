@@ -69,6 +69,8 @@ class TagEnv(Environment):
         else:
             self._physicsClient = pybullet.connect(pybullet.DIRECT)
             
+        pybullet.configureDebugVisualizer(pybullet.COV_ENABLE_SHADOWS, 0, lightPosition=[0, 0, 10])
+            
         RLSIMENV_PATH = os.environ['RLSIMENV_PATH']
         pybullet.setAdditionalSearchPath(pybullet_data.getDataPath())
         pybullet.resetSimulation()
@@ -77,7 +79,6 @@ class TagEnv(Environment):
         pybullet.setPhysicsEngineParameter(fixedTimeStep=self._dt)
         pybullet.setTimeStep(self._dt)
         # _planeId = pybullet.loadURDF("plane.urdf", )
-        pybullet.loadURDF("plane.urdf")
         
         cubeStartPos = [0, 0, 0.5]
         cubeStartOrientation = pybullet.getQuaternionFromEuler([0.,0,0])
@@ -93,7 +94,7 @@ class TagEnv(Environment):
             
         self._boxes = []
         for _ in range(0):
-            self._boxes.append(pybullet.loadURDF(DATA_DIR + "/cube2.urdf", cubeStartPos, cubeStartOrientation, useFixedBase=0))
+            self._boxes.append(pybullet.loadURDF(DATA_DIR + "/cube3.urdf", cubeStartPos, cubeStartOrientation, useFixedBase=0))
             pybullet.setCollisionFilterPair(self._demon, self._boxes[-1], -1, -1, enableCollision=0)
             pybullet.changeVisualShape(self._boxes[-1], -1, rgbaColor=[0.2, 0.2, 0.8, 1.0])
             
@@ -140,7 +141,7 @@ class TagEnv(Environment):
             # print ("cube_locations: ", cube_locations)
             
             for loc in cube_locations:
-                blockId = pybullet.loadURDF(DATA_DIR + "/cube2.urdf", loc, cubeStartOrientation, useFixedBase=1) 
+                blockId = pybullet.loadURDF(DATA_DIR + "/cube3.urdf", loc, cubeStartOrientation, useFixedBase=1) 
                 self._blocks.append(blockId)
             
 
@@ -163,6 +164,8 @@ class TagEnv(Environment):
                                     angularDamping=0.0,
                                     restitution=1.0,
                                     maxJointVelocity=10)
+            
+        pybullet.loadURDF(DATA_DIR + "/white_plane.urdf", [0, 0, -0.05], useFixedBase=1)
         
         # disable the default velocity motors 
         #and set some position control with small force to emulate joint friction/return to a rest pose
@@ -226,7 +229,8 @@ class TagEnv(Environment):
         (w,y,img,depth,segment) = pybullet.getCameraImage(width=self._render_shape[0],
                                                           height=self._render_shape[1], 
                                                           viewMatrix=view_matrix,
-                                                          projectionMatrix=projection_matrix)
+                                                          projectionMatrix=projection_matrix,
+                                                          lightDirection = cameraUpVector)
         # print (img)
         return img[..., :3]
     

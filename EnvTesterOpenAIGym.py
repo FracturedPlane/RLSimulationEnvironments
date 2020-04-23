@@ -33,7 +33,7 @@ if __name__ == '__main__':
             # viewData = env.render("rgb_array")
             viewData = observation
             ## Get and vis terrain data
-            if (False):
+            if (True):
                 ## Don't use Xwindows backend for this
                 import matplotlib
                 # matplotlib.use('Agg')
