@@ -219,10 +219,11 @@ class TagEnv(Environment):
         # camera_vector = rot_matrix.dot(init_camera_vector)
         # up_vector = rot_matrix.dot(init_up_vector)
         # view_matrix = p.computeViewMatrix(com_p, com_p + 0.1 * camera_vector, up_vector)
+        cameraUpVector = [0, 1, 0]
         view_matrix = pybullet.computeViewMatrix(
             cameraEyePosition=[0.0, 0, self._render_height],
             cameraTargetPosition=[0, 0, 0],
-            cameraUpVector=[0, 1, 0])
+            cameraUpVector=cameraUpVector)
         projection_matrix = pybullet.computeProjectionMatrixFOV(
             self._obs_fov, self._obs_aspect, self._obs_nearplane, self._obs_farplane)
         # img = p.getCameraImage(1000, 1000, view_matrix)
@@ -230,7 +231,7 @@ class TagEnv(Environment):
                                                           height=self._render_shape[1], 
                                                           viewMatrix=view_matrix,
                                                           projectionMatrix=projection_matrix,
-                                                          lightDirection = cameraUpVector)
+                                                          lightDirection = -cameraUpVector)
         # print (img)
         return img[..., :3]
     
